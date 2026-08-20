@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bibs4mx1mu5u"]
+
+[ext_resource type="Shader" uid="uid://bghakck8n1lm2" path="res://scenes/shaders/repetition.tres" id="1_asm0r"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_g4v7s"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_g4v7s"]
+size = Vector2(20, 20)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_x004b"]
+render_priority = 0
+shader = ExtResource("1_asm0r")
+
+[node name="WorldMap" type="Node3D" unique_id=1687147662]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1832171889]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1043723333]
+shape = SubResource("WorldBoundaryShape3D_g4v7s")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D/CollisionShape3D" unique_id=178028376]
+mesh = SubResource("PlaneMesh_g4v7s")
+surface_material_override/0 = SubResource("ShaderMaterial_x004b")
