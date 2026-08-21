@@ -3,9 +3,18 @@
 [ext_resource type="PackedScene" uid="uid://bibs4mx1mu5u" path="res://scenes/map/world_map.tscn" id="1_pw63i"]
 [ext_resource type="PackedScene" uid="uid://cmaej13hiussk" path="res://scenes/characters/support.tscn" id="2_7ykc4"]
 
+[sub_resource type="Environment" id="Environment_g4v7s"]
+
 [node name="MainScene" type="Node3D" unique_id=942703976]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1496636831]
+transform = Transform3D(-0.9003188, -0.35608414, 0.25026014, 0, 0.5750053, 0.8181497, -0.43523103, 0.7365956, -0.5176881, 8.380254, 12.543745, 0)
+shadow_enabled = true
 
 [node name="WorldMap" parent="." unique_id=1687147662 instance=ExtResource("1_pw63i")]
 
 [node name="Support" parent="." unique_id=566357814 instance=ExtResource("2_7ykc4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0714247, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=453150304]
+environment = SubResource("Environment_g4v7s")
