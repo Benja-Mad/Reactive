@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b106u7qjagomh"]
 
 [ext_resource type="PackedScene" uid="uid://cmaej13hiussk" path="res://scenes/characters/character.tscn" id="1_8fleb"]
+[ext_resource type="Script" uid="uid://nnuxpxx8pg3a" path="res://scenes/characters/support.gd" id="1_365rs"]
 [ext_resource type="Texture2D" uid="uid://b7ieil0tluar7" path="res://materials/Support/Idle.png" id="1_cvogi"]
 [ext_resource type="Texture2D" uid="uid://dlm521j66ukv5" path="res://materials/Support/Light_ball.png" id="1_u31f1"]
 [ext_resource type="Texture2D" uid="uid://du865f1j0wsua" path="res://materials/Support/Walk.png" id="2_u31f1"]
@@ -175,6 +176,7 @@ animations = [{
 }]
 
 [node name="Support" unique_id=566357814 instance=ExtResource("1_8fleb")]
+script = ExtResource("1_365rs")
 
 [node name="CollisionShape3D" parent="." index="0" unique_id=1813903693]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19091797, 0)
@@ -185,4 +187,4 @@ transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0.07724351, 0.6, 0)
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_d2sfv")
 animation = &"Heal"
-frame_progress = 0.8266502
+frame_progress = 0.5191337
