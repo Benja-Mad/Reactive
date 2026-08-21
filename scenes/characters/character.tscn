@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cmaej13hiussk"]
+
+[ext_resource type="Script" uid="uid://lwene2dbscn7" path="res://scenes/characters/character.gd" id="1_365rs"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_x31xa"]
+animations = [{
+"frames": [],
+"loop": 1,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"Walk",
+"speed": 5.0
+}]
+
+[node name="Character" type="CharacterBody3D" unique_id=566357814]
+script = ExtResource("1_365rs")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1813903693]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.095703125, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=692542034]
+transform = Transform3D(1, 0, 0, 0, 0.89341867, 0.44922498, 0, -0.44922498, 0.89341867, 0, 1.624846, 2.8568907)
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=1931524196]
+sprite_frames = SubResource("SpriteFrames_x31xa")
+animation = &"Walk"
