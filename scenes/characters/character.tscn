@@ -27,3 +27,7 @@ transform = Transform3D(1, 0, 0, 0, 0.89341867, 0.44922498, 0, -0.44922498, 0.89
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=1931524196]
 sprite_frames = SubResource("SpriteFrames_x31xa")
 animation = &"Walk"
+
+[node name="Label3D" type="Label3D" parent="." unique_id=1961000855]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2650752, 0)
+billboard = 1
