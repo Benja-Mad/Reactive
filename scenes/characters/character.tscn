@@ -35,3 +35,5 @@ billboard = 1
 text = "dwa"
 
 [node name="InputSynchronizer" parent="." unique_id=557408564 instance=ExtResource("2_1bdar")]
+
+[node name="SyncTimer" type="Timer" parent="." unique_id=1350709563]
