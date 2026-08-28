@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://lwene2dbscn7" path="res://scenes/characters/character.gd" id="1_365rs"]
 [ext_resource type="PackedScene" uid="uid://bn0dbc3hf7hrm" path="res://scenes/characters/input_synchronizer.tscn" id="2_1bdar"]
+[ext_resource type="PackedScene" uid="uid://bsn3nuwmv32f3" path="res://scenes/characters/programming_block.tscn" id="3_e22cc"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_x31xa"]
 animations = [{
@@ -37,3 +38,5 @@ text = "dwa"
 [node name="InputSynchronizer" parent="." unique_id=557408564 instance=ExtResource("2_1bdar")]
 
 [node name="SyncTimer" type="Timer" parent="." unique_id=1350709563]
+
+[node name="ProgrammingBlock" parent="." unique_id=1644286038 instance=ExtResource("3_e22cc")]

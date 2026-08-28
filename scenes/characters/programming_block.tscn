@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bsn3nuwmv32f3"]
+
+[ext_resource type="Script" uid="uid://bov1x2s45p5h" path="res://scenes/characters/programming_block.gd" id="1_h1672"]
+
+[node name="ProgrammingBlock" type="CanvasLayer" unique_id=1644286038]
+script = ExtResource("1_h1672")
+
+[node name="TextEdit" type="TextEdit" parent="." unique_id=1427410745]
+offset_left = 815.0
+offset_top = 46.0
+offset_right = 1085.0
+offset_bottom = 86.0
+
+[node name="Label" type="Label" parent="." unique_id=957564995]
+offset_left = 817.0
+offset_top = 11.0
+offset_right = 936.0
+offset_bottom = 34.0
+text = "Programa aqui:"
+
+[node name="Timer" type="Timer" parent="." unique_id=801938854]
+wait_time = 10.0
+autostart = true
