@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://cmaej13hiussk" path="res://scenes/characters/character.tscn" id="1_xrkb2"]
 [ext_resource type="Texture2D" uid="uid://c7m18icroiud" path="res://materials/Damage/Idle.png" id="2_ds185"]
 [ext_resource type="Script" uid="uid://cdcynus866ci4" path="res://scenes/characters/damage.gd" id="2_wcrhr"]
+[ext_resource type="PackedScene" uid="uid://b613cvy2u41tx" path="res://scenes/fire_attack.tscn" id="3_1n4p2"]
 [ext_resource type="Texture2D" uid="uid://dkxtqymhe5k3r" path="res://materials/Damage/Walk.png" id="3_wcrhr"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pw63i"]
@@ -113,6 +114,7 @@ animations = [{
 
 [node name="Damage" unique_id=566357814 instance=ExtResource("1_xrkb2")]
 script = ExtResource("2_wcrhr")
+fire_attack_scene = ExtResource("3_1n4p2")
 
 [node name="CollisionShape3D" parent="." index="0" unique_id=1813903693]
 shape = SubResource("CapsuleShape3D_pw63i")
@@ -122,3 +124,6 @@ transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0.12693328, 0.6, 0)
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_q3ehr")
 frame_progress = 0.64265615
+
+[node name="Marker3D" type="Marker3D" parent="." index="6" unique_id=2093706480]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.02702, 0.10806763, 0)
