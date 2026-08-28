@@ -7,3 +7,9 @@ materialsnotused/
 builds/
 
 .DS_Store
+
+addons/
+demo/
+godot-ai-LICENSE.txt
+
+.idea/
