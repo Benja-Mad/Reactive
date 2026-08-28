@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cmaej13hiussk"]
 
 [ext_resource type="Script" uid="uid://lwene2dbscn7" path="res://scenes/characters/character.gd" id="1_365rs"]
+[ext_resource type="PackedScene" uid="uid://bn0dbc3hf7hrm" path="res://scenes/characters/input_synchronizer.tscn" id="2_1bdar"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_x31xa"]
 animations = [{
@@ -22,12 +23,15 @@ script = ExtResource("1_365rs")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.095703125, 0)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=692542034]
-transform = Transform3D(1, 0, 0, 0, 0.89341867, 0.44922498, 0, -0.44922498, 0.89341867, 0, 1.624846, 2.8568907)
+transform = Transform3D(1, 0, 0, 0, 0.89341867, 0.44922498, 0, -0.44922498, 0.89341867, 0, 2.3881688, 2.8568907)
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=1931524196]
 sprite_frames = SubResource("SpriteFrames_x31xa")
 animation = &"Walk"
 
 [node name="Label3D" type="Label3D" parent="." unique_id=1961000855]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2650752, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8375354, 0)
 billboard = 1
+text = "dwa"
+
+[node name="InputSynchronizer" parent="." unique_id=557408564 instance=ExtResource("2_1bdar")]
