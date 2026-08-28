@@ -6,11 +6,15 @@ const SPEED: float = 3.5
 const JUMP_VELOCITY: float = 3.0
 @onready var animated_sprite_3d: AnimatedSprite3D = $AnimatedSprite3D
 @onready var label_3d: Label3D = $Label3D
+@onready var camera_3d: Camera3D = $Camera3D
+@onready var input_synchronizer: InputSynchronizer = $InputSynchronizer
+
 
 func setup(player_data: Statics.PlayerData) -> void:
 	label_3d.text = player_data.name
 	set_multiplayer_authority(player_data.id)
-	name = str(player_data.id)
+	camera_3d.current = is_multiplayer_authority()
+
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
@@ -18,12 +22,13 @@ func _physics_process(delta: float) -> void:
 		velocity += get_gravity() * delta
 
 	# Handle jump.
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+	if input_synchronizer.jump and is_on_floor():
 		velocity.y = JUMP_VELOCITY
+		input_synchronizer.jump = false
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	var input_dir: Vector2 = input_synchronizer.move_input
 	var direction: Vector3 = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if direction:
 		animated_sprite_3d.play("Walk")
