@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://rp0l2kn2j6hg" path="res://scenes/main_scene.gd" id="1_7ykc4"]
 [ext_resource type="PackedScene" uid="uid://bibs4mx1mu5u" path="res://scenes/map/world_map.tscn" id="1_pw63i"]
-[ext_resource type="PackedScene" uid="uid://b106u7qjagomh" path="res://scenes/characters/support.tscn" id="2_7ykc4"]
-[ext_resource type="PackedScene" uid="uid://dglx0fdj5frd8" path="res://scenes/characters/damage.tscn" id="3_pu3yx"]
+[ext_resource type="PackedScene" uid="uid://b106u7qjagomh" path="res://scenes/characters/support/support.tscn" id="2_7ykc4"]
+[ext_resource type="PackedScene" uid="uid://dglx0fdj5frd8" path="res://scenes/characters/damage/damage.tscn" id="3_pu3yx"]
 
 [sub_resource type="Environment" id="Environment_g4v7s"]
 
@@ -32,3 +32,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6554096, 0, 0)
 [node name="Marker3D3" type="Marker3D" parent="SpawnPoints" unique_id=1447474550]
 
 [node name="Players" type="Node3D" parent="." unique_id=757440430]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="." unique_id=161068577]
+spawn_path = NodePath("../Players")
