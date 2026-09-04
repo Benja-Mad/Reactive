@@ -38,5 +38,6 @@ text = "dwa"
 [node name="InputSynchronizer" parent="." unique_id=557408564 instance=ExtResource("2_1bdar")]
 
 [node name="SyncTimer" type="Timer" parent="." unique_id=1350709563]
+wait_time = 0.1
 
 [node name="ProgrammingBlock" parent="." unique_id=1644286038 instance=ExtResource("3_e22cc")]

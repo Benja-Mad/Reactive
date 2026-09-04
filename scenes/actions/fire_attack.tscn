@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b613cvy2u41tx"]
 
-[ext_resource type="Script" uid="uid://f1mfd0svxvcw" path="res://scripts/fire_attack.gd" id="1_8fnuo"]
+[ext_resource type="Script" uid="uid://f1mfd0svxvcw" path="res://scenes/actions/fire_attack.gd" id="1_mjoj0"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pcsv5"]
 
@@ -10,11 +10,21 @@ albedo_color = Color(0.9606051, 0.29856056, 1.92523e-07, 1)
 [sub_resource type="SphereMesh" id="SphereMesh_pcsv5"]
 material = SubResource("StandardMaterial3D_vkasl")
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8fnuo"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
 [node name="FireAttack" type="Area3D" unique_id=966753201]
-script = ExtResource("1_8fnuo")
+script = ExtResource("1_mjoj0")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=388790331]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 shape = SubResource("SphereShape3D_pcsv5")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2054786447]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 mesh = SubResource("SphereMesh_pcsv5")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1211329846]
+replication_config = SubResource("SceneReplicationConfig_8fnuo")

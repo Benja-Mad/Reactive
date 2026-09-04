@@ -1,63 +1,63 @@
 [gd_scene format=3 uid="uid://dglx0fdj5frd8"]
 
-[ext_resource type="PackedScene" uid="uid://cmaej13hiussk" path="res://scenes/characters/character.tscn" id="1_xrkb2"]
-[ext_resource type="Texture2D" uid="uid://c7m18icroiud" path="res://materials/Damage/Idle.png" id="2_ds185"]
-[ext_resource type="Script" uid="uid://cdcynus866ci4" path="res://scenes/characters/damage.gd" id="2_wcrhr"]
-[ext_resource type="PackedScene" uid="uid://b613cvy2u41tx" path="res://scenes/fire_attack.tscn" id="3_1n4p2"]
-[ext_resource type="Texture2D" uid="uid://dkxtqymhe5k3r" path="res://materials/Damage/Walk.png" id="3_wcrhr"]
+[ext_resource type="PackedScene" uid="uid://cmaej13hiussk" path="res://scenes/characters/character.tscn" id="1_o1do0"]
+[ext_resource type="Script" uid="uid://cdcynus866ci4" path="res://scenes/characters/damage/damage.gd" id="2_nivuo"]
+[ext_resource type="PackedScene" uid="uid://b613cvy2u41tx" path="res://scenes/actions/fire_attack.tscn" id="3_pipaw"]
+[ext_resource type="Texture2D" uid="uid://c7m18icroiud" path="res://materials/Damage/Idle.png" id="4_btue1"]
+[ext_resource type="Texture2D" uid="uid://dkxtqymhe5k3r" path="res://materials/Damage/Walk.png" id="5_huawp"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pw63i"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1n4p2"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(0, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aeavu"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(128, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0bccn"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(256, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_otq5o"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(384, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o53wd"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(512, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0beb0"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(640, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_khjvd"]
-atlas = ExtResource("2_ds185")
+atlas = ExtResource("4_btue1")
 region = Rect2(768, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vfioe"]
-atlas = ExtResource("3_wcrhr")
+atlas = ExtResource("5_huawp")
 region = Rect2(0, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_u45j6"]
-atlas = ExtResource("3_wcrhr")
+atlas = ExtResource("5_huawp")
 region = Rect2(128, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1m6r5"]
-atlas = ExtResource("3_wcrhr")
+atlas = ExtResource("5_huawp")
 region = Rect2(256, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qowm8"]
-atlas = ExtResource("3_wcrhr")
+atlas = ExtResource("5_huawp")
 region = Rect2(384, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p5hem"]
-atlas = ExtResource("3_wcrhr")
+atlas = ExtResource("5_huawp")
 region = Rect2(512, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sp4m8"]
-atlas = ExtResource("3_wcrhr")
+atlas = ExtResource("5_huawp")
 region = Rect2(640, 0, 128, 128)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_q3ehr"]
@@ -112,9 +112,9 @@ animations = [{
 "speed": 7.0
 }]
 
-[node name="Damage" unique_id=566357814 instance=ExtResource("1_xrkb2")]
-script = ExtResource("2_wcrhr")
-fire_attack_scene = ExtResource("3_1n4p2")
+[node name="Damage" unique_id=566357814 instance=ExtResource("1_o1do0")]
+script = ExtResource("2_nivuo")
+fire_attack_scene = ExtResource("3_pipaw")
 
 [node name="CollisionShape3D" parent="." index="0" unique_id=1813903693]
 shape = SubResource("CapsuleShape3D_pw63i")
@@ -126,4 +126,7 @@ sprite_frames = SubResource("SpriteFrames_q3ehr")
 frame_progress = 0.64265615
 
 [node name="Marker3D" type="Marker3D" parent="." index="6" unique_id=2093706480]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.02702, 0.10806763, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.41678417, 0.10806763, 0)
+
+[node name="FireAttackSpawner" type="MultiplayerSpawner" parent="." index="8" unique_id=404316257]
+spawn_path = NodePath(".")
