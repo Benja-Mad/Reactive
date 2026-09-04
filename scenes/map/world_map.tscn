@@ -1,17 +1,26 @@
-[gd_scene format=3 uid="uid://bibs4mx1mu5u"]
+[gd_scene load_steps=7 format=3 uid="uid://bibs4mx1mu5u"]
 
-[ext_resource type="Shader" uid="uid://bghakck8n1lm2" path="res://scenes/shaders/repetition.tres" id="1_asm0r"]
+[ext_resource type="Shader" path="res://scenes/shaders/hd2d_ground.gdshader" id="1_ground"]
+[ext_resource type="Texture2D" path="res://demo/assets/textures/ground037_alb_ht.png" id="2_ground_tex"]
+[ext_resource type="Texture2D" path="res://demo/assets/textures/ground037_nrm_rgh.png" id="3_normal_tex"]
+[ext_resource type="Script" path="res://scripts/arena_builder.gd" id="4_arena"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_g4v7s"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_g4v7s"]
-size = Vector2(20, 20)
+size = Vector2(42, 35)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_x004b"]
 render_priority = 0
-shader = ExtResource("1_asm0r")
+shader = ExtResource("1_ground")
+shader_parameter/ground_albedo = ExtResource("2_ground_tex")
+shader_parameter/ground_normal_roughness = ExtResource("3_normal_tex")
+shader_parameter/tile_scale = 5.2
+shader_parameter/moss_tint = Vector3(0.38, 0.5, 0.35)
+shader_parameter/earth_tint = Vector3(0.3, 0.21, 0.13)
 
 [node name="WorldMap" type="Node3D" unique_id=1687147662]
+script = ExtResource("4_arena")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1832171889]
 

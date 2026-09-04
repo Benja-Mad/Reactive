@@ -1,11 +1,11 @@
-#class_name Game
+class_name GameGlobal
 extends Node
 
 signal players_updated
 signal player_updated(id: int)
 signal vote_updated(id: int)
 
-static var instance: Game
+static var instance: GameGlobal
 
 @export var multiplayer_test: bool = false
 @export var use_roles: bool = true
@@ -95,7 +95,7 @@ func get_current_player() -> Statics.PlayerData:
 
 @rpc("reliable")
 func update_indices(player_indices: Dictionary) -> void:
-	for player: Statics.PlayerData in Game.instance.players:
+	for player: Statics.PlayerData in players:
 		if player.id in player_indices:
 			player.index = player_indices[player.id]
 			if player.id == multiplayer.get_unique_id():

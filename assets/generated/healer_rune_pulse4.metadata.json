@@ -1,0 +1,46 @@
+{
+	"animation_name": "subtle_motion",
+	"animation_style": "",
+	"animation_type": "subtle_motion",
+	"columns": 4,
+	"directions": [],
+	"frame_count": 4,
+	"frame_height": 128,
+	"frame_paths": [],
+	"frame_regions": [
+		{
+			"h": 128,
+			"w": 128,
+			"x": 0,
+			"y": 0
+		},
+		{
+			"h": 128,
+			"w": 128,
+			"x": 128,
+			"y": 0
+		},
+		{
+			"h": 128,
+			"w": 128,
+			"x": 256,
+			"y": 0
+		},
+		{
+			"h": 128,
+			"w": 128,
+			"x": 384,
+			"y": 0
+		}
+	],
+	"frame_width": 128,
+	"name": "healer_rune_pulse4",
+	"prompt": "runes rotate subtly in alternating directions and brightness breathes softly, ground symbol remains centered and flat",
+	"rows": 1,
+	"source_image": "res://assets/generated/healer_rune_circle_frame_0.png",
+	"source_tool": "animate_sprite",
+	"spritesheet_height": 128,
+	"spritesheet_path": "res://assets/generated/healer_rune_pulse4.png",
+	"spritesheet_width": 512,
+	"type": "animation"
+}

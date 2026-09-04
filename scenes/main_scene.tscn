@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://bibs4mx1mu5u" path="res://scenes/map/world_map.tscn" id="1_pw63i"]
 [ext_resource type="PackedScene" uid="uid://b106u7qjagomh" path="res://scenes/characters/support.tscn" id="2_7ykc4"]
 [ext_resource type="PackedScene" uid="uid://dglx0fdj5frd8" path="res://scenes/characters/damage.tscn" id="3_pu3yx"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/survivor_enemy.tscn" id="4_enemy"]
+[ext_resource type="Script" uid="uid://wyvgwclge7ci" path="res://scripts/wave_director.gd" id="5_wave"]
 
 [sub_resource type="Environment" id="Environment_g4v7s"]
 
@@ -32,3 +34,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6554096, 0, 0)
 [node name="Marker3D3" type="Marker3D" parent="SpawnPoints" unique_id=1447474550]
 
 [node name="Players" type="Node3D" parent="." unique_id=757440430]
+
+[node name="WaveDirector" type="Node3D" parent="." unique_id=1175007554]
+script = ExtResource("5_wave")
+enemy_scene = ExtResource("4_enemy")

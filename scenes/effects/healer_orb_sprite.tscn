@@ -1,0 +1,41 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/generated/healer_orb_pulse.png" id="1_tex"]
+
+[sub_resource type="AtlasTexture" id="A0"]
+atlas = ExtResource("1_tex")
+region = Rect2(0, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A1"]
+atlas = ExtResource("1_tex")
+region = Rect2(64, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A2"]
+atlas = ExtResource("1_tex")
+region = Rect2(128, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A3"]
+atlas = ExtResource("1_tex")
+region = Rect2(192, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A4"]
+atlas = ExtResource("1_tex")
+region = Rect2(256, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A5"]
+atlas = ExtResource("1_tex")
+region = Rect2(320, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A6"]
+atlas = ExtResource("1_tex")
+region = Rect2(384, 0, 64, 64)
+[sub_resource type="AtlasTexture" id="A7"]
+atlas = ExtResource("1_tex")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="Frames"]
+animations = [{"frames":[{"duration":1.0,"texture":SubResource("A0")},{"duration":1.0,"texture":SubResource("A1")},{"duration":1.0,"texture":SubResource("A2")},{"duration":1.0,"texture":SubResource("A3")},{"duration":1.0,"texture":SubResource("A4")},{"duration":1.0,"texture":SubResource("A5")},{"duration":1.0,"texture":SubResource("A6")},{"duration":1.0,"texture":SubResource("A7")}],"loop":true,"name":&"pulse","speed":8.0}]
+
+[node name="HealerOrbSprite" type="AnimatedSprite3D"]
+billboard = 1
+pixel_size = 0.012
+shaded = false
+no_depth_test = true
+render_priority = 5
+sprite_frames = SubResource("Frames")
+animation = &"pulse"
+autoplay = "pulse"

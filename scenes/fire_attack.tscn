@@ -11,6 +11,8 @@ albedo_color = Color(0.9606051, 0.29856056, 1.92523e-07, 1)
 material = SubResource("StandardMaterial3D_vkasl")
 
 [node name="FireAttack" type="Area3D" unique_id=966753201]
+collision_layer = 4
+collision_mask = 2
 script = ExtResource("1_8fnuo")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=388790331]

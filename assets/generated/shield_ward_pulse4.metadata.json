@@ -1,0 +1,46 @@
+{
+	"animation_name": "subtle_motion",
+	"animation_style": "",
+	"animation_type": "subtle_motion",
+	"columns": 4,
+	"directions": [],
+	"frame_count": 4,
+	"frame_height": 96,
+	"frame_paths": [],
+	"frame_regions": [
+		{
+			"h": 96,
+			"w": 96,
+			"x": 0,
+			"y": 0
+		},
+		{
+			"h": 96,
+			"w": 96,
+			"x": 96,
+			"y": 0
+		},
+		{
+			"h": 96,
+			"w": 96,
+			"x": 192,
+			"y": 0
+		},
+		{
+			"h": 96,
+			"w": 96,
+			"x": 288,
+			"y": 0
+		}
+	],
+	"frame_width": 96,
+	"name": "shield_ward_pulse4",
+	"prompt": "three runic segments rotate slowly and cyan energy pulses, emblem remains centered",
+	"rows": 1,
+	"source_image": "res://assets/generated/shield_ward_frame_0.png",
+	"source_tool": "animate_sprite",
+	"spritesheet_height": 96,
+	"spritesheet_path": "res://assets/generated/shield_ward_pulse4.png",
+	"spritesheet_width": 384,
+	"type": "animation"
+}
