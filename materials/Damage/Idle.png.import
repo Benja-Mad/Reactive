@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c7m18icroiud"
 path.s3tc="res://.godot/imported/Idle.png-0947ae4e615c43e8e7c3e273f5189e2f.s3tc.ctex"
+path.etc2="res://.godot/imported/Idle.png-0947ae4e615c43e8e7c3e273f5189e2f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://materials/Damage/Idle.png"
-dest_files=["res://.godot/imported/Idle.png-0947ae4e615c43e8e7c3e273f5189e2f.s3tc.ctex"]
+dest_files=["res://.godot/imported/Idle.png-0947ae4e615c43e8e7c3e273f5189e2f.s3tc.ctex", "res://.godot/imported/Idle.png-0947ae4e615c43e8e7c3e273f5189e2f.etc2.ctex"]
 
 [params]
 
