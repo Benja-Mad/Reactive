@@ -123,6 +123,7 @@ func send_data(data: Dictionary) -> void:
 
 
 func reset() -> void:
+	Game.instance.solo = false
 	multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	Game.instance.players = []

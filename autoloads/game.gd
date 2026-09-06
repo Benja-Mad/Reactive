@@ -8,6 +8,8 @@ signal vote_updated(id: int)
 static var instance: Game
 
 @export var multiplayer_test: bool = false
+# True while playing a local single player session (no peers, no server).
+var solo: bool = false
 @export var use_roles: bool = true
 @export var unique_roles: bool = true # won't start with repeated roles
 @export var all_roles: bool = true # won't start if all roles aren't selected

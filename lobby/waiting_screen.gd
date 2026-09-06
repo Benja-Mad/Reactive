@@ -62,7 +62,7 @@ func _update_player() -> void:
 func _handle_players_updated() -> void:
 	for child: Node in player_list.get_children():
 		child.queue_free()
-	waiting_label.visible = Game.instance.players.size() == 1
+	waiting_label.visible = Game.instance.players.size() == 1 and not Game.instance.solo
 	for player: Statics.PlayerData in Game.instance.players:
 		if player.id != multiplayer.get_unique_id():
 			var lobby_player_inst: LobbyPlayer = LOBBY_PLAYER_SCENE.instantiate()
@@ -74,7 +74,9 @@ func _handle_players_updated() -> void:
 
 
 func _handle_back_pressed() -> void:
-	if multiplayer.is_server():
+	if Game.instance.solo:
+		Lobby.instance.go_to_menu()
+	elif multiplayer.is_server():
 		Lobby.instance.go_to_host()
 	else:
 		Lobby.instance.go_to_join()
@@ -132,7 +134,8 @@ func _start_game() -> void:
 
 
 func _can_start_game() -> bool:
-	var quantity: bool = Game.instance.players.size() >= Game.instance.min_players
+	var required: int = 1 if Game.instance.solo else Game.instance.min_players
+	var quantity: bool = Game.instance.players.size() >= required
 	var completion: bool = not Game.instance.use_roles or not Game.instance.all_roles or _are_all_roles_selected()
 	var uniqueness: bool = not Game.instance.use_roles or not Game.instance.unique_roles or _are_all_roles_unique()
 	var fullness: bool = not Game.instance.use_roles or _all_players_selected_role()
