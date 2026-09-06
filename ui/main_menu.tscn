@@ -33,6 +33,11 @@ custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 
+[node name="Solo" type="Button" parent="MarginContainer/VBoxContainer2" unique_id=923655090]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Play Solo"
+
 [node name="Host" type="Button" parent="MarginContainer/VBoxContainer2" unique_id=923655091]
 unique_name_in_owner = true
 layout_mode = 2
@@ -89,4 +94,4 @@ grow_vertical = 2
 [node name="Label" type="Label" parent="MarginContainer3" unique_id=1435848050]
 layout_mode = 2
 theme_type_variation = &"Title"
-text = "Multiplayer Example"
+text = "Reactive"
