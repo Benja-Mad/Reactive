@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.steam.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M5 (Apple9)
+
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ARENA INTEGRATION PASS {"camera_translated_m":6.29,"checks":{"arena_camera_is_current":true,"arena_replaced_world_map":true,"basis_preserved":true,"basis_still_preserved":true,"camera_followed":true,"camera_within_travel_limit":true,"character_camera_yielded_1":true,"character_camera_yielded_2":true,"collision_built":true,"debug_overlay_hidden":true,"fov_is_30":true,"fov_still_30":true,"lookdev_tools_off":true,"moved_along_camera_right":true,"movement_frame_is_camera_relative":true,"movement_frame_not_world_aligned":true,"no_stray_scene_lights":true,"player_moved":true,"player_rests_on_arena_floor":true,"players_spawned":true,"rig_follows_local_player":true,"stand_in_hidden":true},"checks_run":22,"code_block_had_focus":false,"failures":[],"feet_height_m":0.06,"framing":{"basis_preserved":true,"distance_m":85.8,"follow_limit_m":"(9.0, 3.0)","fov":30.0,"lookdev_tools":false,"pitch_deg":30.0,"target":"(0.0, 6.15, -2.0)","yaw_deg":35.0},"player_count":2,"rest_height_m":1.06,"rig_enabled":true,"rig_has_target":true,"rig_offset":{"basis_preserved":true,"enabled":true,"fov":30.0,"limit_m":"(9.0, 3.0)","offset_right_m":6.287,"offset_up_m":-0.68},"travel_m":7.0}
+ERROR: 1 shaders of type ParticlesShaderRD were never freed
+   at: ~ShaderRD (servers/rendering/renderer_rd/shader_rd.cpp:1236)
+ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.

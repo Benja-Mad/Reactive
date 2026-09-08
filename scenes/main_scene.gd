@@ -42,6 +42,7 @@ func _on_player_spawned(node: Node) -> void:
 	if not character.is_node_ready():
 		await character.ready
 	character.camera_3d.current = false
+	arena.configure_player_presentation(character)
 	if character.is_multiplayer_authority():
 		arena.follow(character)
 

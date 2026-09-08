@@ -147,3 +147,9 @@ func get_framing_report() -> Dictionary:
 		"follow_limit_m": str(follow_limit),
 		"lookdev_tools": lookdev_tools,
 	}
+
+
+## Optional level-specific visual fitting, after the real character is ready.
+## Physics and camera ownership stay with the existing integration.
+func configure_player_presentation(_character: Character) -> void:
+	pass
