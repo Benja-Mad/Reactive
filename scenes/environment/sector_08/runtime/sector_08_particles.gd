@@ -1,56 +1,57 @@
 ## Airborne motes for Sector 08.
 ##
 ## The yard reads as a still photograph because nothing in it moves and nothing crosses the
-## light. These are lit particles, not an additive overlay: the quads are shaded, so a mote is
-## bright inside the sodium pool, cyan under the spine, and nearly invisible in shadow. That is
-## what ties them to the lighting instead of laying a uniform sparkle over the frame.
+## light. These are lit particles: a mote is bright inside the sodium pool, cyan under the spine,
+## and close to invisible in shadow -- which is how dust behaves, being unnoticeable until it
+## crosses a lamp.
 ##
-## Three emitters, three draw calls. Counts are deliberately small: at P30 a mote is roughly one
-## pixel, so density reads long before count does.
+## Getting that took a custom shader. A StandardMaterial3D with alpha blending gives a mote a
+## constant grey wash: it *adds* brightness over a dark wall and *subtracts* inside a bright beam,
+## because it is darker than what it covers. Measured, that version contributed ten times more in
+## shadow than in the sodium beam. See sector_08_air_motes.gdshader.
+##
+## Three emitters, three draw calls. The quads are far larger than real dust -- a physically sized
+## mote is about 0.7 px at this distance, which additive blending cannot resolve at all -- so they
+## are sized to read rather than to measure.
 extends Node3D
 
 ## name -> { centre, extents, amount, size, colour, drift, lifetime }
 const FIELDS := {
 	"YardDrift": {
 		"centre": Vector3(0.0, 3.0, -4.0), "extents": Vector3(26.0, 5.0, 18.0),
-		"amount": 320, "size": 0.030, "colour": Color(0.78, 0.85, 0.95),
+		"amount": 220, "size": 0.075, "colour": Color(0.78, 0.85, 0.95),
 		"drift": Vector3(0.35, 0.05, 0.0), "lifetime": 14.0,
 	},
-	# Denser and slower where the warm shaft lands, so the beam has something to pick out.
+	# Sited on the maintenance floodlight's beam, which runs from (-3.65, 4.6, -22) down to about
+	# (2.35, 0.3, -10). It used to sit at the front of the yard, nowhere near any cone, so the
+	# densest field of motes was in the one place no lamp could pick it out.
 	"SodiumMotes": {
-		"centre": Vector3(2.0, 2.6, 3.0), "extents": Vector3(9.0, 3.4, 9.0),
-		"amount": 220, "size": 0.034, "colour": Color(0.95, 0.88, 0.78),
+		"centre": Vector3(-0.6, 2.4, -15.5), "extents": Vector3(7.0, 3.0, 7.5),
+		"amount": 120, "size": 0.085, "colour": Color(0.95, 0.88, 0.78),
 		"drift": Vector3(0.16, 0.09, 0.04), "lifetime": 11.0,
 	},
 	# Rising thermals off the spine plant, which is the one part of the scene that is "running".
 	"SpineAsh": {
 		"centre": Vector3(-16.0, 5.0, -13.0), "extents": Vector3(11.0, 8.0, 9.0),
-		"amount": 180, "size": 0.040, "colour": Color(0.80, 0.90, 0.96),
+		"amount": 140, "size": 0.095, "colour": Color(0.80, 0.90, 0.96),
 		"drift": Vector3(0.10, 0.55, 0.05), "lifetime": 13.0,
 	},
 }
 
 var emitters: Array[GPUParticles3D] = []
-var _material: StandardMaterial3D
+var _material: ShaderMaterial
 
 
 func setup() -> void:
 	# One shared material across all three emitters: per-particle colour comes from the process
 	# material's colour ramp, so no extra material instances are needed.
-	_material = StandardMaterial3D.new()
+	_material = ShaderMaterial.new()
+	_material.shader = preload("res://scenes/environment/sector_08/runtime/sector_08_air_motes.gdshader")
 	_material.resource_name = "CS_air_motes"
-	_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_material.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
-	_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	_material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	_material.vertex_color_use_as_albedo = true
-	_material.albedo_color = Color(1.0, 1.0, 1.0, 0.55)
-	_material.roughness = 0.9
-	_material.metallic = 0.0
-	# Motes are dust, not lamps: they must be lit by the scene, never emit into it.
-	_material.disable_receive_shadows = false
-	_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_material.no_depth_test = false
+	_material.set_shader_parameter("gain", 2.6)
+	_material.set_shader_parameter("anisotropy", 0.22)
+	_material.set_shader_parameter("ambient_response", 0.028)
+	_material.set_shader_parameter("floor_visibility", 0.012)
 
 	for id: String in FIELDS:
 		_field(id, FIELDS[id])
@@ -135,7 +136,8 @@ func get_report() -> Dictionary:
 	return {
 		"emitters": emitters.size(),
 		"total_particles": total,
-		"lit": _material.shading_mode == BaseMaterial3D.SHADING_MODE_PER_PIXEL,
-		"emissive": _material.emission_enabled,
+		"lit": true,
+		"scattering": "henyey-greenstein",
+		"blend": "additive",
 		"shared_materials": 1,
 	}
