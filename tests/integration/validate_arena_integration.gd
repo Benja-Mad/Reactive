@@ -112,10 +112,99 @@ func _run() -> void:
 	_check("fov_still_30", is_equal_approx(camera.fov, 30.0))
 	_check("camera_within_travel_limit", camera.global_position.distance_to(approved.origin) <= arena.follow_limit.length() + 0.01)
 
+	# --- the lateral edges ---------------------------------------------------------------------
+	# The reported defect was standing on nothing at the left edge and walking through the fence.
+	# Both are geometry facts, so they are asserted as geometry rather than by driving the player
+	# into a corner and hoping the run reproduces it.
+	var runtime: Node = arena.sector_runtime
+	var perimeter: Node = runtime.perimeter
+	_check("perimeter_built", perimeter != null)
+	if perimeter != null:
+		report["perimeter"] = perimeter.stats
+		_check("walkable_area_paved", float(perimeter.stats["walkable_paved_pct_after"]) > 92.0)
+		# Ground under the ring the player can actually reach, which is where the holes were.
+		# "Reachable" has to mean a body fits there: a ring sample inside a building wall is not
+		# a hole in the floor, and counting those made this read 81.9% when the walkable edge was
+		# in fact covered.
+		var ring: Dictionary = _ring_coverage(perimeter)
+		report["reachable_ring"] = ring
+		# 96%, not 100%: coverage is sampled on a 1 m grid while the yard is tiled at 3.25 m, so a
+		# sample can land in the 3 cm joint between two slabs. Those show up as unpaved and are
+		# reported with their neighbours, which is how a real hole is told from a joint -- a joint
+		# has paving on all four sides of it.
+		_check("reachable_ring_paved", float(ring["paved_pct"]) > 96.0)
+		# The fence has to stand on the wall that stops the player, not inside the yard behind it.
+		var fence: MultiMeshInstance3D = perimeter.get_node_or_null("PerimeterFence")
+		_check("fence_exists", fence != null)
+		if fence != null:
+			var side_panels: int = 0
+			var off_line: int = 0
+			for i in fence.multimesh.instance_count:
+				var origin: Vector3 = fence.multimesh.get_instance_transform(i).origin
+				if absf(absf(origin.x) - perimeter.FENCE_LINE) < 0.05:
+					side_panels += 1
+				elif absf(origin.z - perimeter.FENCE_SOUTH_Z) > 0.05:
+					off_line += 1
+			report["fence_side_panels"] = side_panels
+			report["fence_panels_off_line"] = off_line
+			_check("fence_on_the_bound_line", side_panels >= 24 and off_line == 0)
+	# A wall the player meets before the fence plane, on all three reachable sides.
+	var space: PhysicsDirectSpaceState3D = get_viewport().world_3d.direct_space_state
+	var probe := PhysicsShapeQueryParameters3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.4
+	capsule.height = 1.8
+	probe.shape = capsule
+	var blocked: Dictionary = {}
+	for entry: Array in [["west", Vector3(-26.2, 1.0, 0.0)], ["east", Vector3(26.2, 1.0, 0.0)], ["south", Vector3(0.0, 1.0, 14.2)]]:
+		probe.transform = Transform3D(Basis(), entry[1])
+		blocked[str(entry[0])] = not space.intersect_shape(probe, 1).is_empty()
+	report["bounds_blocked"] = blocked
+	_check("bounds_stop_player_at_fence", blocked["west"] and blocked["east"] and blocked["south"])
+
 	report["framing"] = arena.get_framing_report()
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(_out.get_base_dir().path_join("arena_integration.png"))
 	_finish()
+
+
+## Paving under the ring just inside the bounds, counting only samples where a player capsule
+## actually fits. Returns the unpaved reachable points too, so a failure names locations.
+func _ring_coverage(perimeter: Node) -> Dictionary:
+	var space: PhysicsDirectSpaceState3D = get_viewport().world_3d.direct_space_state
+	var probe := PhysicsShapeQueryParameters3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.4
+	capsule.height = 1.8
+	probe.shape = capsule
+	var points: Array[Vector3] = []
+	for step in range(-25, 26):
+		points.append(Vector3(float(step), 0.05, -25.0))
+		points.append(Vector3(float(step), 0.05, 13.0))
+	for step in range(-25, 14):
+		points.append(Vector3(-25.0, 0.05, float(step)))
+		points.append(Vector3(25.0, 0.05, float(step)))
+	var reachable: int = 0
+	var paved: int = 0
+	var holes: Array = []
+	for point: Vector3 in points:
+		probe.transform = Transform3D(Basis(), point + Vector3.UP)
+		if not space.intersect_shape(probe, 1).is_empty():
+			continue
+		reachable += 1
+		if perimeter.is_paved(point):
+			paved += 1
+		elif holes.size() < 10:
+			var enclosed: int = 0
+			for step: Vector3 in [Vector3.RIGHT, Vector3.LEFT, Vector3.FORWARD, Vector3.BACK]:
+				if perimeter.is_paved(point + step):
+					enclosed += 1
+			holes.append("%s neighbours_paved=%d/4" % [str(Vector2i(int(point.x), int(point.z))), enclosed])
+	return {
+		"samples": points.size(), "reachable": reachable, "paved": paved,
+		"paved_pct": snappedf(100.0 * float(paved) / maxf(float(reachable), 1.0), 0.1),
+		"unpaved_reachable": holes,
+	}
 
 
 func _check(label: String, condition: bool) -> void:

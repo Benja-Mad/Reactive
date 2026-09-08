@@ -610,6 +610,14 @@ func _configure_authored_pbr_lighting() -> void:
 	industrial_amber_center.light_color = Color(1.0, 0.60, 0.26).linear_to_srgb()
 	spine_cyan_light.light_energy = 22.0
 	spine_cyan_light.omni_attenuation = 0.7
+	# This omni stands in for a volumetric landmark, and the ground slabs around it are authored
+	# PBR whose own roughness maps read as wet. At 22 energy the result was a point glint that
+	# clipped and bloomed into a white ball on the pavement, reading as an unidentifiable object
+	# rather than as a reflection. Measured across a sweep: zeroing this one light's specular took
+	# the region peak from 255 to 77, matching every light's specular off, and 0.02 -- a seventh of
+	# the previous value -- still clipped. There is no non-zero setting that does not blow out, so
+	# the lamp contributes its diffuse pool and its fog and no highlight.
+	spine_cyan_light.light_specular = 0.0
 	industrial_amber_west.light_energy = 5.0
 	industrial_amber_center.light_energy = 12.0
 	industrial_amber_center.omni_range = 17.0
@@ -659,6 +667,14 @@ func _configure_authored_pbr_lighting() -> void:
 	# way the fixture actually points, so the pool sits under its own source.
 	yard_light.look_at(yard_light.global_position + Vector3(-0.28, -1.0, -0.34), Vector3.UP)
 
+	# Not repaired here: the `east_shed` mass holds the right edge of the frame at 0.29 of the
+	# luminance of the authored architecture beside it, and reads as a featureless black shape.
+	# Its material is authored PBR, so it is deliberately outside the calibrated shading path and
+	# the `cs_architecture_fill` that keeps the skyline masses off black never reaches it. A dim
+	# omni in the lot behind it was tried and measured: at 45 energy it moved that patch by 0.01,
+	# because the faces in frame point away from anywhere a motivated source could stand. Fixing
+	# it means either extending the calibrated fill to authored-PBR backdrop masses or re-aiming
+	# a directional, both of which change the approved lighting rather than patch one building.
 	_art_light_base_energy = {
 		spine_cyan_light: 22.0,
 		industrial_amber_west: 5.0,
