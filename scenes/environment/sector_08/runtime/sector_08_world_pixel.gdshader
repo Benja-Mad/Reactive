@@ -5,6 +5,11 @@ uniform sampler2D world_depth : hint_depth_texture, repeat_disable, filter_neare
 uniform vec2 pixel_grid = vec2(1280.0,720.0);
 uniform bool pixel_enabled = false;
 uniform bool diorama_enabled = false;
+// Distance the framing is composed from. The blur band is expressed as multiples of it rather
+// than in metres, because it used to be hardcoded around 85.8 m: dolly the camera to 60 m and
+// the whole yard fell inside the *near* ramp, so the gameplay plane went soft and the level
+// looked like it had lost its depth when in fact only the focus had been left behind.
+uniform float focus_distance = 85.8;
 uniform bool subtle_dither = false;
 uniform bool subtle_quantization = false;
 void vertex(){ POSITION=vec4(VERTEX.xy,1.0,1.0); }
@@ -19,11 +24,11 @@ void fragment(){
   vec3 world=(INV_VIEW_MATRIX*vec4(view.xyz/view.w,1.0)).xyz;
   // The perimeter walls are close to P30, so camera distance alone misses them.
   float architecture=smoothstep(2.8,13.0,world.y);
-  float far_amount=max(smoothstep(94.0,115.0,distance),architecture*0.92);
+  float far_amount=max(smoothstep(1.096*focus_distance,1.340*focus_distance,distance),architecture*0.92);
   // The ramp used to be spent by 85 m, which put the cable tray at 74.8 m on full blur and the
   // access panel at 83.6 m on almost none: an 18x jump across 8 m, so the sign read as a razor
   // sharp object floating inside a soft foreground. Widening it makes the band continuous.
-  float near_amount=1.0-smoothstep(71.0,93.0,distance);
+  float near_amount=1.0-smoothstep(0.828*focus_distance,1.084*focus_distance,distance);
   float blur=max(far_amount,near_amount)*3.25;
   color=textureLod(world_color,uv,blur).rgb;
   color=mix(color,vec3(0.028,0.047,0.058),far_amount*0.16);

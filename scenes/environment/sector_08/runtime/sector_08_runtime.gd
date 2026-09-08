@@ -32,6 +32,9 @@ const PATTERN_TEXTURE_PATH: String = "res://scenes/environment/sector_08/slice_a
 ## Framing the ground composition is judged from. The owner sets this during its own _ready();
 ## the redistribution itself is deferred to the first frame so the owner's camera setup has run.
 var composition_camera: Camera3D
+## Distance the owner's framing is composed from. The foreground board and the depth-of-field
+## band are both fractions of it rather than absolute metres.
+var composition_framing_distance: float = 85.8
 var ground_dressing: Node
 var collision: StaticBody3D
 var particles: Node3D
@@ -104,7 +107,7 @@ func _apply_framing_dependent_pass() -> void:
 		billboard = preload("res://scenes/environment/sector_08/runtime/sector_08_billboard.gd").new()
 		billboard.name = "FacadeBillboard"
 		add_child(billboard)
-		billboard.setup(camera)
+		billboard.setup(camera, composition_framing_distance)
 
 
 func get_reactive_materials() -> Array[ShaderMaterial]:

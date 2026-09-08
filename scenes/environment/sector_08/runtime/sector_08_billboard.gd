@@ -15,11 +15,15 @@ extends Node3D
 ## It was 0.878, which measured as a 16% band once the parapet cap was included -- a sixth of the
 ## shot given to a billboard that is meant to close the bottom edge, not to be the subject.
 const TOP_EDGE_UV := 0.935
-## Distance from the camera along that ray. Nearer than the pavement the bottom edge otherwise
-## shows (65-75 m) and nearer than the cable tray (75 m), so it reads as the closest thing there.
-const DISTANCE := 58.0
+## Distance from the camera along that ray, as a fraction of the framing distance. Nearer than
+## the pavement the bottom edge otherwise shows and nearer than the cable tray, so it reads as the
+## closest thing there. Expressed as a fraction, not the 58 m it used to be, so a framing composed
+## from a different distance does not end up with its foreground board behind the yard.
+const DISTANCE_FRACTION := 0.676
+## Size at the approved distance; scaled with it, so the board covers the same band of the frame.
 const WIDTH := 96.0
 const HEIGHT := 34.0
+const REFERENCE_DISTANCE := 85.8
 ## Depth of the parapet cap. Without it the screen is a floating rectangle rather than the top of
 ## a structure that continues below the frame.
 const CAP_DEPTH := 1.1
@@ -30,12 +34,14 @@ var spill: OmniLight3D
 var placement: Dictionary = {}
 
 
-func setup(camera: Camera3D) -> void:
+func setup(camera: Camera3D, framing_distance: float = REFERENCE_DISTANCE) -> void:
+	var distance: float = DISTANCE_FRACTION * framing_distance
+	var scale: float = framing_distance / REFERENCE_DISTANCE
 	var viewport: Vector2 = camera.get_viewport().get_visible_rect().size
 	var sample := Vector2(viewport.x * 0.5, viewport.y * TOP_EDGE_UV)
 	var origin: Vector3 = camera.project_ray_origin(sample)
 	var direction: Vector3 = camera.project_ray_normal(sample)
-	var top_centre: Vector3 = origin + direction * DISTANCE
+	var top_centre: Vector3 = origin + direction * distance
 
 	# Vertical panel facing the camera on the horizontal plane, so it stays a believable facade
 	# rather than a plate tilted to chase the lens.
@@ -53,8 +59,8 @@ func setup(camera: Camera3D) -> void:
 		var measured: float = camera.unproject_position(global_position).y
 		if absf(measured - sample.y) < 1.5:
 			break
-		var distance: float = camera.global_position.distance_to(global_position)
-		global_position = camera.project_ray_origin(sample) + camera.project_ray_normal(sample) * distance
+		var reach: float = camera.global_position.distance_to(global_position)
+		global_position = camera.project_ray_origin(sample) + camera.project_ray_normal(sample) * reach
 		corrections += 1
 
 	material = ShaderMaterial.new()
@@ -69,7 +75,7 @@ func setup(camera: Camera3D) -> void:
 	material.set_shader_parameter("panel_columns", 21.0)
 
 	var quad := QuadMesh.new()
-	quad.size = Vector2(WIDTH, HEIGHT)
+	quad.size = Vector2(WIDTH, HEIGHT) * scale
 	screen = MeshInstance3D.new()
 	screen.name = "FacadeScreen"
 	screen.mesh = quad
@@ -77,14 +83,14 @@ func setup(camera: Camera3D) -> void:
 	screen.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(screen)
 	# Hangs below its top edge, which is the only part inside the frame.
-	screen.position = Vector3(0.0, -HEIGHT * 0.5, 0.0)
+	screen.position = Vector3(0.0, -HEIGHT * scale * 0.5, 0.0)
 
 	var cap_material := StandardMaterial3D.new()
 	cap_material.albedo_color = Color(0.045, 0.05, 0.062)
 	cap_material.roughness = 0.62
 	cap_material.metallic = 0.35
 	var cap_mesh := BoxMesh.new()
-	cap_mesh.size = Vector3(WIDTH, 0.42, CAP_DEPTH)
+	cap_mesh.size = Vector3(WIDTH * scale, 0.42, CAP_DEPTH)
 	var cap := MeshInstance3D.new()
 	cap.name = "ParapetCap"
 	cap.mesh = cap_mesh
@@ -110,7 +116,8 @@ func setup(camera: Camera3D) -> void:
 		"viewport": str(viewport),
 		"corrections": corrections,
 		"measured_top_edge_uv": snappedf(camera.unproject_position(global_position).y / viewport.y, 0.001),
-		"distance_m": DISTANCE,
+		"distance_m": snappedf(distance, 0.01),
+		"scale": snappedf(scale, 0.001),
 		"top_edge_uv": TOP_EDGE_UV,
 		"size_m": str(Vector2(WIDTH, HEIGHT)),
 		"spill_energy": spill.light_energy,
