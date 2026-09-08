@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbttrg5vla400"
 path.s3tc="res://.godot/imported/slice_all_Sector08_emit_CS_img_diag3_PLAY.png-fb26f70dff50f8cfd3e03c59e4d8aac5.s3tc.ctex"
+path.etc2="res://.godot/imported/slice_all_Sector08_emit_CS_img_diag3_PLAY.png-fb26f70dff50f8cfd3e03c59e4d8aac5.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://scenes/environment/sector_08/slice_all_Sector08_emit_CS_img_diag3_PLAY.png"
-dest_files=["res://.godot/imported/slice_all_Sector08_emit_CS_img_diag3_PLAY.png-fb26f70dff50f8cfd3e03c59e4d8aac5.s3tc.ctex"]
+dest_files=["res://.godot/imported/slice_all_Sector08_emit_CS_img_diag3_PLAY.png-fb26f70dff50f8cfd3e03c59e4d8aac5.s3tc.ctex", "res://.godot/imported/slice_all_Sector08_emit_CS_img_diag3_PLAY.png-fb26f70dff50f8cfd3e03c59e4d8aac5.etc2.ctex"]
 
 [params]
 
