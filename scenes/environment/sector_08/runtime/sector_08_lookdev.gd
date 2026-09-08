@@ -11,6 +11,7 @@ extends DioramaArena
 
 var parallax: Node
 var access_display: Node3D
+var cinematic_dust: Node3D
 var player: CharacterBody3D
 var play_mode: bool = false
 
@@ -67,6 +68,9 @@ func _ready() -> void:
 	access_display = preload("res://scenes/environment/sector_08/runtime/sector_08_access_display.gd").new()
 	add_child(access_display)
 	access_display.setup(self)
+	cinematic_dust = preload("res://scenes/environment/sector_08/runtime/sector_08_cinematic_dust.gd").new()
+	add_child(cinematic_dust)
+	cinematic_dust.setup(self)
 	build_camera_rig()
 	# The rig folds the lookdev's lateral sweep in rather than fighting it for the transform.
 	camera_rig.extra_offset = func() -> float: return parallax.offset
