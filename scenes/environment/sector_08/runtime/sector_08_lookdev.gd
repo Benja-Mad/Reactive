@@ -610,14 +610,13 @@ func _configure_authored_pbr_lighting() -> void:
 	industrial_amber_center.light_color = Color(1.0, 0.60, 0.26).linear_to_srgb()
 	spine_cyan_light.light_energy = 22.0
 	spine_cyan_light.omni_attenuation = 0.7
-	# This omni stands in for a volumetric landmark, and the ground slabs around it are authored
-	# PBR whose own roughness maps read as wet. At 22 energy the result was a point glint that
-	# clipped and bloomed into a white ball on the pavement, reading as an unidentifiable object
-	# rather than as a reflection. Measured across a sweep: zeroing this one light's specular took
-	# the region peak from 255 to 77, matching every light's specular off, and 0.02 -- a seventh of
-	# the previous value -- still clipped. There is no non-zero setting that does not blow out, so
-	# the lamp contributes its diffuse pool and its fog and no highlight.
-	spine_cyan_light.light_specular = 0.0
+	# Left at the approved 0.42. Identified, not changed: this omni's specular on the wet slab at
+	# about (-9.7, 0, -5.3) is the saturated white blob on the pavement. It is a 22-energy point
+	# source standing in for a volumetric landmark, and the slab is authored PBR whose own
+	# roughness map reads as wet, so the glint clips and the glow spreads it into a ball. Zeroing
+	# this one light's specular takes that region's peak from 255 to 77 -- the same as zeroing
+	# every light in the scene -- and a sweep found no non-zero value that survives: 0.02 still
+	# clips. So the only lever is 0.0, and that is an art call on approved lighting, not a fix.
 	industrial_amber_west.light_energy = 5.0
 	industrial_amber_center.light_energy = 12.0
 	industrial_amber_center.omni_range = 17.0

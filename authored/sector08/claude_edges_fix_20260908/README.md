@@ -39,17 +39,24 @@ Panels now stand on the bound face itself, the runs cover the full z extent of b
 run across the near edge closes the corners, skipping any panel within 2.6 m of an authored one so
 it meets the existing fence rather than doubling it. 34 panels.
 
-## 3. The bright white object on the right
+## 3. The bright white object on the right — identified, not changed
 
-`blob_before.png` / `blob_after.png`.
+`blob_before.png`.
 
-It was the **cyan spine lamp's specular** on a wet slab. Isolated by rendering variants: zeroing
-that one light's specular took the region peak from 255 to 77, the same as zeroing every light's
-specular in the scene, while the key, fill and yard lamps each moved it by nothing.
+It is the **cyan spine lamp's specular** on the wet slab at about (-9.7, 0, -5.3). Isolated by
+rendering variants: zeroing that one light's specular takes the region peak from 255 to 77, the
+same as zeroing every light's specular in the scene, while the key, fill and yard lamps each move
+it by nothing.
 
-A sweep then showed there is no non-zero setting that works: at specular 0.02 — a seventh of the
-value it was already at — the highlight still clipped. The lamp is a 22-energy omni standing in
-for a volumetric landmark, so it now contributes its diffuse pool and its fog and no highlight.
+A sweep then showed there is no non-zero setting that survives: at specular 0.02 -- a seventh of
+the approved 0.42 -- the highlight still clips. It is a 22-energy point source standing in for a
+volumetric landmark, and the slab is authored PBR whose own roughness map reads as wet, so the
+glint clips and the glow spreads it into a ball. The only lever is 0.0, which removes highlights
+from the district's landmark light everywhere -- an art call on approved lighting, so the value is
+left at 0.42 and this is reported rather than fixed.
+
+`blob_after.png` in this folder shows the 0.0 variant, kept as reference for what that choice
+looks like. It is not the committed state.
 
 Two false starts worth recording. The first measurement blamed a puddle, because the patch it
 sampled was centred 40 px away from the actual hotspot and so confirmed a different highlight.
@@ -84,6 +91,9 @@ reachable ring paved, fence on the bound line, bounds stop the player at the fen
 `pipeline`, `diorama`, `art`, `pixel`, `play`, `parallax` and the `lighting` report, all clean.
 
 ## Still open
+
+The **blown-out specular** in section 3, if you want it gone: `light_specular = 0.0` on
+`spine_cyan_light` is the only value that works.
 
 The **`east_shed`** mass holds the right edge of the frame at **0.29** of the luminance of the
 authored architecture beside it, and reads as a featureless black shape. Confirmed by alternating
