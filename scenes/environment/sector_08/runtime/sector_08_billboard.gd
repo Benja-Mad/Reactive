@@ -12,7 +12,9 @@
 extends Node3D
 
 ## Where the top edge of the screen should land in the frame, as a fraction of frame height.
-const TOP_EDGE_UV := 0.878
+## It was 0.878, which measured as a 16% band once the parapet cap was included -- a sixth of the
+## shot given to a billboard that is meant to close the bottom edge, not to be the subject.
+const TOP_EDGE_UV := 0.935
 ## Distance from the camera along that ray. Nearer than the pavement the bottom edge otherwise
 ## shows (65-75 m) and nearer than the cable tray (75 m), so it reads as the closest thing there.
 const DISTANCE := 58.0
@@ -42,6 +44,18 @@ func setup(camera: Camera3D) -> void:
 
 	global_position = top_centre
 	global_basis = Basis(right, Vector3.UP, facing)
+	# Verify the placement rather than trust it. Projecting a ray at setup and reading the result
+	# back disagreed by 40 px in the shipped frame -- enough to turn a 12% band into a 16% one --
+	# so the plane distance is held and the point re-cast until the measured screen position is
+	# the one that was asked for.
+	var corrections: int = 0
+	for i in 6:
+		var measured: float = camera.unproject_position(global_position).y
+		if absf(measured - sample.y) < 1.5:
+			break
+		var distance: float = camera.global_position.distance_to(global_position)
+		global_position = camera.project_ray_origin(sample) + camera.project_ray_normal(sample) * distance
+		corrections += 1
 
 	material = ShaderMaterial.new()
 	material.shader = preload("res://scenes/environment/sector_08/runtime/sector_08_billboard.gdshader")
@@ -92,7 +106,10 @@ func setup(camera: Camera3D) -> void:
 	spill.position = Vector3(0.0, 2.4, 5.0)
 
 	placement = {
-		"top_centre": str(top_centre.snappedf(0.01)),
+		"top_centre": str(global_position.snappedf(0.01)),
+		"viewport": str(viewport),
+		"corrections": corrections,
+		"measured_top_edge_uv": snappedf(camera.unproject_position(global_position).y / viewport.y, 0.001),
 		"distance_m": DISTANCE,
 		"top_edge_uv": TOP_EDGE_UV,
 		"size_m": str(Vector2(WIDTH, HEIGHT)),

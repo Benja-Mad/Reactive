@@ -74,11 +74,6 @@ func _ready() -> void:
 		collision.name = "YardCollision"
 		add_child(collision)
 		collision.build(imported_environment)
-	if perimeter_enabled:
-		perimeter = preload("res://scenes/environment/sector_08/runtime/sector_08_perimeter.gd").new()
-		perimeter.name = "PerimeterFill"
-		add_child(perimeter)
-		perimeter.build(imported_environment)
 	if particles_enabled:
 		particles = preload("res://scenes/environment/sector_08/runtime/sector_08_particles.gd").new()
 		particles.name = "AirMotes"
@@ -88,15 +83,23 @@ func _ready() -> void:
 		ground_dressing = preload("res://scenes/environment/sector_08/runtime/sector_08_ground_dressing.gd").new()
 		ground_dressing.name = "GroundDressing"
 		add_child(ground_dressing)
-		call_deferred("_apply_ground_dressing")
+	# Ground dressing, the perimeter and the billboard all need the framing camera, which the
+	# owner sets during its own _ready(), so they are built on the first frame instead.
+	call_deferred("_apply_framing_dependent_pass")
 	print("Sector08Runtime: meshes=%d surfaces=%d imported_materials=%d baseline_overrides=%d calibrated_overrides=%d shared_shaders=%d metadata_nodes=%d" % [mesh_instance_count, surface_count, imported_material_count, overridden_mesh_count, calibrated_override_count, shader_material_count, metadata_node_count])
 
 
-func _apply_ground_dressing() -> void:
+func _apply_framing_dependent_pass() -> void:
 	var camera: Camera3D = composition_camera
 	if camera == null:
 		camera = get_viewport().get_camera_3d()
-	ground_dressing.setup(imported_environment, camera)
+	if perimeter_enabled:
+		perimeter = preload("res://scenes/environment/sector_08/runtime/sector_08_perimeter.gd").new()
+		perimeter.name = "PerimeterFill"
+		add_child(perimeter)
+		perimeter.build(imported_environment, camera)
+	if ground_dressing != null:
+		ground_dressing.setup(imported_environment, camera)
 	if billboard_enabled and camera != null:
 		billboard = preload("res://scenes/environment/sector_08/runtime/sector_08_billboard.gd").new()
 		billboard.name = "FacadeBillboard"
