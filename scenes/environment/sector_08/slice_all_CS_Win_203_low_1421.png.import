@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdohu38g7w0ee"
 path.s3tc="res://.godot/imported/slice_all_CS_Win_203_low_1421.png-e9c17d7f5a6b7c24df22e36cac47c5a5.s3tc.ctex"
+path.etc2="res://.godot/imported/slice_all_CS_Win_203_low_1421.png-e9c17d7f5a6b7c24df22e36cac47c5a5.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://scenes/environment/sector_08/slice_all_CS_Win_203_low_1421.png"
-dest_files=["res://.godot/imported/slice_all_CS_Win_203_low_1421.png-e9c17d7f5a6b7c24df22e36cac47c5a5.s3tc.ctex"]
+dest_files=["res://.godot/imported/slice_all_CS_Win_203_low_1421.png-e9c17d7f5a6b7c24df22e36cac47c5a5.s3tc.ctex", "res://.godot/imported/slice_all_CS_Win_203_low_1421.png-e9c17d7f5a6b7c24df22e36cac47c5a5.etc2.ctex"]
 
 [params]
 

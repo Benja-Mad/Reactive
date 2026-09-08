@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://csv0la5lxciqy"
 path.bptc="res://.godot/imported/slice_all_Sector08_albedo.png-bed9c3ea1371a94ee4ba81ac62b83399.bptc.ctex"
+path.astc="res://.godot/imported/slice_all_Sector08_albedo.png-bed9c3ea1371a94ee4ba81ac62b83399.astc.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://scenes/environment/sector_08/slice_all_Sector08_albedo.png"
-dest_files=["res://.godot/imported/slice_all_Sector08_albedo.png-bed9c3ea1371a94ee4ba81ac62b83399.bptc.ctex"]
+dest_files=["res://.godot/imported/slice_all_Sector08_albedo.png-bed9c3ea1371a94ee4ba81ac62b83399.bptc.ctex", "res://.godot/imported/slice_all_Sector08_albedo.png-bed9c3ea1371a94ee4ba81ac62b83399.astc.ctex"]
 
 [params]
 

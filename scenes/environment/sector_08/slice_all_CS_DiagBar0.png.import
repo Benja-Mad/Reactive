@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2761ogsfoore"
 path.s3tc="res://.godot/imported/slice_all_CS_DiagBar0.png-97b0fe78d9a4260c0bfc19d589abd9cc.s3tc.ctex"
+path.etc2="res://.godot/imported/slice_all_CS_DiagBar0.png-97b0fe78d9a4260c0bfc19d589abd9cc.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://scenes/environment/sector_08/slice_all_CS_DiagBar0.png"
-dest_files=["res://.godot/imported/slice_all_CS_DiagBar0.png-97b0fe78d9a4260c0bfc19d589abd9cc.s3tc.ctex"]
+dest_files=["res://.godot/imported/slice_all_CS_DiagBar0.png-97b0fe78d9a4260c0bfc19d589abd9cc.s3tc.ctex", "res://.godot/imported/slice_all_CS_DiagBar0.png-97b0fe78d9a4260c0bfc19d589abd9cc.etc2.ctex"]
 
 [params]
 

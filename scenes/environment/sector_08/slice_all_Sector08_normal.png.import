@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://drua2h1ev4k57"
 path.bptc="res://.godot/imported/slice_all_Sector08_normal.png-cc556247ff6481dedd74a3c96566095c.bptc.ctex"
+path.astc="res://.godot/imported/slice_all_Sector08_normal.png-cc556247ff6481dedd74a3c96566095c.astc.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://scenes/environment/sector_08/slice_all_Sector08_normal.png"
-dest_files=["res://.godot/imported/slice_all_Sector08_normal.png-cc556247ff6481dedd74a3c96566095c.bptc.ctex"]
+dest_files=["res://.godot/imported/slice_all_Sector08_normal.png-cc556247ff6481dedd74a3c96566095c.bptc.ctex", "res://.godot/imported/slice_all_Sector08_normal.png-cc556247ff6481dedd74a3c96566095c.astc.ctex"]
 
 [params]
 

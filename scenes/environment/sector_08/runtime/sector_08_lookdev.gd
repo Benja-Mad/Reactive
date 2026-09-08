@@ -1,10 +1,16 @@
+## Sector 08, the first diorama arena. Everything level-agnostic -- the approved framing, the
+## follow rig, the world filter -- lives in DioramaArena; what stays here is what makes this
+## district itself: its lights, its material calibration, its atmosphere anchors and its
+## reactive access display.
+##
+## The same scene serves the game and the art pass. `lookdev_tools` gates the debug overlay, the
+## static stand-in figure and the lateral sweep, so the arena the player sees is literally the
+## one the look was approved on, not a copy that can drift from it.
 class_name Sector08LookDev
-extends Node3D
+extends DioramaArena
 
-var pixel_presentation: Node
 var parallax: Node
 var access_display: Node3D
-var camera_rig: Node
 var player: CharacterBody3D
 var play_mode: bool = false
 
@@ -20,11 +26,9 @@ const CHARACTER_POSITIONS: Array[Vector3] = [
 
 @onready var sector_runtime: Sector08Runtime = $Sector08Runtime
 @onready var controller: ReactiveDistrictController = $ReactiveDistrictController
-@onready var gameplay_camera: Camera3D = $GameplayCamera
 @onready var test_character: Node3D = $TestCharacter
 @onready var character_sprite: Sprite3D = $TestCharacter/CharacterSprite
 @onready var contact_shadow: MeshInstance3D = $TestCharacter/ContactShadow
-@onready var runtime_environment: WorldEnvironment = $RuntimeEnvironment
 @onready var key_light: DirectionalLight3D = $LookDevHelpers/KeyLight
 @onready var fill_light: DirectionalLight3D = $LookDevHelpers/FillLight
 @onready var motivated_lights: Node3D = $LookDevHelpers/MotivatedLights
@@ -44,19 +48,16 @@ var _slider_rows: Dictionary = {}
 
 
 func _ready() -> void:
-	# Thin rails and cables need edge coverage at the fixed gameplay camera.
-	get_viewport().msaa_3d = Viewport.MSAA_2X
+	_initialise_diorama()
 	_configure_environment()
-	_configure_camera()
 	_configure_character()
 	controller.set_materials(sector_runtime.get_reactive_materials())
-	_build_debug_ui()
+	if lookdev_tools:
+		_build_debug_ui()
 	_set_calibrated_look(true)
 	controller.reactive_state_changed.connect(_sync_art_lights)
 	_set_character_depth(1)
-	pixel_presentation = preload("res://scenes/environment/sector_08/runtime/sector_08_pixel_presentation.gd").new()
-	add_child(pixel_presentation)
-	pixel_presentation.setup(gameplay_camera)
+	build_presentation()
 	_apply_readable_vegetation()
 	# Sector08Runtime owns the redistribution; it only needs the framing to judge it from.
 	sector_runtime.composition_camera = gameplay_camera
@@ -66,14 +67,17 @@ func _ready() -> void:
 	access_display = preload("res://scenes/environment/sector_08/runtime/sector_08_access_display.gd").new()
 	add_child(access_display)
 	access_display.setup(self)
-	camera_rig = preload("res://scenes/environment/sector_08/runtime/sector_08_camera_rig.gd").new()
-	camera_rig.name = "CameraRig"
-	add_child(camera_rig)
-	camera_rig.setup(gameplay_camera, parallax.center)
-	# The rig folds the lookdev's lateral offset in rather than fighting it for the transform.
+	build_camera_rig()
+	# The rig folds the lookdev's lateral sweep in rather than fighting it for the transform.
 	camera_rig.extra_offset = func() -> float: return parallax.offset
 	parallax.rig = camera_rig
-	print("Sector08LookDev ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.")
+	activate_camera()
+	if not lookdev_tools:
+		# In game the arena has no stand-in figure and no debug overlay; the real players are
+		# spawned by the host scene, which then calls follow().
+		test_character.visible = false
+		debug_layer.visible = false
+	print("Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.")
 
 
 func _process(_delta: float) -> void:
@@ -196,23 +200,6 @@ func _capture_comparison() -> void:
 	var image: Image = get_viewport().get_texture().get_image()
 	var error: Error = image.save_png("%s/%s.png" % [directory, mode_name])
 	print("Sector08 comparison capture %s: %s" % [mode_name, error_string(error)])
-
-
-func _configure_camera() -> void:
-	var target: Vector3 = Vector3(0.0, 6.15, -2.0)
-	var distance: float = 85.8
-	var yaw: float = deg_to_rad(35.0)
-	var pitch: float = deg_to_rad(30.0)
-	var horizontal_distance: float = cos(pitch) * distance
-	var offset: Vector3 = Vector3(sin(yaw) * horizontal_distance, sin(pitch) * distance, cos(yaw) * horizontal_distance)
-	gameplay_camera.global_position = target + offset
-	gameplay_camera.look_at(target, Vector3.UP)
-	gameplay_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-	gameplay_camera.keep_aspect = Camera3D.KEEP_WIDTH
-	gameplay_camera.fov = 30.0
-	gameplay_camera.near = 0.5
-	gameplay_camera.far = 420.0
-	gameplay_camera.current = true
 
 
 func _configure_environment() -> void:
@@ -546,6 +533,11 @@ func _update_status() -> void:
 	_baseline_button.text = "ENHANCED [B]" if not sector_runtime.is_enhanced() else "RAW [B]"
 	_visual_button.text = "BASELINE A [V]" if _calibrated_look else "CALIBRATED B [V]"
 	_auto_button.button_pressed = controller.auto_demo
+
+
+## Authored standing positions in the yard, reused as player spawns in game.
+func get_spawn_positions() -> Array[Vector3]:
+	return [Vector3(-2.4, 0.4, 1.2), Vector3(2.4, 0.4, 1.2), Vector3(0.0, 0.4, -3.2)]
 
 
 ## Play mode swaps the static lookdev figure for a walkable one and lets the camera follow it.

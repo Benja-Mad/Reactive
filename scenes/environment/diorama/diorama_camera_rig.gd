@@ -1,19 +1,18 @@
-## Follow rig for the approved P30 camera.
+## Follow rig shared by every diorama arena.
 ##
-## P30 is a fixed framing: FOV 30 and a fixed basis. So the rig only ever translates, exactly
-## as the lookdev's lateral parallax does, and never rotates or zooms. It slides the camera
-## along its own screen-right and screen-up axes to keep the player inside a dead zone, then
-## clamps that offset so the diorama never dollies past its authored edges.
+## What the approved framing fixes is the orientation and the field of view, not the position.
+## So the rig only ever translates -- along the camera's own screen-right and screen-up axes, to
+## keep the target inside a dead zone -- and never rotates or zooms. The offset is clamped so the
+## diorama cannot dolly past its authored edges.
 ##
 ## The offset is additive on top of the lookdev's parallax offset, so both can be active without
 ## either one fighting the other for the camera transform.
 extends Node
 
-## Fraction of the frame the player can move within before the camera starts following.
-const DEAD_ZONE := Vector2(0.10, 0.13)
-## Metres the rig may translate from the approved transform, on each camera axis.
-const LIMIT := Vector2(9.0, 3.0)
-const FOLLOW_SPEED: float = 3.2
+## Set by the owning DioramaArena, so each level can widen or tighten its own travel.
+var dead_zone: Vector2 = Vector2(0.10, 0.13)
+var limit: Vector2 = Vector2(9.0, 3.0)
+var follow_speed: float = 3.2
 
 var camera: Camera3D
 var anchor: Transform3D
@@ -47,14 +46,14 @@ func _process(delta: float) -> void:
 	var normalised := Vector2(screen.x / viewport.x - 0.5, screen.y / viewport.y - 0.5)
 	# Only the excursion past the dead zone asks the camera to move.
 	var excess := Vector2(
-		signf(normalised.x) * maxf(absf(normalised.x) - DEAD_ZONE.x, 0.0),
-		signf(normalised.y) * maxf(absf(normalised.y) - DEAD_ZONE.y, 0.0))
+		signf(normalised.x) * maxf(absf(normalised.x) - dead_zone.x, 0.0),
+		signf(normalised.y) * maxf(absf(normalised.y) - dead_zone.y, 0.0))
 	if not excess.is_zero_approx():
 		# Convert the screen excursion into metres at the target's depth.
 		var depth: float = camera.global_basis.z.dot(camera.global_position - target.global_position)
 		var metres_per_unit: float = 2.0 * depth * tan(deg_to_rad(camera.fov) * 0.5)
-		offset.x = clampf(offset.x + excess.x * metres_per_unit * FOLLOW_SPEED * delta, -LIMIT.x, LIMIT.x)
-		offset.y = clampf(offset.y - excess.y * metres_per_unit * FOLLOW_SPEED * delta, -LIMIT.y, LIMIT.y)
+		offset.x = clampf(offset.x + excess.x * metres_per_unit * follow_speed * delta, -limit.x, limit.x)
+		offset.y = clampf(offset.y - excess.y * metres_per_unit * follow_speed * delta, -limit.y, limit.y)
 	_apply()
 
 
@@ -74,7 +73,7 @@ func get_report() -> Dictionary:
 		"enabled": enabled,
 		"offset_right_m": snappedf(offset.x, 0.001),
 		"offset_up_m": snappedf(offset.y, 0.001),
-		"limit_m": str(LIMIT),
+		"limit_m": str(limit),
 		"fov": camera.fov if camera != null else -1.0,
 		"basis_preserved": camera != null and camera.global_basis.is_equal_approx(anchor.basis),
 	}
