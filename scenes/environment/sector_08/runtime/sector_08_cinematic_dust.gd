@@ -5,39 +5,45 @@
 ## all sits at roughly one depth, so a camera that translates does not read it as depth.
 ##
 ## These layers do the other half. They are placed at fixed distances in front of the approved
-## framing -- roughly 13 m, 37 m and 64 m, against a scene focused around 88 m -- and anchored in
-## the world, never parented to or moved with the camera. So when the rig dollies to follow the
+## framing -- 14 m, 37 m and 64 m, against a scene focused around 88 m -- and anchored in the
+## world, never parented to or moved with the camera. So when the rig dollies to follow the
 ## player, the near motes sweep across the frame several times faster than the pavement does, and
 ## the shot gains depth from the geometry rather than from a scrolling overlay.
+##
+## They are part of the scene, not an overlay on it: depth tested, so anything in front occludes
+## them, and fog affected, so distance drains them like everything else. They skip depth writing
+## only, as any transparent sprite does.
 ##
 ## Measured over a 12 m dolly: near motes 2516 px, mid 884 px, far 511 px, gameplay plane 370 px.
 ##
 ## Cost is three emitters, three draw calls, one shader, no lights and no shadow casters.
 extends Node3D
 
-## depth      : metres in front of the approved camera.
-## extents    : half-size of the emission box, wide enough to keep the frame fed as it dollies.
-## size       : quad edge in metres. Near motes are large because they are wildly out of focus.
-## defocus    : 0 grain, 1 full aperture disc with a rim.
-## anamorphic : horizontal stretch of the near highlights.
+## depth     : metres in front of the approved camera.
+## extents   : half-size of the emission box, wide enough to keep the frame fed as it dollies.
+## size      : quad edge in metres. Near motes are large because they are wildly out of focus.
+## defocus   : average character of the layer -- 0 sharp specks, 1 defocused aperture discs. Each
+##             particle strays from it by its own draw, so a layer is a spread, not one sprite.
+## variation : how far that stray is allowed to go.
+## churn     : turbulence strength, so motes in the same layer do not travel on parallel rails.
 const LAYERS := [
 	{
 		"id": "LensMotes", "depth": 14.0, "extents": Vector3(17.0, 7.0, 7.0),
-		"count": 46, "size": 0.30, "opacity": 0.11, "lifetime": 26.0,
-		"drift": Vector3(-0.22, 0.09, 0.02), "defocus": 1.0, "anamorphic": 1.5,
-		"tint": Color(0.78, 0.83, 0.95), "hue": 0.11,
+		"count": 52, "size": 0.34, "opacity": 0.21, "lifetime": 26.0,
+		"drift": Vector3(-0.22, 0.09, 0.02), "defocus": 0.85, "variation": 0.85,
+		"churn": 0.16, "tint": Color(0.78, 0.83, 0.95), "warm": Color(1.0, 0.74, 0.48),
 	},
 	{
 		"id": "ForegroundDrift", "depth": 37.0, "extents": Vector3(24.0, 11.0, 10.0),
-		"count": 100, "size": 0.115, "opacity": 0.15, "lifetime": 32.0,
-		"drift": Vector3(-0.14, 0.06, 0.01), "defocus": 0.55, "anamorphic": 1.15,
-		"tint": Color(0.72, 0.80, 0.92), "hue": 0.07,
+		"count": 100, "size": 0.13, "opacity": 0.24, "lifetime": 32.0,
+		"drift": Vector3(-0.14, 0.06, 0.01), "defocus": 0.45, "variation": 0.75,
+		"churn": 0.24, "tint": Color(0.72, 0.80, 0.92), "warm": Color(1.0, 0.78, 0.55),
 	},
 	{
 		"id": "MiddleDust", "depth": 64.0, "extents": Vector3(30.0, 16.0, 11.0),
-		"count": 140, "size": 0.055, "opacity": 0.22, "lifetime": 38.0,
-		"drift": Vector3(-0.08, 0.03, 0.0), "defocus": 0.0, "anamorphic": 1.0,
-		"tint": Color(0.70, 0.79, 0.90), "hue": 0.05,
+		"count": 150, "size": 0.06, "opacity": 0.34, "lifetime": 38.0,
+		"drift": Vector3(-0.08, 0.03, 0.0), "defocus": 0.10, "variation": 0.6,
+		"churn": 0.30, "tint": Color(0.70, 0.79, 0.90), "warm": Color(0.98, 0.82, 0.62),
 	},
 ]
 
@@ -63,13 +69,22 @@ func _layer(config: Dictionary, framing: Transform3D) -> void:
 	process.direction = (framing.basis * drift).normalized()
 	process.initial_velocity_min = drift.length() * 0.7
 	process.initial_velocity_max = drift.length() * 1.4
-	process.spread = 24.0
+	process.spread = 34.0
 	process.gravity = Vector3.ZERO
-	process.scale_min = 0.40
-	process.scale_max = 1.15
-	# A little hue spread so the motes read as light caught on glass rather than as grey specks.
-	process.hue_variation_min = -float(config["hue"])
-	process.hue_variation_max = float(config["hue"])
+	process.scale_min = 0.55
+	process.scale_max = 1.6
+	# Turbulence, damping and angular drift are what stop a layer travelling on parallel rails.
+	process.turbulence_enabled = true
+	process.turbulence_noise_strength = float(config["churn"])
+	process.turbulence_noise_scale = 2.4
+	process.turbulence_influence_min = 0.10
+	process.turbulence_influence_max = 0.75
+	process.damping_min = 0.0
+	process.damping_max = 0.06
+	process.angle_min = -180.0
+	process.angle_max = 180.0
+	process.angular_velocity_min = -7.0
+	process.angular_velocity_max = 7.0
 
 	# Fade in and out over the life, so nothing ever pops at the edge of the box.
 	var gradient := Gradient.new()
@@ -86,18 +101,22 @@ func _layer(config: Dictionary, framing: Transform3D) -> void:
 	material.resource_name = "CS_optical_%s" % config["id"]
 	material.set_shader_parameter("opacity", float(config["opacity"]))
 	material.set_shader_parameter("tint", Vector3(config["tint"].r, config["tint"].g, config["tint"].b))
+	material.set_shader_parameter("tint_warm", Vector3(config["warm"].r, config["warm"].g, config["warm"].b))
 	material.set_shader_parameter("defocus", float(config["defocus"]))
-	material.set_shader_parameter("anamorphic", float(config["anamorphic"]))
-	# Drawn after the world filter, because a mote on the lens is not part of the world image.
-	material.render_priority = 4
+	material.set_shader_parameter("variation", float(config["variation"]))
 
+	# Square quads: the per-particle stretch happens inside the shader, where it can be
+	# renormalised so the shape always fades out before the quad edge.
 	var quad := QuadMesh.new()
-	quad.size = Vector2(float(config["size"]) * float(config["anamorphic"]), float(config["size"]))
+	quad.size = Vector2(float(config["size"]), float(config["size"]))
 
 	var emitter := GPUParticles3D.new()
 	emitter.name = str(config["id"])
 	emitter.amount = int(config["count"])
 	emitter.lifetime = float(config["lifetime"])
+	# Godot 4 exposes emission spread as `randomness` on the node; `lifetime_randomness` is a
+	# Godot 3 name and silently does not exist here.
+	emitter.randomness = 0.85
 	emitter.preprocess = float(config["lifetime"])
 	# World-space particles: this is what makes the camera's own travel produce the parallax.
 	emitter.local_coords = false
