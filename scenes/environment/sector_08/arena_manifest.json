@@ -1,0 +1,406 @@
+{
+  "name": "substation_07",
+  "notes": "Flooded transformer yard. Drainage trench runs across the frame at depth 3 and carries the Wet/Frozen/Electrified states. Two grate crossings keep it a chokepoint rather than a wall. The play polygon is intentionally empty above knee height.",
+  "camera": {
+    "pitch_deg": 30.0,
+    "yaw_deg": 35.0,
+    "ortho_scale": 46.0,
+    "target": [
+      0.0,
+      2.0,
+      6.15
+    ]
+  },
+  "play_polygon": [
+    [
+      -10.401700973510742,
+      -16.270320892333984
+    ],
+    [
+      -25.31468963623047,
+      5.027631759643555
+    ],
+    [
+      4.174785614013672,
+      25.67638397216797
+    ],
+    [
+      19.087772369384766,
+      4.3784308433532715
+    ]
+  ],
+  "spawn_points": [
+    [
+      -9.173823356628418,
+      -9.306678771972656,
+      0.05000000074505806
+    ],
+    [
+      12.124130249023438,
+      5.606308937072754,
+      0.05000000074505806
+    ],
+    [
+      -18.35104751586914,
+      3.7997541427612305,
+      0.05000000074505806
+    ],
+    [
+      2.9469070434570312,
+      18.71274185180664,
+      0.05000000074505806
+    ]
+  ],
+  "lanes": [
+    {
+      "name": "west_run",
+      "width": 6.0,
+      "points": [
+        [
+          -8.84582233428955,
+          -11.518559455871582,
+          0.0
+        ],
+        [
+          -20.317352294921875,
+          4.8644819259643555,
+          0.0
+        ]
+      ]
+    },
+    {
+      "name": "east_run",
+      "width": 6.0,
+      "points": [
+        [
+          14.090435028076172,
+          4.541581630706787,
+          0.0
+        ],
+        [
+          2.618906021118164,
+          20.924623489379883,
+          0.0
+        ]
+      ]
+    },
+    {
+      "name": "cross_north",
+      "width": 5.5,
+      "points": [
+        [
+          -21.382078170776367,
+          2.898177146911621,
+          0.0
+        ],
+        [
+          4.830787181854248,
+          21.25262451171875,
+          0.0
+        ]
+      ]
+    },
+    {
+      "name": "cross_south",
+      "width": 5.0,
+      "points": [
+        [
+          -10.197338104248047,
+          -13.075286865234375,
+          0.0
+        ],
+        [
+          16.015527725219727,
+          5.279159069061279,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "chokepoints": [
+    {
+      "name": "trench_grate_west",
+      "width": 3.2,
+      "note": "grate crossing over the drainage trench",
+      "position": [
+        -10.731401443481445,
+        -1.8518848419189453,
+        0.0
+      ]
+    },
+    {
+      "name": "trench_grate_east",
+      "width": 3.2,
+      "note": "second crossing - always give two ways through",
+      "position": [
+        4.832487106323242,
+        9.04606819152832,
+        0.0
+      ]
+    },
+    {
+      "name": "yard_gate",
+      "width": 4.2,
+      "note": "programmable barrier between yard and street",
+      "position": [
+        5.079762935638428,
+        -1.7677593231201172,
+        0.0
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "cooling_stack",
+      "kind": "stack",
+      "height": 26.0,
+      "primary": true,
+      "position": [
+        -21.793354034423828,
+        14.81794548034668,
+        0.0
+      ]
+    },
+    {
+      "name": "viaduct",
+      "kind": "viaduct",
+      "height": 11.0,
+      "primary": false,
+      "position": [
+        -14.91298770904541,
+        23.29795265197754,
+        0.0
+      ]
+    },
+    {
+      "name": "west_block",
+      "kind": "facade",
+      "height": 13.8,
+      "primary": false,
+      "position": [
+        -24.6586856842041,
+        0.6038713455200195,
+        0.0
+      ]
+    },
+    {
+      "name": "north_block",
+      "kind": "facade",
+      "height": 13.8,
+      "primary": false,
+      "position": [
+        -7.130192756652832,
+        22.64365005493164,
+        0.0
+      ]
+    },
+    {
+      "name": "gantry",
+      "kind": "catwalk",
+      "height": 8.2,
+      "primary": false,
+      "position": [
+        -12.126681327819824,
+        16.703523635864258,
+        0.0
+      ]
+    }
+  ],
+  "hazards": [
+    {
+      "name": "drain_trench",
+      "kind": "water",
+      "states": [
+        "wet",
+        "frozen",
+        "electrified"
+      ],
+      "a": [
+        -18.922922134399414,
+        -7.587648868560791,
+        0.0
+      ],
+      "b": [
+        13.843160629272461,
+        15.355409622192383,
+        0.0
+      ],
+      "width": 1.7
+    }
+  ],
+  "lights": [
+    {
+      "name": "spine_node_0",
+      "kind": "system",
+      "position": [
+        -17.710927963256836,
+        15.066730499267578,
+        7.71999979019165
+      ],
+      "energy": 260.0
+    },
+    {
+      "name": "spine_node_1",
+      "kind": "system",
+      "position": [
+        -18.28284454345703,
+        13.96208381652832,
+        13.4399995803833
+      ],
+      "energy": 260.0
+    },
+    {
+      "name": "spine_node_2",
+      "kind": "system",
+      "position": [
+        -19.133079528808594,
+        13.226425170898438,
+        19.600000381469727
+      ],
+      "energy": 260.0
+    },
+    {
+      "name": "stack_aviation",
+      "kind": "hostile",
+      "position": [
+        -21.572336196899414,
+        16.071401596069336,
+        30.700000762939453
+      ],
+      "energy": 8.0
+    },
+    {
+      "name": "stack_spine_0",
+      "kind": "system",
+      "position": [
+        -20.416770935058594,
+        12.851980209350586,
+        8.84000015258789
+      ],
+      "energy": 420.0
+    },
+    {
+      "name": "stack_spine_1",
+      "kind": "system",
+      "position": [
+        -20.416770935058594,
+        12.851980209350586,
+        18.719999313354492
+      ],
+      "energy": 420.0
+    },
+    {
+      "name": "streetlight_0",
+      "kind": "sodium",
+      "position": [
+        -5.776125907897949,
+        -17.645986557006836,
+        6.550000190734863
+      ],
+      "energy": 180.0
+    },
+    {
+      "name": "streetlight_1",
+      "kind": "sodium",
+      "position": [
+        4.053699016571045,
+        -10.763069152832031,
+        6.550000190734863
+      ],
+      "energy": 180.0
+    },
+    {
+      "name": "streetlight_3",
+      "kind": "sodium",
+      "position": [
+        23.713348388671875,
+        3.0027658939361572,
+        6.550000190734863
+      ],
+      "energy": 180.0
+    },
+    {
+      "name": "compound_lamp",
+      "kind": "sodium",
+      "position": [
+        -3.648371696472168,
+        22.029712677001953,
+        4.599999904632568
+      ],
+      "energy": 520.0
+    },
+    {
+      "name": "shed_interior",
+      "kind": "heat",
+      "position": [
+        7.739031791687012,
+        21.457836151123047,
+        2.200000047683716
+      ],
+      "energy": 110.0
+    },
+    {
+      "name": "fire_barrel_7",
+      "kind": "heat",
+      "position": [
+        -15.728739738464355,
+        -1.688735008239746,
+        1.0
+      ],
+      "energy": 60.0
+    },
+    {
+      "name": "yard_gate_system",
+      "kind": "system",
+      "position": [
+        5.079762935638428,
+        -1.7677593231201172,
+        1.5
+      ],
+      "energy": 140.0
+    },
+    {
+      "name": "break_bay_corrupt",
+      "kind": "corrupt",
+      "position": [
+        -22.30141830444336,
+        5.893568515777588,
+        10.600000381469727
+      ],
+      "energy": 170.0
+    },
+    {
+      "name": "hydroponics_bio",
+      "kind": "bio",
+      "position": [
+        11.425215721130371,
+        24.038930892944336,
+        1.5
+      ],
+      "energy": 80.0
+    }
+  ],
+  "channel_contract": {
+    "R": "wear",
+    "G": "water",
+    "B": "programmable",
+    "A": "emissive",
+    "uv0": "tiling/trim",
+    "uv1": "UVDecal"
+  },
+  "emissive_policy": {
+    "env_max_strength": 3.0,
+    "env_max_saturation": 0.62,
+    "gameplay_min_saturation": 0.85,
+    "gameplay_min_strength": 6.0,
+    "screen_budget": 0.07
+  },
+  "build": {
+    "master_seed": 20260903,
+    "unique_meshes": 1076,
+    "part_requests": 2797,
+    "objects": 3050,
+    "emissive_coverage": 0.05697,
+    "warnings": []
+  }
+}

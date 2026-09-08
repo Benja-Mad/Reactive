@@ -1,0 +1,43 @@
+{
+  "schema": "cyberslice.runtime-pbr/1",
+  "source": "authored/sector08/source/cyberslice_out/cyberslice.blend",
+  "source_generator": "authored/sector08/source/build_arena.py",
+  "bake_script": "authored/sector08/tools/bake_runtime_pbr.py",
+  "geometry_baseline_sha256": "e5b2d009af06a57863b9b647c9d54da38a380f9f0bb2ee7e0838a0aade85a107",
+  "uv_contract": {
+    "TEXCOORD_0": "Original logical facade and surface UV, unchanged",
+    "TEXCOORD_1": "CS_PBR_UV for baked surfaces only; original UV otherwise",
+    "TEXCOORD_2": "Original UVDecal retained when a baked surface already had UV1"
+  },
+  "normal_strength": 0.35,
+  "textures": {
+    "albedo": "sRGB, 4096x4096",
+    "normal": "tangent, non-color, 4096x4096",
+    "orm": "R=1 (no baked AO), G=roughness, B=metallic, non-color, 4096x4096"
+  },
+  "limitations": [
+    "Procedural microdetail is filtered at atlas resolution; normal strength is reduced for P30.",
+    "Static surface wear/wetness are baked; the existing first-slice controller did not animate these surfaces. Masks remain in GLB for future runtime shaders.",
+    "COLOR_1/COLOR_2 and preserved third UV remain in GLB; current Godot shaders continue to use UV0 and metadata.",
+    "Camera values in Godot are preserved, including the pre-existing approximately 3 cm translation difference from Blender."
+  ],
+  "stats_before": {
+    "nodes": 3114,
+    "metadata_nodes": 3113,
+    "mesh_instances": 3060,
+    "unique_meshes": 1215,
+    "materials": 184,
+    "bytes": 31324172,
+    "triangles_instanced": 585312
+  },
+  "stats_after": {
+    "nodes": 3044,
+    "metadata_nodes": 3043,
+    "mesh_instances": 2990,
+    "unique_meshes": 1166,
+    "materials": 186,
+    "bytes": 39421368,
+    "triangles_instanced": 489390
+  },
+  "portable_image_emission_materials": 14
+}

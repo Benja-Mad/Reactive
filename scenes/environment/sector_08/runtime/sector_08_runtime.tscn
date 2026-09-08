@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/environment/sector_08/runtime/sector_08_runtime.gd" id="1_runtime"]
+[ext_resource type="PackedScene" path="res://scenes/environment/sector_08/slice_all.glb" id="2_environment"]
+
+[node name="Sector08Runtime" type="Node3D"]
+script = ExtResource("1_runtime")
+
+[node name="ImportedEnvironment" parent="." instance=ExtResource("2_environment")]
