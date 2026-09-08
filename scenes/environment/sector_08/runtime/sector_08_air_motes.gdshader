@@ -20,6 +20,8 @@ shader_type spatial;
 // the fence goes dark inside the cone instead of glowing through it.
 render_mode blend_add, depth_draw_never, cull_disabled, specular_disabled, ambient_light_disabled;
 
+// The defaults below are documentation. sector_08_particles.gd applies its SCATTERING dictionary
+// on top at setup, so that is the file to edit -- changing a default here on its own does nothing.
 uniform vec3 tint : source_color = vec3(0.86, 0.90, 0.96);
 uniform float opacity : hint_range(0.0, 1.0) = 0.9;
 uniform float gain : hint_range(0.0, 40.0) = 2.6;

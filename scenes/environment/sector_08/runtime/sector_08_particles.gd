@@ -30,12 +30,43 @@ const FIELDS := {
 		"amount": 120, "size": 0.085, "colour": Color(0.95, 0.88, 0.78),
 		"drift": Vector3(0.16, 0.09, 0.04), "lifetime": 11.0,
 	},
+	# On the cyan shaft itself, which descends from (-19, 19.6, -13) to about (-6, -1.5, 2). The
+	# spine had no dust sited on it, so the district's landmark light had nothing to pick out.
+	"SpineHalo": {
+		"centre": Vector3(-12.0, 7.5, -5.0), "extents": Vector3(4.5, 8.5, 5.0),
+		"amount": 150, "size": 0.095, "colour": Color(0.84, 0.92, 0.98),
+		"drift": Vector3(0.05, 0.22, 0.03), "lifetime": 16.0,
+	},
+	# In front of the facade screen, whose spill sits at (18.7, 16.9, 24.8) with a 17 m reach.
+	# Magenta is a hue nothing else in the yard carries, so it is worth having motes in it.
+	"FacadeHaze": {
+		# Sited tight on the spill rather than spread across the whole board: its reach is only
+		# 17 m and it attenuates fast, so a wide box put most motes where nothing lights them.
+		"centre": Vector3(18.5, 15.0, 24.0), "extents": Vector3(6.5, 5.0, 4.0),
+		"amount": 130, "size": 0.100, "colour": Color(0.90, 0.86, 0.96),
+		"drift": Vector3(-0.14, 0.06, 0.0), "lifetime": 15.0,
+	},
 	# Rising thermals off the spine plant, which is the one part of the scene that is "running".
 	"SpineAsh": {
 		"centre": Vector3(-16.0, 5.0, -13.0), "extents": Vector3(11.0, 8.0, 9.0),
 		"amount": 140, "size": 0.095, "colour": Color(0.80, 0.90, 0.96),
 		"drift": Vector3(0.10, 0.55, 0.05), "lifetime": 13.0,
 	},
+}
+
+## The scattering knobs live HERE, not in the shader. sector_08_air_motes.gdshader declares
+## defaults for these uniforms, but this dictionary is applied on top at setup, so editing the
+## shader alone changes nothing. This is the one place to tune them.
+##
+##   gain              overall brightness of a mote that is inside a light
+##   anisotropy        Henyey-Greenstein asymmetry; higher throws scattering forward
+##   ambient_response  how much sun/moon register, as opposed to lamps
+##   floor_visibility  how visible a mote is with no light on it at all
+const SCATTERING := {
+	"gain": 2.6,
+	"anisotropy": 0.22,
+	"ambient_response": 0.028,
+	"floor_visibility": 0.012,
 }
 
 var emitters: Array[GPUParticles3D] = []
@@ -48,10 +79,8 @@ func setup() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = preload("res://scenes/environment/sector_08/runtime/sector_08_air_motes.gdshader")
 	_material.resource_name = "CS_air_motes"
-	_material.set_shader_parameter("gain", 2.6)
-	_material.set_shader_parameter("anisotropy", 0.22)
-	_material.set_shader_parameter("ambient_response", 0.028)
-	_material.set_shader_parameter("floor_visibility", 0.012)
+	for key: String in SCATTERING:
+		_material.set_shader_parameter(key, SCATTERING[key])
 
 	for id: String in FIELDS:
 		_field(id, FIELDS[id])

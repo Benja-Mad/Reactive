@@ -10,6 +10,8 @@ extends Node
 const REGIONS := {
 	"sodium_beam": Rect2i(1150, 250, 210, 310),
 	"beam_pool": Rect2i(1120, 430, 260, 150),
+	"spine_shaft": Rect2i(590, 300, 150, 430),
+	"facade_screen": Rect2i(850, 890, 240, 170),
 	"open_shadow": Rect2i(200, 560, 320, 200),
 	"deep_shadow": Rect2i(60, 120, 240, 220),
 }
