@@ -70,6 +70,15 @@ func run() -> void:
 	report["basis_preserved"] = camera.global_basis.is_equal_approx(arena.approved_transform.basis)
 	report["fov"] = camera.fov
 
+	# Static camera, time passing: judges the motes' own drift on its own, with no dolly to hide
+	# behind. Erratic motion shows up here and nowhere else.
+	arena.camera_rig.offset = Vector2.ZERO
+	arena.camera_rig._apply()
+	for frame_index in 120:
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_jpg(out.path_join("drift_%03d.jpg" % frame_index), 0.94)
+
 	# Motion strip: a continuous sweep so the layers can be seen sliding past each other.
 	for frame_index in 96:
 		var t: float = float(frame_index) / 95.0
