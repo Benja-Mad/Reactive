@@ -19,7 +19,13 @@
 ## Cost is three emitters, three draw calls, one shader, no lights and no shadow casters.
 extends Node3D
 
-## depth     : metres in front of the approved camera.
+## The depths, extents and quad sizes below are stated at the reference framing distance and
+## scaled with the level's own, so a framing composed from nearer or further keeps these layers at
+## the same *screen* depths. Stated in absolute metres they would collapse onto the gameplay plane
+## the moment the camera dollied in.
+const REFERENCE_DISTANCE := 85.8
+
+## depth     : metres in front of the approved camera, at the reference distance.
 ## extents   : half-size of the emission box, wide enough to keep the frame fed as it dollies.
 ## size      : quad edge in metres. Near motes are large because they are wildly out of focus.
 ## softness  : how far outside the depth of field the layer sits. 0 is a crisp speck at focus
@@ -54,8 +60,12 @@ var layers: Array[GPUParticles3D] = []
 var materials: Array[ShaderMaterial] = []
 
 
+var _scale: float = 1.0
+
+
 func setup(arena: Node) -> void:
 	var framing: Transform3D = arena.approved_transform
+	_scale = float(arena.framing_distance) / REFERENCE_DISTANCE
 	for config: Dictionary in LAYERS:
 		_layer(config, framing)
 	arena.controller.reactive_state_changed.connect(_sync)
@@ -63,8 +73,9 @@ func setup(arena: Node) -> void:
 
 
 func _layer(config: Dictionary, framing: Transform3D) -> void:
-	var extents: Vector3 = config["extents"]
+	var extents: Vector3 = (config["extents"] as Vector3) * _scale
 	var drift: Vector3 = config["drift"]
+	var depth: float = float(config["depth"]) * _scale
 
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
@@ -114,7 +125,7 @@ func _layer(config: Dictionary, framing: Transform3D) -> void:
 	# Square quads: the per-particle stretch happens inside the shader, where it can be
 	# renormalised so the shape always fades out before the quad edge.
 	var quad := QuadMesh.new()
-	quad.size = Vector2(float(config["size"]), float(config["size"]))
+	quad.size = Vector2(float(config["size"]), float(config["size"])) * _scale
 
 	var emitter := GPUParticles3D.new()
 	emitter.name = str(config["id"])
@@ -136,7 +147,7 @@ func _layer(config: Dictionary, framing: Transform3D) -> void:
 	emitter.draw_pass_1 = quad
 	emitter.material_override = material
 	add_child(emitter)
-	emitter.global_transform = Transform3D(framing.basis, framing.origin - framing.basis.z * float(config["depth"]))
+	emitter.global_transform = Transform3D(framing.basis, framing.origin - framing.basis.z * depth)
 	layers.append(emitter)
 	materials.append(material)
 
@@ -164,7 +175,7 @@ func get_report() -> Dictionary:
 	var depths: Array = []
 	for config: Dictionary in LAYERS:
 		total += int(config["count"])
-		depths.append(float(config["depth"]))
+		depths.append(snappedf(float(config["depth"]) * _scale, 0.01))
 	return {
 		"layers": layers.size(),
 		"particles": total,

@@ -62,6 +62,7 @@ func _ready() -> void:
 	_apply_readable_vegetation()
 	# Sector08Runtime owns the redistribution; it only needs the framing to judge it from.
 	sector_runtime.composition_camera = gameplay_camera
+	sector_runtime.composition_framing_distance = framing_distance
 	parallax = preload("res://scenes/environment/sector_08/runtime/sector_08_parallax.gd").new()
 	add_child(parallax)
 	parallax.setup(self)

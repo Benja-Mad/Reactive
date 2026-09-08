@@ -57,6 +57,9 @@ func set_diorama(value: bool) -> void:
  diorama_enabled = value
  atmosphere.set_enabled(value)
  _update_effects()
+func _focus_distance() -> float:
+ var owner_arena: Node = get_parent()
+ return float(owner_arena.framing_distance) if owner_arena != null and "framing_distance" in owner_arena else 85.8
 func _native_size() -> Vector2:
  return Vector2((source_viewport as Window).size) if source_viewport is Window else source_viewport.get_visible_rect().size
 func _update_effects() -> void:
@@ -68,6 +71,9 @@ func _update_effects() -> void:
  presentation_material.set_shader_parameter("pixel_grid",_native_size()*SCALES[mode])
  presentation_material.set_shader_parameter("pixel_enabled",mode!=0)
  presentation_material.set_shader_parameter("diorama_enabled",diorama_enabled)
+ # The in-focus band follows the framing distance, so a level (or a framing trial) that composes
+ # from somewhere other than 85.8 m keeps its gameplay plane sharp instead of inheriting P30's.
+ presentation_material.set_shader_parameter("focus_distance",_focus_distance())
  presentation_material.set_shader_parameter("subtle_dither",dither_enabled and mode!=0)
  presentation_material.set_shader_parameter("subtle_quantization",quantization_enabled and mode!=0)
 func get_report() -> Dictionary:
