@@ -772,3 +772,35 @@ func _apply_readable_vegetation() -> void:
 			material.backlight = Color(0.035, 0.044, 0.018)
 			variants[source] = material
 		mesh.set_surface_override_material(0, variants[source])
+
+
+## Fit only real-player visuals to the approved arena framing. Never resize their bodies.
+func configure_player_presentation(character: Character) -> void:
+	var sprite: AnimatedSprite3D = character.animated_sprite_3d
+	if sprite.has_meta("sector08_visual_fitted"):
+		return
+	var texture: Texture2D = sprite.sprite_frames.get_frame_texture("Idle",0)
+	var atlas := texture as AtlasTexture
+	var image: Image = atlas.atlas.get_image() if atlas != null else texture.get_image()
+	if image.is_compressed() and image.decompress() != OK:
+		push_error("Cannot inspect real-player sprite for grounding")
+		return
+	if atlas != null:
+		image = image.get_region(Rect2i(atlas.region))
+	var top: int = image.get_height()
+	var bottom: int = -1
+	for y in image.get_height():
+		for x in image.get_width():
+			if image.get_pixel(x,y).a >= 0.5:
+				top = mini(top,y)
+				bottom = maxi(bottom,y)
+	if bottom < top:
+		return
+	var body_shape: CollisionShape3D = character.get_node("CollisionShape3D")
+	var floor_local: float = body_shape.position.y - (body_shape.shape as CapsuleShape3D).height*0.5
+	# Atlas canvas includes transparent padding. Anchor the opaque boot edge, not its centre.
+	sprite.scale *= 1.4
+	var metres_per_pixel: float = sprite.pixel_size*sprite.scale.y
+	sprite.position.y = floor_local + (float(bottom+1)-image.get_height()*0.5)*metres_per_pixel + 0.01
+	character.label_3d.position.y = floor_local + float(bottom-top+1)*metres_per_pixel + 0.20
+	sprite.set_meta("sector08_visual_fitted",true)

@@ -1,0 +1,7 @@
+{
+  "files_checked": 60,
+  "changed": [
+    "scenes/environment/diorama/diorama_arena.gd"
+  ],
+  "note": "DioramaArena adds only a no-op virtual presentation hook; all framing/follow code unchanged."
+}
