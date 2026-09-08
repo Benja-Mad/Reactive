@@ -25,6 +25,8 @@ const PATTERN_TEXTURE_PATH: String = "res://scenes/environment/sector_08/slice_a
 ## Facade-scale screen closing the lower edge of the frame. Needs the framing camera, so it is
 ## built in the same deferred pass as the ground dressing.
 @export var billboard_enabled: bool = true
+## Fills the lateral edges, where the collision floor reaches further than the authored slabs.
+@export var perimeter_enabled: bool = true
 @onready var imported_environment: Node3D = $ImportedEnvironment
 
 ## Framing the ground composition is judged from. The owner sets this during its own _ready();
@@ -34,6 +36,7 @@ var ground_dressing: Node
 var collision: StaticBody3D
 var particles: Node3D
 var billboard: Node3D
+var perimeter: Node3D
 
 var mesh_instance_count: int = 0
 var surface_count: int = 0
@@ -71,6 +74,11 @@ func _ready() -> void:
 		collision.name = "YardCollision"
 		add_child(collision)
 		collision.build(imported_environment)
+	if perimeter_enabled:
+		perimeter = preload("res://scenes/environment/sector_08/runtime/sector_08_perimeter.gd").new()
+		perimeter.name = "PerimeterFill"
+		add_child(perimeter)
+		perimeter.build(imported_environment)
 	if particles_enabled:
 		particles = preload("res://scenes/environment/sector_08/runtime/sector_08_particles.gd").new()
 		particles.name = "AirMotes"
