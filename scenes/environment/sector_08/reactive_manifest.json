@@ -1,0 +1,648 @@
+{
+  "schema": "cyberslice.reactive/2",
+  "camera": {
+    "type": "PERSP",
+    "fov_deg": 30.0,
+    "ortho_scale": 46.0,
+    "pitch_deg": 30.0,
+    "yaw_deg": 35.0,
+    "target": [
+      0.0,
+      2.0,
+      6.15
+    ],
+    "note": "Facade module scale was chosen against THIS camera: the important BG_NEAR facades measure 350-850 px wide and 260-650 px tall at 1920x1080, i.e. ~35 px per metre."
+  },
+  "propagation": {
+    "route": [
+      "SPINE",
+      "B04",
+      "B05",
+      "BGCITY",
+      "B02",
+      "YARD",
+      "B01",
+      "B03"
+    ],
+    "modes": {
+      "world_space": "use node world position; every reactive object also carries cs_local_u/v/w normalised inside its owner bounds",
+      "route": "use cs_route_index and cs_phase_offset on the OWNER node; index order is travel order"
+    },
+    "wave_parameters": [
+      "wave_origin",
+      "wave_direction",
+      "wave_speed",
+      "wave_width",
+      "wave_intensity",
+      "wave_phase",
+      "wave_falloff"
+    ],
+    "shader_sketch": "phase = dot(vec3(cs_local_u, cs_local_v, cs_local_w), wave_direction) - time * wave_speed"
+  },
+  "pattern_capable": {
+    "B04": {
+      "grid": [
+        10,
+        14
+      ]
+    },
+    "B05": {
+      "grid": [
+        12,
+        16
+      ]
+    },
+    "BGCITY": {
+      "grid": [
+        14,
+        26
+      ]
+    }
+  },
+  "spatial": {
+    "YARD": {
+      "objects": 123,
+      "route_index": 5,
+      "size": [
+        191.48,
+        90.99,
+        39.38
+      ]
+    },
+    "B01": {
+      "objects": 54,
+      "route_index": 6,
+      "size": [
+        3.4,
+        16.4,
+        13.01
+      ]
+    },
+    "B02": {
+      "objects": 99,
+      "route_index": 4,
+      "size": [
+        16.08,
+        14.99,
+        13.34
+      ]
+    },
+    "B03": {
+      "objects": 17,
+      "route_index": 7,
+      "size": [
+        10.05,
+        6.66,
+        2.47
+      ]
+    },
+    "B04": {
+      "objects": 96,
+      "route_index": 1,
+      "size": [
+        12.87,
+        14.75,
+        19.2
+      ]
+    },
+    "B05": {
+      "objects": 128,
+      "route_index": 2,
+      "size": [
+        22.18,
+        9.93,
+        22.4
+      ]
+    },
+    "SPINE": {
+      "objects": 48,
+      "route_index": 0,
+      "size": [
+        26.02,
+        11.87,
+        22.61
+      ]
+    },
+    "BGCITY": {
+      "objects": 36,
+      "route_index": 3,
+      "size": [
+        213.96,
+        48.85,
+        49.53
+      ]
+    }
+  },
+  "district": "sector_08",
+  "states": [
+    "normal",
+    "alert",
+    "network_overload",
+    "corrupted"
+  ],
+  "signals": [
+    "network_load",
+    "alert_level",
+    "corruption",
+    "power_state",
+    "electric_activity",
+    "heat_level",
+    "biological_activity",
+    "wave_intensity"
+  ],
+  "conventions": {
+    "root_node": "CS_REACTIVE",
+    "properties": {
+      "cs_reactive": "1 on anything Godot may drive at runtime",
+      "cs_group": "trigger key - drive a whole group at once",
+      "cs_building": "owner id (B01..B05, SPINE, YARD, BGCITY)",
+      "cs_channel": "which facade layer this object belongs to",
+      "cs_system": "power | network | thermal | security | bio | structural",
+      "cs_facade_role": "residential | commercial | industrial | megablock | infrastructure | backdrop | vegetation",
+      "cs_signals": "comma list of gameplay signals expected to drive it",
+      "cs_default_state": "state to restore to",
+      "cs_prog": "programmable role (pre-existing)",
+      "cs_shader": "animation hint: uv_scroll | pulse_scroll | hologram_flicker | barrier_scan | glitch_displace",
+      "cs_state": "semantic colour key (pre-existing)",
+      "cs_band": "FG | PLAY | BG_NEAR | BG_FAR",
+      "cs_local_u/v/w": "position inside owner bounds, 0..1 - the wave input",
+      "cs_route_index": "position along the propagation route, -1 if off-route",
+      "cs_phase_offset": "0..1 delay along the route, on the owner node",
+      "cs_grid_x/y": "logical window-grid cell, on pattern-capable owners",
+      "cs_bounds_min/max": "owner AABB, on the owner node",
+      "cs_pattern_grid": "[cols, rows] logical grid, on the owner node"
+    },
+    "static_batch": "objects with cs_reactive == 0 are never driven and can be merged/batched freely"
+  },
+  "material_families": {
+    "surface": {
+      "materials": 93,
+      "params": [
+        "power",
+        "alert",
+        "corruption",
+        "wetness",
+        "wear"
+      ]
+    },
+    "emissive": {
+      "materials": 64,
+      "params": [
+        "emission_color",
+        "emission_strength",
+        "flicker_amount",
+        "corruption",
+        "alert",
+        "network_load"
+      ]
+    },
+    "glass": {
+      "materials": 6,
+      "params": [
+        "power",
+        "window_activity",
+        "emission_color"
+      ]
+    },
+    "window_atlas": {
+      "materials": 14,
+      "params": [
+        "window_activity",
+        "lit_fraction",
+        "color_temperature",
+        "flicker_amount",
+        "blackout",
+        "corruption",
+        "seed"
+      ]
+    },
+    "silhouette": {
+      "materials": 3,
+      "params": [
+        "fog_mix"
+      ]
+    },
+    "window_bank": {
+      "materials": 4,
+      "params": [
+        "CS_Occupancy",
+        "CS_WaveDirX",
+        "CS_WaveDirY",
+        "CS_WavePhase",
+        "CS_WaveGain",
+        "CS_PatternMix",
+        "CS_Corrupt"
+      ]
+    }
+  },
+  "groups": {
+    "sector_08_power": {
+      "members": [
+        {
+          "id": "B01",
+          "node": "CS_REACTIVE/OWNER_B01",
+          "channels": {
+            "emissive_windows": {
+              "node": "CS_REACTIVE/OWNER_B01/B01_emissive_windows",
+              "objects": 5,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state",
+                "network_load"
+              ]
+            },
+            "programmable": {
+              "node": "CS_REACTIVE/OWNER_B01/B01_programmable",
+              "objects": 1,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "shutters": {
+              "node": "CS_REACTIVE/OWNER_B01/B01_shutters",
+              "objects": 12,
+              "signals": [
+                "alert_level"
+              ]
+            },
+            "warning_lights": {
+              "node": "CS_REACTIVE/OWNER_B01/B01_warning_lights",
+              "objects": 1,
+              "signals": [
+                "alert_level",
+                "heat_level",
+                "electric_activity"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_B01/B01_windows",
+              "objects": 35,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        },
+        {
+          "id": "B02",
+          "node": "CS_REACTIVE/OWNER_B02",
+          "channels": {
+            "emissive_windows": {
+              "node": "CS_REACTIVE/OWNER_B02/B02_emissive_windows",
+              "objects": 10,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state",
+                "network_load"
+              ]
+            },
+            "facade_panels": {
+              "node": "CS_REACTIVE/OWNER_B02/B02_facade_panels",
+              "objects": 1,
+              "signals": [
+                "network_load",
+                "alert_level",
+                "corruption",
+                "power_state",
+                "wave_intensity"
+              ]
+            },
+            "vents": {
+              "node": "CS_REACTIVE/OWNER_B02/B02_vents",
+              "objects": 33,
+              "signals": [
+                "heat_level",
+                "network_load"
+              ]
+            },
+            "warning_lights": {
+              "node": "CS_REACTIVE/OWNER_B02/B02_warning_lights",
+              "objects": 2,
+              "signals": [
+                "alert_level",
+                "heat_level",
+                "electric_activity"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_B02/B02_windows",
+              "objects": 53,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        },
+        {
+          "id": "YARD",
+          "node": "CS_REACTIVE/OWNER_YARD",
+          "channels": {
+            "antennas": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_antennas",
+              "objects": 14,
+              "signals": [
+                "network_load"
+              ]
+            },
+            "data_conduit": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_data_conduit",
+              "objects": 12,
+              "signals": [
+                "network_load",
+                "corruption",
+                "electric_activity"
+              ]
+            },
+            "mechanisms": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_mechanisms",
+              "objects": 8,
+              "signals": [
+                "alert_level"
+              ]
+            },
+            "programmable": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_programmable",
+              "objects": 26,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "screens": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_screens",
+              "objects": 8,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "signage": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_signage",
+              "objects": 21,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state"
+              ]
+            },
+            "vents": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_vents",
+              "objects": 25,
+              "signals": [
+                "heat_level",
+                "network_load"
+              ]
+            },
+            "warning_lights": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_warning_lights",
+              "objects": 7,
+              "signals": [
+                "alert_level",
+                "heat_level",
+                "electric_activity"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_YARD/YARD_windows",
+              "objects": 2,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "sector_08_thermal": {
+      "members": [
+        {
+          "id": "B03",
+          "node": "CS_REACTIVE/OWNER_B03",
+          "channels": {
+            "vents": {
+              "node": "CS_REACTIVE/OWNER_B03/B03_vents",
+              "objects": 6,
+              "signals": [
+                "heat_level",
+                "network_load"
+              ]
+            },
+            "warning_lights": {
+              "node": "CS_REACTIVE/OWNER_B03/B03_warning_lights",
+              "objects": 2,
+              "signals": [
+                "alert_level",
+                "heat_level",
+                "electric_activity"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_B03/B03_windows",
+              "objects": 9,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "sector_08_network": {
+      "members": [
+        {
+          "id": "B04",
+          "node": "CS_REACTIVE/OWNER_B04",
+          "channels": {
+            "emissive_windows": {
+              "node": "CS_REACTIVE/OWNER_B04/B04_emissive_windows",
+              "objects": 11,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state",
+                "network_load"
+              ]
+            },
+            "facade_panels": {
+              "node": "CS_REACTIVE/OWNER_B04/B04_facade_panels",
+              "objects": 1,
+              "signals": [
+                "network_load",
+                "alert_level",
+                "corruption",
+                "power_state",
+                "wave_intensity"
+              ]
+            },
+            "programmable": {
+              "node": "CS_REACTIVE/OWNER_B04/B04_programmable",
+              "objects": 3,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "screens": {
+              "node": "CS_REACTIVE/OWNER_B04/B04_screens",
+              "objects": 2,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_B04/B04_windows",
+              "objects": 79,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        },
+        {
+          "id": "B05",
+          "node": "CS_REACTIVE/OWNER_B05",
+          "channels": {
+            "emissive_windows": {
+              "node": "CS_REACTIVE/OWNER_B05/B05_emissive_windows",
+              "objects": 7,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state",
+                "network_load"
+              ]
+            },
+            "facade_panels": {
+              "node": "CS_REACTIVE/OWNER_B05/B05_facade_panels",
+              "objects": 2,
+              "signals": [
+                "network_load",
+                "alert_level",
+                "corruption",
+                "power_state",
+                "wave_intensity"
+              ]
+            },
+            "programmable": {
+              "node": "CS_REACTIVE/OWNER_B05/B05_programmable",
+              "objects": 1,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "signage": {
+              "node": "CS_REACTIVE/OWNER_B05/B05_signage",
+              "objects": 2,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_B05/B05_windows",
+              "objects": 116,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        },
+        {
+          "id": "BGCITY",
+          "node": "CS_REACTIVE/OWNER_BGCITY",
+          "channels": {
+            "emissive_windows": {
+              "node": "CS_REACTIVE/OWNER_BGCITY/BGCITY_emissive_windows",
+              "objects": 23,
+              "signals": [
+                "alert_level",
+                "corruption",
+                "power_state",
+                "network_load"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_BGCITY/BGCITY_windows",
+              "objects": 13,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "sector_08_network_spine": {
+      "members": [
+        {
+          "id": "SPINE",
+          "node": "CS_REACTIVE/OWNER_SPINE",
+          "channels": {
+            "data_conduit": {
+              "node": "CS_REACTIVE/OWNER_SPINE/SPINE_data_conduit",
+              "objects": 22,
+              "signals": [
+                "network_load",
+                "corruption",
+                "electric_activity"
+              ]
+            },
+            "execution_traces": {
+              "node": "CS_REACTIVE/OWNER_SPINE/SPINE_execution_traces",
+              "objects": 4,
+              "signals": [
+                "network_load",
+                "corruption"
+              ]
+            },
+            "rings": {
+              "node": "CS_REACTIVE/OWNER_SPINE/SPINE_rings",
+              "objects": 7,
+              "signals": [
+                "network_load",
+                "wave_intensity"
+              ]
+            },
+            "screens": {
+              "node": "CS_REACTIVE/OWNER_SPINE/SPINE_screens",
+              "objects": 2,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "status_nodes": {
+              "node": "CS_REACTIVE/OWNER_SPINE/SPINE_status_nodes",
+              "objects": 6,
+              "signals": [
+                "network_load",
+                "corruption",
+                "alert_level"
+              ]
+            },
+            "windows": {
+              "node": "CS_REACTIVE/OWNER_SPINE/SPINE_windows",
+              "objects": 7,
+              "signals": [
+                "power_state"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

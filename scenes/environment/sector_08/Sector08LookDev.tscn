@@ -1,0 +1,101 @@
+[gd_scene format=3 uid="uid://bjo8ih0ui1lt6"]
+
+[ext_resource type="Script" uid="uid://dufadfq524j67" path="res://scenes/environment/sector_08/runtime/sector_08_lookdev.gd" id="1_lookdev"]
+[ext_resource type="PackedScene" path="res://scenes/environment/sector_08/runtime/sector_08_runtime.tscn" id="2_runtime"]
+[ext_resource type="Script" uid="uid://vjtlmvepk7hr" path="res://scenes/environment/sector_08/runtime/reactive_district_controller.gd" id="3_controller"]
+[ext_resource type="Texture2D" uid="uid://b7ieil0tluar7" path="res://materials/Support/Idle.png" id="4_character"]
+[ext_resource type="Shader" uid="uid://ttyvxtkjhr6r" path="res://scenes/environment/sector_08/runtime/contact_shadow.gdshader" id="5_shadow"]
+
+[sub_resource type="Environment" id="Environment_runtime"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_character"]
+atlas = ExtResource("4_character")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
+render_priority = 1
+shader = ExtResource("5_shadow")
+
+[sub_resource type="QuadMesh" id="QuadMesh_shadow"]
+material = SubResource("ShaderMaterial_shadow")
+size = Vector2(1.15, 0.62)
+orientation = 1
+
+[node name="Sector08LookDev" type="Node3D" unique_id=455484452]
+script = ExtResource("1_lookdev")
+
+[node name="Sector08Runtime" parent="." unique_id=2100103373 instance=ExtResource("2_runtime")]
+
+[node name="RuntimeEnvironment" type="WorldEnvironment" parent="." unique_id=1024026355]
+environment = SubResource("Environment_runtime")
+
+[node name="GameplayCamera" type="Camera3D" parent="." unique_id=1538650438]
+keep_aspect = 0
+current = true
+fov = 30.0
+near = 0.5
+far = 420.0
+
+[node name="TestCharacter" type="Node3D" parent="." unique_id=1522713957]
+
+[node name="CharacterSprite" type="Sprite3D" parent="TestCharacter" unique_id=1052099804]
+pixel_size = 0.014
+billboard = 1
+alpha_cut = 1
+texture_filter = 0
+render_priority = 2
+texture = SubResource("AtlasTexture_character")
+
+[node name="ContactShadow" type="MeshInstance3D" parent="TestCharacter" unique_id=91987147]
+cast_shadow = 0
+mesh = SubResource("QuadMesh_shadow")
+
+[node name="ReactiveDistrictController" type="Node" parent="." unique_id=1372031415]
+script = ExtResource("3_controller")
+
+[node name="DebugControls" type="CanvasLayer" parent="." unique_id=867469516]
+layer = 20
+
+[node name="LookDevHelpers" type="Node3D" parent="." unique_id=1282596189]
+
+[node name="KeyLight" type="DirectionalLight3D" parent="LookDevHelpers" unique_id=1950715468]
+shadow_enabled = true
+
+[node name="FillLight" type="DirectionalLight3D" parent="LookDevHelpers" unique_id=1173991832]
+transform = Transform3D(-0.84804803, -0.24878205, 0.46789098, 0, 0.88294756, 0.46947157, -0.5299193, 0.39813444, -0.7487819, 0, 0, 0)
+light_color = Color(0.48, 0.18, 0.34, 1)
+light_energy = 0.16
+
+[node name="MotivatedLights" type="Node3D" parent="LookDevHelpers" unique_id=243144775]
+
+[node name="SpineCyan" type="OmniLight3D" parent="LookDevHelpers/MotivatedLights" unique_id=1500245989]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 8.4, -14)
+light_color = Color(0.08, 0.55, 0.82, 1)
+light_energy = 1.35
+light_volumetric_fog_energy = 0.28
+light_specular = 0.55
+omni_range = 14.0
+
+[node name="IndustrialAmberWest" type="OmniLight3D" parent="LookDevHelpers/MotivatedLights" unique_id=848852375]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4.4, 3)
+light_color = Color(1, 0.34, 0.09, 1)
+light_energy = 1.4
+light_volumetric_fog_energy = 0.16
+light_specular = 0.4
+omni_range = 10.5
+
+[node name="IndustrialAmberCenter" type="OmniLight3D" parent="LookDevHelpers/MotivatedLights" unique_id=1274079983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.2, -2)
+light_color = Color(1, 0.42, 0.12, 1)
+light_energy = 1.2
+light_volumetric_fog_energy = 0.14
+light_specular = 0.38
+omni_range = 9.0
+
+[node name="CorruptionMagenta" type="OmniLight3D" parent="LookDevHelpers/MotivatedLights" unique_id=932028580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.3, 8.5, -5.9)
+light_color = Color(0.72, 0.04, 0.38, 1)
+light_energy = 0.42
+light_volumetric_fog_energy = 0.08
+light_specular = 0.35
+omni_range = 8.0
