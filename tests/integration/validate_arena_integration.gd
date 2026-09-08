@@ -89,16 +89,22 @@ func _run() -> void:
 	report["rig_enabled"] = arena.camera_rig.enabled
 	report["rig_has_target"] = arena.camera_rig.target != null
 	_check("rig_follows_local_player", arena.camera_rig.enabled and arena.camera_rig.target == local)
-	# Walk well past the dead zone. The spawn sits near frame centre and the dead zone is a tenth
-	# of a 46 m wide frame, so a couple of metres would legitimately move the camera not at all.
 	Input.action_press("move_right")
-	for i in 260: await get_tree().process_frame
+	for i in 120: await get_tree().process_frame
 	Input.action_release("move_right")
 	for i in 20: await get_tree().process_frame
 	var travelled: Vector3 = local.global_position - start
 	report["travel_m"] = snappedf(travelled.length(), 0.01)
 	_check("player_moved", travelled.length() > 1.0)
 	_check("moved_along_camera_right", travelled.normalized().dot(camera_right) > 0.9)
+	# Walking distance is not a reliable way to leave the dead zone: the yard has props, and a
+	# run that clips one travels half as far and legitimately moves the camera not at all. Place
+	# the target at a known excursion instead, so this measures the rig and not the pathing.
+	var excursion: Vector3 = local.global_position
+	excursion = Vector3(arena.framing_target.x, local.global_position.y, arena.framing_target.z) + camera_right * 11.0
+	local.global_position = excursion
+	local.velocity = Vector3.ZERO
+	for i in 120: await get_tree().process_frame
 	report["camera_translated_m"] = snappedf(camera.global_position.distance_to(camera_start), 0.01)
 	_check("camera_followed", camera.global_position.distance_to(camera_start) > 0.25)
 	report["rig_offset"] = arena.camera_rig.get_report()
