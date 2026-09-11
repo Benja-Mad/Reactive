@@ -162,6 +162,26 @@ func _run() -> void:
 	report["bounds_blocked"] = blocked
 	_check("bounds_stop_player_at_fence", blocked["west"] and blocked["east"] and blocked["south"])
 
+	# The foreground board is placed in screen space, so a change of framing is exactly when it can
+	# quietly grow. Its band is measured here rather than assumed -- and measured at each end of the
+	# rig's vertical travel as well as on the composed framing, because the board is world geometry
+	# and the camera moving up or down slides it across the frame.
+	if runtime.billboard != null:
+		report["billboard"] = runtime.billboard.get_report()
+		var height: float = get_viewport().get_visible_rect().size.y
+		var bands: Dictionary = {}
+		for entry: Array in [["composed", 0.0], ["rig_up", arena.follow_limit.y], ["rig_down", -arena.follow_limit.y]]:
+			arena.camera_rig.offset = Vector2(0.0, float(entry[1]))
+			arena.camera_rig._apply()
+			await get_tree().process_frame
+			bands[str(entry[0])] = snappedf(1.0 - camera.unproject_position(runtime.billboard.global_position).y / height, 0.001)
+		arena.camera_rig.offset = Vector2.ZERO
+		arena.camera_rig._apply()
+		await get_tree().process_frame
+		report["billboard_band"] = bands
+		report["billboard_band_swing"] = snappedf(absf(float(bands["rig_up"]) - float(bands["rig_down"])), 0.001)
+		_check("billboard_closes_edge_without_dominating", float(bands["composed"]) > 0.03 and float(bands["composed"]) < 0.14)
+
 	report["framing"] = arena.get_framing_report()
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(_out.get_base_dir().path_join("arena_integration.png"))

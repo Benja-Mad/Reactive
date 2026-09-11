@@ -20,11 +20,19 @@ extends Node3D
 
 ## Point the framing is composed around, in world space.
 @export var framing_target: Vector3 = Vector3(0.0, 6.15, -2.0)
-@export var framing_distance: float = 85.8
+## Was 85.8 m at 30 degrees. Chosen from a measured sweep: Sector 08 is a small yard, and seeing
+## all of it at once gives the level away, so the camera comes in and tilts down less. Against the
+## old framing this is a 51% larger figure, a perspective gradient of 1.335 against 1.173, a
+## parallax ratio of 1.498 against 1.312, and 59% of the walkable box in frame instead of 79%.
+## See authored/sector08/claude_framing_trials_20260908.
+@export var framing_distance: float = 60.0
 @export var framing_yaw_degrees: float = 35.0
-@export var framing_pitch_degrees: float = 30.0
-## "P30". The whole look is calibrated to this; changing it invalidates the depth blur ramp and
-## every screen-space composition rule that depends on it.
+## Reclining buys depth and spends floor legibility: a metre of forward movement is worth 0.43 of
+## a metre sideways here, against 0.50 before. That is the number to watch if depth position ever
+## becomes hard to read in play -- 27 degrees puts it back to 0.47 at a small cost in perspective.
+@export var framing_pitch_degrees: float = 24.0
+## The field of view is the one dial that is pure crop: it magnifies without changing any depth
+## cue, so it stays where the look was approved. Getting closer is what adds depth.
 @export var framing_fov: float = 30.0
 @export var framing_near: float = 0.5
 @export var framing_far: float = 420.0
@@ -33,8 +41,10 @@ extends Node3D
 
 ## Fraction of the frame the target may move within before the camera starts translating.
 @export var follow_dead_zone: Vector2 = Vector2(0.10, 0.13)
-## Metres the camera may travel from the approved origin, along its own right and up axes.
-@export var follow_limit: Vector2 = Vector2(9.0, 3.0)
+## Metres the camera may travel from the approved origin, along its own right and up axes. Scaled
+## with the framing distance: it was 9 m at 85.8 m, and leaving it there at 60 m would have turned
+## the same follow into 43% more swing across the frame.
+@export var follow_limit: Vector2 = Vector2(6.3, 2.1)
 @export var follow_speed: float = 3.2
 
 # --- Presentation -----------------------------------------------------------------------------

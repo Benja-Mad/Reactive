@@ -100,7 +100,7 @@ func _apply_framing_dependent_pass() -> void:
 		perimeter = preload("res://scenes/environment/sector_08/runtime/sector_08_perimeter.gd").new()
 		perimeter.name = "PerimeterFill"
 		add_child(perimeter)
-		perimeter.build(imported_environment, camera)
+		perimeter.build(imported_environment, camera, composition_framing_distance)
 	if ground_dressing != null:
 		ground_dressing.setup(imported_environment, camera)
 	if billboard_enabled and camera != null:
