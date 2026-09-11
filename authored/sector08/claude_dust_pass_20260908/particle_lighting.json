@@ -1,0 +1,17 @@
+{
+  "beam_pool": 0.827,
+  "beam_pool_noise_floor": 0.003,
+  "deep_shadow": 1.897,
+  "deep_shadow_noise_floor": 0.878,
+  "facade_screen": 1.03,
+  "facade_screen_noise_floor": 0.0,
+  "lit_mean": 0.987,
+  "lit_over_shadow": 1.03,
+  "open_shadow": 0.022,
+  "open_shadow_noise_floor": 0.0,
+  "shadow_mean": 0.96,
+  "sodium_beam": 1.147,
+  "sodium_beam_noise_floor": 0.007,
+  "spine_shaft": 0.653,
+  "spine_shaft_noise_floor": 0.006
+}
