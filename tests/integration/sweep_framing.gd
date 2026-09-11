@@ -109,6 +109,18 @@ func run() -> void:
 	report["post_far_px"] = snappedf(far_post, 0.2)
 	report["size_gradient"] = snappedf(near_post / maxf(far_post, 0.001), 0.001)
 
+	# Foreshortening of the floor: screen pixels per metre of *depth* against pixels per metre
+	# *sideways*, at the gameplay plane. 1.0 would be a straight top-down view where a step forward
+	# reads as clearly as a step sideways; the lower this gets, the harder it is to tell whether
+	# something is in front of you or behind you. This is what a more reclined camera costs, and
+	# it is the cost that does not show up in a still frame.
+	var origin_px: Vector2 = camera.unproject_position(Vector3(0.0, 0.05, -2.0))
+	var depth_px: float = absf(camera.unproject_position(Vector3(0.0, 0.05, -3.0)).y - origin_px.y)
+	var lateral_px: float = camera.unproject_position(Vector3(1.0, 0.05, -2.0)).distance_to(origin_px)
+	report["depth_px_per_m"] = snappedf(depth_px, 0.01)
+	report["lateral_px_per_m"] = snappedf(lateral_px, 0.01)
+	report["floor_readability"] = snappedf(depth_px / maxf(lateral_px, 0.001), 0.001)
+
 	# How much of the walkable box is on screen at once.
 	var rect := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size)
 	var inside: int = 0
