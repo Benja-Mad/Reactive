@@ -181,6 +181,9 @@ func _run() -> void:
 		report["billboard_band"] = bands
 		report["billboard_band_swing"] = snappedf(absf(float(bands["rig_up"]) - float(bands["rig_down"])), 0.001)
 		_check("billboard_closes_edge_without_dominating", float(bands["composed"]) > 0.03 and float(bands["composed"]) < 0.14)
+		# The board rides the rig's vertical travel, so the band it holds should be the same at
+		# every height. Before that it swung a third of the frame.
+		_check("billboard_band_holds_through_travel", float(report["billboard_band_swing"]) < 0.02)
 
 	report["framing"] = arena.get_framing_report()
 	await RenderingServer.frame_post_draw

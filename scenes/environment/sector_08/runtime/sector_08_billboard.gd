@@ -9,6 +9,13 @@
 ## It is world geometry, so it parallaxes correctly and stays put while the player walks. Its
 ## placement is derived once from the approved framing, because "covers the bottom band of the
 ## P30 frame" is a screen-space requirement that would be guesswork to hand-place in metres.
+##
+## One exception to being world geometry: it rides the rig's *vertical* travel. Measured, the
+## board's band swung from 23.8% of frame height with the camera at the bottom of its travel to
+## off the frame entirely at the top -- so the thing whose job is to close the bottom edge did it
+## only near the middle. Following the camera's up axis pins its screen height; the lateral offset
+## is deliberately not followed, so the parallax that actually reads -- the sideways one, against a
+## yard 40 m behind it -- is untouched.
 extends Node3D
 
 ## Where the top edge of the screen should land in the frame, as a fraction of frame height.
@@ -32,6 +39,13 @@ var screen: MeshInstance3D
 var material: ShaderMaterial
 var spill: OmniLight3D
 var placement: Dictionary = {}
+
+## Camera and board positions on the composed framing, which is what the vertical tracking is
+## measured against. The camera never rotates, so its up axis is a constant too.
+var _camera: Camera3D
+var _camera_origin: Vector3
+var _board_origin: Vector3
+var _up: Vector3 = Vector3.UP
 
 
 func setup(camera: Camera3D, framing_distance: float = REFERENCE_DISTANCE) -> void:
@@ -111,6 +125,11 @@ func setup(camera: Camera3D, framing_distance: float = REFERENCE_DISTANCE) -> vo
 	add_child(spill)
 	spill.position = Vector3(0.0, 2.4, 5.0)
 
+	_camera = camera
+	_camera_origin = camera.global_position
+	_board_origin = global_position
+	_up = camera.global_basis.y.normalized()
+
 	placement = {
 		"top_centre": str(global_position.snappedf(0.01)),
 		"viewport": str(viewport),
@@ -123,6 +142,16 @@ func setup(camera: Camera3D, framing_distance: float = REFERENCE_DISTANCE) -> vo
 		"spill_energy": spill.light_energy,
 		"brightness": 0.34,
 	}
+
+
+## Holds the board at the screen height it was composed at, whatever the rig's vertical travel is
+## doing. Only the component of the camera's drift along its own up axis is applied: that axis is
+## perpendicular to the view direction, so moving both camera and board by the same amount along it
+## leaves their relative offset -- and therefore the board's screen position -- exactly unchanged.
+func _process(_delta: float) -> void:
+	if _camera == null:
+		return
+	global_position = _board_origin + _up * (_camera.global_position - _camera_origin).dot(_up)
 
 
 ## Same supply curve as every other emitter in the district, plus corruption driving the panel
@@ -140,5 +169,6 @@ func sync_state(values: Dictionary) -> void:
 func get_report() -> Dictionary:
 	var report: Dictionary = placement.duplicate()
 	report["supply"] = material.get_shader_parameter("supply")
+	report["vertical_tracking_m"] = snappedf((global_position - _board_origin).dot(_up), 0.001)
 	report["spill_energy_now"] = snappedf(spill.light_energy, 0.01)
 	return report
