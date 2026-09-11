@@ -19,6 +19,16 @@ would have looked broken for a reason that had nothing to do with the camera:
 - **The parallax dust layers** sat at 14/37/64 m. Now fractions of the framing distance, so they
   stay at the same screen depths.
 
+## Reading the images
+
+`labelled/contact_sheet.png` is all twelve in one grid, each captioned with its parameters and its
+four numbers, laid out as the comparison: dolly across the top row, lens on the second, pitch on
+the third, yaw on the fourth. `labelled/<id>_labelled.png` is each frame again at full size with
+the same caption burned in.
+
+The sheet is rendered into a SubViewport rather than screenshotted from the window: the OS clamps
+a window to the display, which silently cropped the bottom row off the first attempt.
+
 ## The trials
 
 `figure` = screen height of 1.6 m at the gameplay plane, i.e. apparent closeness.
