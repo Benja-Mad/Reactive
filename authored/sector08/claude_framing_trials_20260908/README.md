@@ -87,8 +87,46 @@ gone from frame.
 Do not raise the pitch to get more floor on screen: it is the one dial that genuinely flattens the
 scene.
 
+## Second sweep: closer *and* more reclined
+
+After the first sweep the direction chosen was more zoom (the arena is small, and seeing all of it
+at once gives the game away) with a slightly more reclined camera. `lower_closer/` is that corner
+sampled: pitch 22–27 against 60–68 m, with A0 and A1 alongside for reference.
+
+This sweep added one measurement the first was missing, because it is the cost of reclining and it
+does not show up in a still frame. **`legibilidad del suelo`** is screen pixels per metre of
+*depth* against pixels per metre *sideways*, at the gameplay plane. At 1.0 a step forward would
+read exactly as clearly as a step to the side; the lower it goes, the harder it is to tell whether
+something is in front of you or behind you.
+
+| | pitch / dist | figure | gradient | parallax | yard | floor |
+|---|---|---|---|---|---|---|
+| A0 *shipped* | 30 / 85.8 | 54.7 | 1.173 | 1.312 | 79% | 0.50 |
+| A1 | 30 / 72 | 64.8 | 1.207 | 1.378 | 68% | 0.50 |
+| F1 | 27 / 68 | 70.8 | 1.258 | 1.418 | 66% | 0.47 |
+| F2 | 25 / 68 | 72.3 | 1.282 | 1.427 | 66% | 0.44 |
+| F3 | 22 / 68 | 74.4 | 1.315 | 1.441 | 67% | 0.40 |
+| **F4** | **27 / 64** | **75.1** | **1.275** | **1.447** | **62%** | **0.47** |
+| F5 | 25 / 64 | 76.7 | 1.300 | 1.458 | 63% | 0.44 |
+| F6 | 27 / 60 | 79.9 | 1.294 | 1.481 | 59% | 0.47 |
+| F7 | 24 / 60 | 82.4 | 1.335 | 1.498 | 59% | 0.43 |
+
+Reclining keeps buying depth all the way down — F7 at pitch 24 has the best gradient and parallax
+in either sweep — but the floor number falls with it, and it falls faster than the depth rises.
+Between pitch 27 and 22 the gradient gains 4.5% while floor legibility loses 15%.
+
+**F4 (pitch 27, 64 m)** is where that trade still favours the scene: the figure is 37% larger than
+today, the perspective gradient and the parallax are both well above the shipped framing, 62% of
+the yard is in frame, and the floor still reads at 0.47 against today's 0.50 — a 6% cost.
+
+**F6 (pitch 27, 60 m)** is the same tilt pushed as close as the set goes: 80 px and 59% of the
+yard, with floor legibility unchanged from F4 at 0.47. It is the one to pick if F4 still feels far.
+
+Below pitch 25 is where it stops being free. 0.40 means a metre of forward movement reads at two
+fifths of a metre sideways, and that is the register where positioning mistakes start.
+
 ## One thing to change with it
 
 `follow_limit` is 9 m in world units, so a closer framing turns the same travel into more screen
-movement. At 72 m the camera would swing about 19% further across the frame than it does now;
-7.5 m keeps the screen-space travel identical.
+movement. Scale it by the new distance over 85.8 to keep the screen-space travel identical: 7.5 m
+at 72 m, **6.7 m at 64 m**, 6.3 m at 60 m.

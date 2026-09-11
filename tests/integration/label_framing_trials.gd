@@ -6,31 +6,16 @@
 ## the labels are real Control nodes rendered into a SubViewport -- crisp rather than blitted, and
 ## offscreen because the OS clamps a window to the display, which silently cropped the bottom row
 ## off the first version of this sheet.
+##
+## The captions come from a manifest written by the sweep itself, so the numbers under each frame
+## are the ones that run measured -- not a set retyped by hand alongside it.
 extends Node
-
-## id, caption, and the numbers that decide it. Order is the comparison: dolly, lens, pitch, yaw.
-const TRIALS: Array = [
-	["A0_p30_y35_d86_f30_current", "A0 · ACTUAL · 86 m · pitch 30 · FOV 30", "figura 55 px · profundidad 1.173 · paralaje 1.312 · patio 79%"],
-	["A1_p30_y35_d72_f30", "A1 · 72 m · pitch 30 · FOV 30   ← recomendada", "figura 65 px · profundidad 1.207 · paralaje 1.378 · patio 68%"],
-	["A2_p30_y35_d60_f30", "A2 · 60 m · pitch 30 · FOV 30", "figura 77 px · profundidad 1.249 · paralaje 1.463 · patio 58%"],
-
-	["A3_p30_y35_d86_f25", "A3 · 86 m · FOV 25 (lente, no dolly)", "figura 66 px · profundidad 1.174 · paralaje 1.312 · patio 67%"],
-	["A4_p30_y35_d86_f21", "A4 · 86 m · FOV 21 (lente, no dolly)", "figura 80 px · profundidad 1.176 · paralaje 1.312 · patio 55%"],
-	["D1_p30_y35_d72_f26", "D1 · 72 m · FOV 26 (dolly + lente)", "figura 75 px · profundidad 1.208 · paralaje 1.378 · patio 60%"],
-
-	["B1_p24_y35_d72_f30", "B1 · 72 m · pitch 24 (más tumbada)", "figura 69 px · profundidad 1.276 · paralaje 1.405 · patio 70%"],
-	["B2_p36_y35_d72_f30", "B2 · 72 m · pitch 36 (más cenital)", "figura 60 px · profundidad 1.127 · paralaje 1.347 · patio 67%"],
-	["B3_p42_y35_d72_f30", "B3 · 72 m · pitch 42 (cenital)", "figura 54 px · profundidad 1.037 ← casi ortográfico · patio 63%"],
-
-	["C1_p30_y25_d72_f30", "C1 · 72 m · yaw 25", "figura 65 px · profundidad 1.232 · paralaje 1.411 · patio 70%"],
-	["C2_p30_y45_d72_f30", "C2 · 72 m · yaw 45", "figura 65 px · profundidad 1.176 · paralaje 1.333 · patio 67%"],
-	["E1_p34_y35_d76_f27", "E1 · 76 m · pitch 34 · FOV 27 (mixta)", "figura 65 px · profundidad 1.148 · paralaje 1.337 · patio 64%"],
-]
 
 const COLUMNS := 3
 const CELL := Vector2i(864, 486)
 const CAPTION_HEIGHT := 74
 
+var trials: Array = []
 var source: String
 var out: String
 
@@ -86,15 +71,16 @@ func run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	source = args[0]
 	out = args[1]
+	trials = JSON.parse_string(FileAccess.get_file_as_string(args[2])) as Array
 	DirAccess.make_dir_recursive_absolute(out)
 
 	# --- the contact sheet --------------------------------------------------------------------
-	var rows: int = int(ceil(float(TRIALS.size()) / float(COLUMNS)))
+	var rows: int = int(ceil(float(trials.size()) / float(COLUMNS)))
 	var grid := GridContainer.new()
 	grid.columns = COLUMNS
 	grid.add_theme_constant_override(&"h_separation", 0)
 	grid.add_theme_constant_override(&"v_separation", 0)
-	for trial: Array in TRIALS:
+	for trial: Array in trials:
 		var cell := VBoxContainer.new()
 		cell.custom_minimum_size = Vector2(CELL.x, CELL.y + CAPTION_HEIGHT)
 		cell.add_theme_constant_override(&"separation", 0)
@@ -104,14 +90,14 @@ func run() -> void:
 		frame.stretch_mode = TextureRect.STRETCH_SCALE
 		frame.custom_minimum_size = Vector2(CELL)
 		cell.add_child(frame)
-		var label: Control = caption(str(trial[1]), str(trial[2]), 23, 19, str(trial[0]).begins_with("A1"))
+		var label: Control = caption(str(trial[1]), str(trial[2]), 23, 19, bool(trial[3]))
 		label.custom_minimum_size = Vector2(CELL.x, CAPTION_HEIGHT)
 		cell.add_child(label)
 		grid.add_child(cell)
 	await render(grid, Vector2i(CELL.x * COLUMNS, (CELL.y + CAPTION_HEIGHT) * rows), out.path_join("contact_sheet.png"))
 
 	# --- each frame again, full size, with its own caption ------------------------------------
-	for trial: Array in TRIALS:
+	for trial: Array in trials:
 		var page := Control.new()
 		page.set_anchors_preset(Control.PRESET_FULL_RECT)
 		var frame := TextureRect.new()
@@ -125,10 +111,10 @@ func run() -> void:
 		plate.color = Color(0.02, 0.025, 0.035, 0.82)
 		plate.size = Vector2(1920, 86)
 		page.add_child(plate)
-		var label: Control = caption(str(trial[1]), str(trial[2]), 30, 23, str(trial[0]).begins_with("A1"))
+		var label: Control = caption(str(trial[1]), str(trial[2]), 30, 23, bool(trial[3]))
 		label.position = Vector2(28, 12)
 		page.add_child(label)
 		await render(page, Vector2i(1920, 1080), out.path_join(str(trial[0]).split("_")[0] + "_labelled.png"))
 
-	print("LABELLED ", TRIALS.size(), " trials into ", out)
+	print("LABELLED ", trials.size(), " trials into ", out)
 	get_tree().quit()
