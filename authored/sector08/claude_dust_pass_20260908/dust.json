@@ -1,0 +1,25 @@
+{
+  "basis_preserved": true,
+  "dust": {
+    "additional_lights": 0,
+    "depths_m": [
+      14.0,
+      37.0,
+      64.0
+    ],
+    "draw_calls": 3,
+    "layers": 3,
+    "particles": 164,
+    "shadow_casting": false,
+    "shared_shader": 1,
+    "world_anchored": true
+  },
+  "fov": 30.0,
+  "screen_shift_px_over_12m": {
+    "architecture": 318.19,
+    "foreground_drift": 896.53,
+    "gameplay_plane": 375.14,
+    "lens_motes": 2551.66,
+    "middle_dust": 518.31
+  }
+}
