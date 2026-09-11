@@ -42,10 +42,14 @@ const FENCE_MERGE_RADIUS := 2.6
 const WALL_OFFSET := 8.0
 const BLOCK_MIN := 12.0
 const BLOCK_MAX := 34.0
-## Nothing tall is placed nearer to the camera than this. The facade screen sits at 58 m and owns
-## the foreground; a backdrop block closer than that stops being a backdrop and starts being an
-## object in front of the shot, which is what the east side ended up with.
-const CAMERA_CLEARANCE := 62.0
+## Nothing tall is placed nearer to the camera than this, as a fraction of the framing distance.
+## The facade screen sits at 0.676 of it and owns the foreground; a backdrop block closer than
+## that stops being a backdrop and starts being an object in front of the shot, which is what the
+## east side ended up with. Stated as a fraction, not the 62 m it used to be: at a 60 m framing
+## that constant culled everything between 43 and 62 m and thinned the lot behind the fence by a
+## quarter for no reason.
+const CAMERA_CLEARANCE_FRACTION := 0.72
+const REFERENCE_DISTANCE := 85.8
 const SEED := 20260908
 
 ## Copied from the source mesh onto each clone. The calibrated shaders read all of these through
@@ -60,12 +64,14 @@ var stats: Dictionary = {}
 
 var _covered: Dictionary = {}
 var _camera: Camera3D
+var _clearance: float = CAMERA_CLEARANCE_FRACTION * REFERENCE_DISTANCE
 var _space: PhysicsDirectSpaceState3D
 var _probe: PhysicsShapeQueryParameters3D
 
 
-func build(environment: Node3D, camera: Camera3D = null) -> void:
+func build(environment: Node3D, camera: Camera3D = null, framing_distance: float = REFERENCE_DISTANCE) -> void:
 	_camera = camera
+	_clearance = CAMERA_CLEARANCE_FRACTION * framing_distance
 	var slab: MeshInstance3D = _template(environment, "Yard_Slab")
 	var panel: MeshInstance3D = _template(environment, "ChainlinkPanel")
 	if slab == null or panel == null:
@@ -150,7 +156,7 @@ func _mark_triangle(a: Vector2, b: Vector2, c: Vector2) -> void:
 func _behind_foreground(point: Vector3) -> bool:
 	if _camera == null:
 		return true
-	return _camera.global_position.distance_to(point) > CAMERA_CLEARANCE
+	return _camera.global_position.distance_to(point) > _clearance
 
 
 func _in_triangle(a: Vector2, b: Vector2, c: Vector2, p: Vector2) -> bool:

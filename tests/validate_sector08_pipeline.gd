@@ -33,7 +33,19 @@ func run() -> void:
  settle(controller, 3.0)
  assert(is_equal_approx(scene.gameplay_camera.fov, 30.0))
  assert(scene.gameplay_camera.keep_aspect == Camera3D.KEEP_WIDTH)
- assert(scene.gameplay_camera.global_position.distance_to(Vector3(42.61959, 49.05, 58.86708)) < 0.001)
+ # Derived from the arena's own framing rather than pinned to a literal. The literal was the P30
+ # position, so retuning the framing broke this check without anything actually being wrong --
+ # and a pinned number could not have caught what this is for: something moving the camera off
+ # the framing the level declares.
+ var expected_pitch: float = deg_to_rad(scene.framing_pitch_degrees)
+ var expected_yaw: float = deg_to_rad(scene.framing_yaw_degrees)
+ var expected_horizontal: float = cos(expected_pitch) * scene.framing_distance
+ var expected_origin: Vector3 = scene.framing_target + Vector3(
+  sin(expected_yaw) * expected_horizontal,
+  sin(expected_pitch) * scene.framing_distance,
+  cos(expected_yaw) * expected_horizontal)
+ assert(scene.gameplay_camera.global_position.distance_to(expected_origin) < 0.001)
+ assert(scene.gameplay_camera.global_basis.z.dot((expected_origin - scene.framing_target).normalized()) > 0.9999)
  var old_tests: Node = load("res://tests/test_sector08_runtime.gd").new()
  old_tests.test_sector_lookdev_resources_load()
  old_tests.test_imported_extras_and_vertex_channels_are_auditable()
