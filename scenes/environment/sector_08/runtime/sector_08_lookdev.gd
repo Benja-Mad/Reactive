@@ -636,7 +636,13 @@ func _configure_authored_pbr_lighting() -> void:
 	industrial_amber_center.light_energy = 12.0
 	industrial_amber_center.omni_range = 17.0
 	industrial_amber_center.omni_attenuation = 0.7
-	corruption_magenta_light.light_energy = 0.7
+	# The district's third colour was unreachable rather than dim: a 9 m sphere floating 10.6 m up
+	# at the far edge, which unprojects to the very top row of the frame and never touches the
+	# ground -- raising its energy to six moved the image by nothing. Brought down to bay height
+	# and given the reach to spill onto the slabs, so magenta is a colour the yard actually has.
+	corruption_magenta_light.light_energy = 4.2
+	corruption_magenta_light.omni_range = 19.0
+	corruption_magenta_light.omni_attenuation = 1.3
 	# Coordinates come from Blender's actual fixture anchors (x, z, -y in Godot).
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://scenes/environment/sector_08/arena_manifest.json")) as Dictionary
 	var fixtures: Dictionary = {"spine_node_0": spine_cyan_light, "streetlight_0": industrial_amber_west, "compound_lamp": industrial_amber_center, "break_bay_corrupt": corruption_magenta_light}
@@ -646,6 +652,9 @@ func _configure_authored_pbr_lighting() -> void:
 			var position_values: Array = anchor["position"]
 			var light: OmniLight3D = fixtures[anchor_name] as OmniLight3D
 			light.global_position = Vector3(float(position_values[0]), float(position_values[2]), -float(position_values[1]))
+	# Keep the corruption fixture's authored plan position, drop it to where a break bay would
+	# actually leak light from.
+	corruption_magenta_light.global_position.y = 3.4
 
 	# Central pool at the existing streetlight, anchored in the authored manifest.
 	var yard_light := motivated_lights.get_node_or_null("YardStreetlight") as SpotLight3D
@@ -693,7 +702,7 @@ func _configure_authored_pbr_lighting() -> void:
 		spine_cyan_light: 22.0,
 		industrial_amber_west: 5.0,
 		industrial_amber_center: 12.0,
-		corruption_magenta_light: 0.7,
+		corruption_magenta_light: 4.2,
 		yard_light: 38.0,
 	}
 	_sync_art_lights(controller.get_values())
@@ -708,6 +717,11 @@ func _sync_art_lights(values: Dictionary) -> void:
 	supply *= 1.0 - 0.9 * clampf(float(values.get("blackout_amount", 0.0)), 0.0, 1.0)
 	for light: Light3D in _art_light_base_energy:
 		light.light_energy = float(_art_light_base_energy[light]) * supply
+	# Magenta is the corruption state's colour, so it should answer to corruption rather than sit
+	# at one level forever. It keeps a floor, so the hue is present in the palette at rest, and
+	# surges when the district is actually corrupted.
+	var corruption: float = clampf(float(values.get("corruption", 0.0)), 0.0, 1.0)
+	corruption_magenta_light.light_energy = float(_art_light_base_energy[corruption_magenta_light]) * supply * (0.6 + 1.9 * corruption)
 	if sector_runtime.particles != null:
 		sector_runtime.particles.sync_power(supply)
 	if sector_runtime.billboard != null:

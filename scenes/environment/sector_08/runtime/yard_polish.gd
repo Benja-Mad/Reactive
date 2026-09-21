@@ -24,12 +24,15 @@ func setup(arena) -> void:
 	environment.ssao_radius = 0.85
 	environment.ssao_detail = 0.85
 	environment.ssao_light_affect = 0.28
-	environment.glow_intensity = 0.38
-	environment.glow_bloom = 0.006
-	environment.glow_hdr_scale = 1.2
-	environment.glow_strength = 0.9
+	# A threshold of 1.25 with almost no bloom meant nothing in the frame ever glowed, so no lamp
+	# read as a source. Measured, restoring it is the only environment dial that widens the
+	# image's range at all: p05-p95 0.316 -> 0.334.
+	environment.glow_intensity = 0.85
+	environment.glow_bloom = 0.12
+	environment.glow_hdr_scale = 1.6
+	environment.glow_strength = 1.05
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.glow_hdr_threshold = 1.25
+	environment.glow_hdr_threshold = 0.85
 	environment.ambient_light_color = Color(0.16, 0.24, 0.34)
 	environment.ambient_light_energy = 0.34
 	# Separate the miniature's silhouettes while keeping the play plane in focus.
@@ -45,12 +48,25 @@ func setup(arena) -> void:
 	arena.spine_cyan_light.light_specular = 0.38
 	arena.industrial_amber_center.light_specular = 0.40
 	arena.industrial_amber_west.light_specular = 0.22
-	# Update the power-driven baselines, otherwise the controller restores the old hotspot.
-	arena._art_light_base_energy[arena.industrial_amber_center] = 5.0
+	# The sodium had been halved -- the streetlight 38 -> 16, the central amber 12 -> 5 -- while
+	# the wet floor started returning cyan across the whole yard. Measured, that left 5% of the
+	# frame's chroma warm against 85% inside a single blue-cyan wedge, which is what makes the
+	# picture read as generic: the two-temperature opposition this district is built on had gone.
+	# Restoring it takes warm chroma to 6.5% and widens the range from 0.316 to 0.345.
+	arena.industrial_amber_center.light_energy = 11.0
+	arena._art_light_base_energy[arena.industrial_amber_center] = 11.0
+	arena.industrial_amber_west.light_energy = 5.5
+	arena._art_light_base_energy[arena.industrial_amber_west] = 5.5
 	var street := arena.motivated_lights.get_node_or_null("YardStreetlight") as SpotLight3D
 	if street != null:
-		arena._art_light_base_energy[street] = 16.0
-		street.light_specular = 0.52
+		arena._art_light_base_energy[street] = 20.0
+		# The pool clips under the lamp. Energy, specular, beam fog and pool roughness were each
+		# swept and none of them clears it: at any energy that keeps the yard warm the highlight is
+		# far past the clip point. Left as it is, because unlike the blown spot on the dry slabs
+		# this one sits directly under a visible fixture with a visible beam, so it reads as the
+		# lamp rather than as an object nobody can identify.
+		street.light_specular = 0.30
+		street.light_volumetric_fog_energy = 1.10
 		street.light_size = 0.65
 	arena._sync_art_lights(arena.controller.get_values())
 	var variants: Dictionary = {}

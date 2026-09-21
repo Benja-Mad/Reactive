@@ -169,3 +169,62 @@ Texture RIDs print on every run. Freeing all three particle systems thirty frame
 leaves all three messages exactly as they were, so they are the rendering server's own shutdown
 accounting. `yard_polish` was given an `_exit_tree` anyway — it is the only one of the three that
 lacked one, and deterministic release is right regardless of what the exit prints.
+
+---
+
+# Third pass: flatness, the magenta, and the windows
+
+## "It feels flat" — two hypotheses tested and rejected before the real one
+
+Plane separation said nothing was wrong: 0.134–0.148 across every fog and glow variant. Lowering
+`ambient_light_energy` from 0.34 to 0.17 moved the image by **nothing** (p05 0.055 → 0.055,
+stddev 0.1065 → 0.1071), so the usual suspect was not the cause either.
+
+The number that did stand out was **warm chroma at 4–5%**, with 85% of the coloured weight inside
+one 30° blue-cyan wedge. Codex had halved the sodium — the streetlight 38 → 16, the central amber
+12 → 5 — while the new wet floor returned cyan across the whole yard. The two-temperature
+opposition this district is built on had gone, and a blue night city with no counter-temperature
+is the most generic image in the genre. Restoring the warm family, plus the glow it needed to
+read as light:
+
+| | before | after |
+|---|---|---|
+| warm chroma | 5.0% | **8.1%** |
+| luma range p05–p95 | 0.316 | **0.373** |
+| luma stddev | 0.1063 | **0.1282** |
+| plane separation | 0.143 | **0.177** |
+
+## The magenta was unreachable, not dim
+
+`CorruptionMagenta` sat at **(−22.3, 10.6, −5.9) with a 9 m radius** — a sphere floating 10.6 m up
+at the far edge. `reaches_ground: false`, and it unprojects to pixel (201, **1**), the top row of
+the frame. Raising its energy to 6.0 changed the image by nothing, which is what pointed at
+placement. It now sits at bay height with the reach to spill onto the slabs, and its energy is
+driven by the district's `corruption` value with a floor, so the hue is in the palette at rest and
+surges when the state calls for it.
+
+## The windows were the only thing moving, on a loop
+
+`wave_phase = fmod(effect_time * wave_speed, 1.0)` at speed 0.12 repeats every **8.3 seconds**,
+identically on every building. That alone would be fine — it is the district's signal — except
+that `occupancy` was *constant in time*: a window was lit or dark forever. With nothing else
+changing, the 8.3 s sweep was the entire behaviour of the city, and it read as a loop.
+
+Each cell now keeps its own hours: a slow schedule on an incommensurate period between 26 and 97
+seconds, seeded per cell, crossfading rather than popping. Nothing switches in step with anything
+else and the pattern does not come back around visibly.
+
+## A measurement mistake worth recording
+
+Six sweeps of the sodium's energy, specular and beam fog all returned a bit-identical clipped
+pixel count, which is not physically possible. The test required **all three channels** ≥ 253, and
+a warm blown highlight has a low blue channel — so it had been counting the neutral rain streaks
+the whole time, which of course do not respond to a lamp. Re-measured per channel.
+
+With the honest metric: the pool under the streetlight clips at every energy that keeps the yard
+warm, and energy, specular, beam fog and pool roughness were each swept without clearing it. It is
+left as it is. Unlike the blown spot on the dry slabs, this one sits directly under a visible
+fixture with a visible beam, so it reads as the lamp rather than as an object nobody can identify.
+
+Pool roughness did move from a perfect-mirror 0.085 to 0.19 on the way, which is the more honest
+surface for water under rain and spreads the reflection into something readable.
