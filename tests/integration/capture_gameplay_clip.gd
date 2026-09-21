@@ -38,7 +38,9 @@ func hold(action: String, ticks: int) -> void:
 func run() -> void:
 	out = OS.get_cmdline_user_args()[0]
 	DirAccess.make_dir_recursive_absolute(out)
-	get_window().size = Vector2i(1600, 900)
+	# Captured at the resolution it is encoded at: rescaling the clip afterwards destroys the
+	# pixel lattice, which is most of what the presentation is.
+	get_window().size = Vector2i(1920, 1080)
 	Game.instance.players = [
 		Statics.PlayerData.new(multiplayer.get_unique_id(), "Local", 0, Statics.Role.DAMAGE),
 		Statics.PlayerData.new(multiplayer.get_unique_id() + 1, "Aliada", 1, Statics.Role.SUPPORT),

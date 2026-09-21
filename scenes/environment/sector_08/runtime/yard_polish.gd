@@ -7,11 +7,17 @@ var rings: Array[MeshInstance3D] = []
 var time: float = 0.0
 var water_materials: Array[ShaderMaterial] = []
 var rain_materials: Array[ShaderMaterial] = []
+var rain_emitters: Array[GPUParticles3D] = []
+var fog_volumes: Array[FogVolume] = []
 
 func setup(arena) -> void:
 	var environment: Environment = arena.runtime_environment.environment
+	# Measured at 2x supersampling, screen-space reflections at 128 steps were 47.6 ms of frame
+	# against 6.9 ms with them off -- about 85% of the frame, while every other part of this pass
+	# (rain, the fog volumes, the probe, the wet shader) measured free. On a night yard where the
+	# far field is under a heavy depth blur anyway, that is not a trade worth 128 steps.
 	environment.ssr_enabled = true
-	environment.ssr_max_steps = 128
+	environment.ssr_max_steps = 24
 	environment.ssr_depth_tolerance = 0.25
 	environment.ssao_intensity = 1.8
 	environment.ssao_power = 1.65
@@ -141,6 +147,7 @@ func _condensate(id: String, origin: Vector3, extent: Vector3, density: float) -
 	material.shader = preload("res://scenes/environment/sector_08/runtime/yard_condensate.gdshader")
 	material.set_shader_parameter("density", density)
 	volume.material = material
+	fog_volumes.append(volume)
 	add_child(volume)
 	volume.global_position = origin
 
@@ -310,6 +317,30 @@ func _build_rain() -> void:
 	_rain_layer("YardRain", Vector3(0, 15, -4), Vector3(28, 2, 18), 1500, 0.022, 0.50, 0.30)
 	_rain_layer("ForegroundRain", Vector3(0, 12, 17), Vector3(27, 1, 6), 110, 0.065, 0.85, 0.13)
 
+## Releases what this pass allocated, the way the other two particle systems here already do.
+##
+## It does not silence the "1 shaders of type ParticlesShaderRD were never freed" line at exit:
+## freeing all three particle systems thirty frames before quitting leaves that message, and the
+## seven leaked texture RIDs, exactly as they were. They are the rendering server's own shutdown
+## accounting, not this project's. Kept anyway because deterministic release is right regardless
+## of what the exit prints.
+func _exit_tree() -> void:
+	for emitter: GPUParticles3D in rain_emitters:
+		emitter.emitting = false
+		emitter.process_material = null
+		emitter.draw_pass_1 = null
+	rain_emitters.clear()
+	for material: ShaderMaterial in water_materials:
+		material.shader = null
+	for material: ShaderMaterial in rain_materials:
+		material.shader = null
+	water_materials.clear()
+	rain_materials.clear()
+	for volume: FogVolume in fog_volumes:
+		volume.material = null
+	fog_volumes.clear()
+
+
 func _rain_layer(id: String, origin: Vector3, extent: Vector3, count: int, width: float, length: float, opacity: float) -> void:
 	var rain := GPUParticles3D.new()
 	rain.name = id
@@ -340,6 +371,7 @@ func _rain_layer(id: String, origin: Vector3, extent: Vector3, count: int, width
 	drop.material = mat
 	rain.draw_pass_1 = drop
 	rain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	rain_emitters.append(rain)
 	add_child(rain)
 
 func _process(delta: float) -> void:
