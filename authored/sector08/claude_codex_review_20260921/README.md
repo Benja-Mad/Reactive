@@ -97,3 +97,75 @@ the depth shader, requiring distance as well as height before softening architec
 
 The cost of SSR at 128 steps plus a reflection probe plus four fog volumes plus rain, on a scene
 of 2990 meshes. It runs, but no frame-time comparison was taken.
+
+---
+
+# Second pass: the diorama look, and the cost
+
+## The diorama filter was barely acting, and the pixel grid was invisible
+
+Both were switched on — `pixel_presentation.get_report()` returned SOFT PIXEL and `diorama: true`
+— which is why the first pass called them restored. Measured, they were not doing much. The
+number is how much detail the world filter removes from a screen band, normalised by that band's
+own detail so a magnified foreground cannot pass for focus:
+
+| band | before | after |
+|---|---|---|
+| far architecture | 0.253 | **0.574** |
+| gameplay plane | 0.102 | 0.110 |
+| near foreground | 0.159 | 0.175 |
+
+The far field was losing a quarter of its detail against a tenth on the play plane: a 2.5×
+separation, which is a haze, not a depth of field. It is now 5.2×. The cause was Codex's rewrite
+of the ramps — widened to 0.62–1.30 of the focus distance and then *blended* in at a fraction of
+the mip instead of sampled — which the first pass kept. The approved bands are back
+(0.828–1.084 near, 1.096–1.340 far, blur ×3.25, sampled directly), keeping Codex's one real
+improvement: the architecture term is gated by distance as well as height, so a tall operative
+standing in the yard is no longer softened for being tall.
+
+The pixel lattice was sampling 1280×720 into a 1920×1080 frame: 1.5 screen pixels per world
+pixel, non-integer and invisible. `presentation_mode` is now 2 — 960×540, a clean 2:1.
+
+And the first video hid both: it was captured at 1600×900 and rescaled to 1280 on encode, which
+destroys the lattice. It is now captured and encoded at 1920×1080 with no scaling.
+
+## Cost
+
+Two traps before a number came out.
+
+Frame period is useless here: the compositor pins every configuration to exactly 60.0 fps and
+16.67 ms with p95 == p50, and `window_set_vsync_mode(DISABLED)` does not lift it on this platform.
+The viewport's own GPU timer reads 0.000 ms under Metal, and render-CPU time came back *lower*
+for the heavier configuration — noise. So the first comparison in this file, "SSR costs about
+1 ms", was measuring the vsync wait and is withdrawn.
+
+Rendering the 3D at 2× — four times the pixels — pushes the frame past the cap and separates them:
+
+| | frame ms p50 |
+|---|---|
+| shipped, SSR at 128 steps | **47.62** |
+| SSR off | **6.90** |
+| whole night-rain pass off | 6.90 |
+
+Screen-space reflections were about 85% of the frame, and everything else in the pass — the rain,
+the four fog volumes, the reflection probe, the wet shader — measured free, to the decimal. On a
+night yard whose far field sits under a heavy depth blur anyway, 128 steps is not a trade worth
+making. At **24 steps the frame is 6.90 ms**, identical to having SSR off, and the wet ground
+still reflects.
+
+At native resolution the game holds 60 fps in every configuration with no frame missing the
+deadline across 240 sampled frames, at 3128 draw calls.
+
+## The east edge fixed itself
+
+The `east_shed` mass that held the right of the frame at **0.29** of the luminance of the
+architecture beside it now measures **0.745**. Restoring the far depth band did what a dim omni in
+the lot behind it could not: the blur and the haze lift it off black. Nothing was added for it.
+
+## The exit-time leaks are the engine's, not ours
+
+`1 shaders of type ParticlesShaderRD were never freed`, one leaked Shader RID and seven leaked
+Texture RIDs print on every run. Freeing all three particle systems thirty frames before quitting
+leaves all three messages exactly as they were, so they are the rendering server's own shutdown
+accounting. `yard_polish` was given an `_exit_tree` anyway — it is the only one of the three that
+lacked one, and deterministic release is right regardless of what the exit prints.
