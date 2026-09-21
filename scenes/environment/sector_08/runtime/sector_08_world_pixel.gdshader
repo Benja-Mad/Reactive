@@ -22,18 +22,21 @@ void fragment(){
   vec4 view=INV_PROJECTION_MATRIX*vec4(uv*2.0-1.0,depth,1.0);
   float distance=-view.z/view.w;
   vec3 world=(INV_VIEW_MATRIX*vec4(view.xyz/view.w,1.0)).xyz;
-  // The perimeter walls are close to P30, so camera distance alone misses them.
-  float architecture=smoothstep(2.8,13.0,world.y);
-  float far_amount=max(smoothstep(1.096*focus_distance,1.340*focus_distance,distance),architecture*0.92);
-  // The ramp used to be spent by 85 m, which put the cable tray at 74.8 m on full blur and the
-  // access panel at 83.6 m on almost none: an 18x jump across 8 m, so the sign read as a razor
-  // sharp object floating inside a soft foreground. Widening it makes the band continuous.
-  float near_amount=1.0-smoothstep(0.828*focus_distance,1.084*focus_distance,distance);
-  float blur=max(far_amount,near_amount)*3.25;
-  color=textureLod(world_color,uv,blur).rgb;
-  color=mix(color,vec3(0.028,0.047,0.058),far_amount*0.16);
+  // Height alone is not a background layer: it also catches operatives, cover,
+  // and the reactor silhouette. Require distance before softening architecture.
+  float architecture=smoothstep(7.0,18.0,world.y)
+      *smoothstep(1.04*focus_distance,1.28*focus_distance,distance);
+  float far_amount=max(smoothstep(1.30*focus_distance,1.65*focus_distance,distance),architecture*0.48);
+  // Reserve near softness for the framing rail and foliage. The broad interval
+  // between 0.82 and 1.30 stays at native resolution throughout the play plane.
+  float near_amount=1.0-smoothstep(0.62*focus_distance,0.82*focus_distance,distance);
+  float blur=max(far_amount*2.6,near_amount*3.1);
+  // Blend the transition instead of sampling a softened mip across the whole yard.
+  vec3 layered_color=textureLod(world_color,uv,blur).rgb;
+  color=mix(color,layered_color,smoothstep(0.04,0.55,max(far_amount,near_amount)));
+  color=mix(color,vec3(0.055,0.090,0.12),far_amount*0.10);
   vec2 edge=SCREEN_UV*2.0-1.0;
-  color*=1.0-0.13*smoothstep(0.55,1.4,length(edge));
+  color*=1.0-0.08*smoothstep(0.65,1.4,length(edge));
  }
  if(subtle_dither){
   ivec2 p=ivec2(floor(uv*pixel_grid));

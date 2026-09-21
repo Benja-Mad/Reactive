@@ -126,6 +126,10 @@ func setup(camera: Camera3D, framing_distance: float = REFERENCE_DISTANCE) -> vo
 	spill.position = Vector3(0.0, 2.4, 5.0)
 
 	_camera = camera
+	# The rig moves the camera in its own _process. Without a later priority this node can read
+	# the previous frame's position, and the board lags a frame behind every follow -- which shows
+	# up as a band that breathes while the camera travels.
+	process_priority = 100
 	_camera_origin = camera.global_position
 	_board_origin = global_position
 	_up = camera.global_basis.y.normalized()

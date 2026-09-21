@@ -82,6 +82,11 @@ func _ready() -> void:
 		# spawned by the host scene, which then calls follow().
 		test_character.visible = false
 		debug_layer.visible = false
+		# The demo loop is a lookdev affordance: it drives waves and blackouts off a timer to show
+		# the reactive district to a viewer. Left on in game it darkened the yard mid-fight on a
+		# schedule nothing in the match could see coming. Gameplay will drive these states.
+		controller.auto_demo = false
+		call_deferred("_add_yard_polish")
 	print("Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.")
 
 
@@ -89,7 +94,16 @@ func _process(_delta: float) -> void:
 	_update_status()
 
 
+func _add_yard_polish() -> void:
+	var polish := preload("res://scenes/environment/sector_08/runtime/yard_polish.gd").new()
+	polish.name = "YardPolish"
+	add_child(polish)
+	polish.setup(self)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if not lookdev_tools:
+		return
 	if event is InputEventKey and (event as InputEventKey).pressed and not (event as InputEventKey).echo:
 		var key_event: InputEventKey = event as InputEventKey
 		match key_event.keycode:
@@ -542,7 +556,7 @@ func _update_status() -> void:
 
 ## Authored standing positions in the yard, reused as player spawns in game.
 func get_spawn_positions() -> Array[Vector3]:
-	return [Vector3(-2.4, 0.4, 1.2), Vector3(2.4, 0.4, 1.2), Vector3(0.0, 0.4, -3.2)]
+	return [Vector3(-3.0, 0.4, -2.0), Vector3(3.0, 0.4, -2.0), Vector3(0.0, 0.4, -5.2)]
 
 
 ## Play mode swaps the static lookdev figure for a walkable one and lets the camera follow it.
@@ -824,3 +838,4 @@ func configure_player_presentation(character: Character) -> void:
 	sprite.position.y = floor_local + (float(bottom+1)-image.get_height()*0.5)*metres_per_pixel + 0.01
 	character.label_3d.position.y = floor_local + float(bottom-top+1)*metres_per_pixel + 0.20
 	sprite.set_meta("sector08_visual_fitted",true)
+	character.add_child(preload("res://scenes/characters/combat_presentation.gd").new())
