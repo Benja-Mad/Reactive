@@ -112,6 +112,16 @@ func _run() -> void:
 	_check("fov_still_30", is_equal_approx(camera.fov, 30.0))
 	_check("camera_within_travel_limit", camera.global_position.distance_to(approved.origin) <= arena.follow_limit.length() + 0.01)
 
+	# Respawn anchors: the spawn function runs on every peer with the replicated seat data, so the
+	# position is set before the body enters the tree and _ready() captures a real spawn rather
+	# than the world origin. Asserted rather than assumed, since a regression here teleports a
+	# defeated player into the middle of nowhere.
+	var anchors: Array = []
+	for character: Character in characters:
+		anchors.append(str(character.respawn_position.snappedf(0.01)))
+		_check("respawn_anchor_is_a_spawn_%s" % character.name, character.respawn_position.length() > 0.5)
+	report["respawn_anchors"] = anchors
+
 	# --- the lateral edges ---------------------------------------------------------------------
 	# The reported defect was standing on nothing at the left edge and walking through the fence.
 	# Both are geometry facts, so they are asserted as geometry rather than by driving the player

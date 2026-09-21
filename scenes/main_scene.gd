@@ -13,6 +13,13 @@ func _ready() -> void:
 	# frame. Set before any character spawns, since Character reads it every physics tick.
 	Character.movement_basis = _movement_basis()
 	arena.activate_camera()
+	# Identical stable paths on every peer; the host alone resolves sentry combat.
+	var sentry_positions: Array[Vector3] = [Vector3(-10, 0.05, -9), Vector3(8, 0.05, -10)]
+	for index in sentry_positions.size():
+		var sentry := preload("res://scenes/characters/yard_sentry.gd").new()
+		sentry.name = "YardSentry%d" % index
+		sentry.position = sentry_positions[index]
+		add_child(sentry)
 	players.child_entered_tree.connect(_on_player_spawned)
 	if not multiplayer.is_server():
 		return
@@ -57,5 +64,19 @@ func _spawn_player(data: Dictionary) -> Node:
 	player_inst.set_multiplayer_authority(player_data.id)
 	player_inst.name = str(player_data.id)
 	var spawns: Array[Vector3] = arena.get_spawn_positions()
-	player_inst.position = spawns[player_data.index % spawns.size()]
+	# Damage left, support right -- but only when the two seats actually differ. Keying purely on
+	# role put two damage players on the same slab.
+	var slot: int = player_data.index
+	if player_data.index < 2 and _roles_differ():
+		slot = 0 if player_data.role == Statics.Role.DAMAGE else 1
+	player_inst.position = spawns[slot % spawns.size()]
 	return player_inst
+
+
+## Whether the first two seats hold different roles, which is what makes a role-keyed spawn
+## unambiguous.
+func _roles_differ() -> bool:
+	var seats: Array = Game.instance.players
+	if seats.size() < 2:
+		return false
+	return (seats[0] as Statics.PlayerData).role != (seats[1] as Statics.PlayerData).role
