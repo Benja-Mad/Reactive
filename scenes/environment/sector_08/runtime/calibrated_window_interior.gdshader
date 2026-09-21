@@ -27,7 +27,18 @@ void fragment() {
 	vec2 room_uv = fract(UV);
 	float seed = hash21(logical_cell + vec2(cs_building_seed * 11.0, cs_building_seed * 29.0));
 	float color_seed = hash21(logical_cell + vec2(2.3, 8.7));
-	float occupancy = step(0.64 + cs_blackout * 0.18, seed);
+	// A window that never changes state leaves the district's wave as the only motion in the
+	// frame, so an 8.3 second loop reads as the whole behaviour of the city. Each cell now keeps
+	// its own slow schedule on an incommensurate period, crossfading rather than popping: nothing
+	// switches in step with anything else and the pattern never comes back around visibly.
+	float cadence = mix(26.0, 97.0, hash21(logical_cell + vec2(4.1, 7.3)));
+	float clock = cs_effect_time / cadence + hash21(logical_cell + vec2(9.3, 2.7)) * 13.0;
+	float slot = floor(clock);
+	float now_seed = hash21(logical_cell + vec2(slot * 3.7, slot * 1.9));
+	float was_seed = hash21(logical_cell + vec2((slot - 1.0) * 3.7, (slot - 1.0) * 1.9));
+	float settle = smoothstep(0.0, 0.03, fract(clock));
+	float threshold = 0.64 + cs_blackout * 0.18;
+	float occupancy = mix(step(threshold, mix(seed, was_seed, 0.6)), step(threshold, mix(seed, now_seed, 0.6)), settle);
 	float spatial = dot(cs_local_coord.xz, normalize(cs_wave_direction));
 	float phase = spatial - cs_effect_time * cs_wave_speed + cs_wave_phase;
 	float wave_distance = abs(fract(phase) - 0.5);

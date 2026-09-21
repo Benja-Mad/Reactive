@@ -49,7 +49,11 @@ void fragment() {
 	vec3 broad = texture(pavement, uv * 0.98 + vec2(0.015), 1.5).rgb;
 	ALBEDO = mix(mix(texel, broad, 0.22) * vec3(0.30, 0.32, 0.35), vec3(0.009, 0.015, 0.026), pool * 0.62);
 	float grain = texture(pavement, uv * 2.7).r;
-	ROUGHNESS = clamp(mix(0.57, 0.085, pool) + (grain - 0.5) * 0.23, 0.085, 0.76);
+	// 0.085 in standing water is a perfect mirror, and a perfect mirror under a sodium lamp
+	// clips: the pool returned a blown white core, the warm twin of the cyan blob on the slabs.
+	// It is raining, so the surface is agitated -- a rougher minimum both spreads the highlight
+	// into a reflection you can read and is the more honest surface.
+	ROUGHNESS = clamp(mix(0.57, 0.19, pool) + (grain - 0.5) * 0.23, 0.15, 0.76);
 	METALLIC = 0.015;
 	SPECULAR = 0.48;
 	// Reflections retain the scan's irregular surface instead of a continuous glass skin.
