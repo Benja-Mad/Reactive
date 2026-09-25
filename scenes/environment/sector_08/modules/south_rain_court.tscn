@@ -1,0 +1,209 @@
+[gd_scene load_steps=14 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Concrete"]
+albedo_color = Color(0.23, 0.25, 0.24, 1)
+roughness = 0.88
+[sub_resource type="StandardMaterial3D" id="Soil"]
+albedo_color = Color(0.09, 0.07, 0.045, 1)
+roughness = 1.0
+[sub_resource type="StandardMaterial3D" id="Iron"]
+albedo_color = Color(0.08, 0.095, 0.1, 1)
+metallic = 0.5
+roughness = 0.75
+[sub_resource type="BoxMesh" id="LongRim"]
+size = Vector3(5.6, 0.65, 0.24)
+material = SubResource("Concrete")
+[sub_resource type="BoxMesh" id="ShortRim"]
+size = Vector3(0.24, 0.65, 1.8)
+material = SubResource("Concrete")
+[sub_resource type="BoxMesh" id="SoilBed"]
+size = Vector3(5.12, 0.2, 1.32)
+material = SubResource("Soil")
+[sub_resource type="BoxShape3D" id="PlanterCollision"]
+size = Vector3(5.6, 0.65, 1.8)
+[sub_resource type="BoxMesh" id="Drain"]
+size = Vector3(0.7, 0.06, 8)
+material = SubResource("Iron")
+[sub_resource type="BoxMesh" id="Grate"]
+size = Vector3(0.78, 0.05, 0.065)
+material = SubResource("Concrete")
+
+[sub_resource type="BoxMesh" id="LampPost"]
+size = Vector3(0.14, 3.8, 0.14)
+material = SubResource("Iron")
+[sub_resource type="BoxMesh" id="LampHousing"]
+size = Vector3(0.75, 0.18, 0.45)
+material = SubResource("Iron")
+[sub_resource type="StandardMaterial3D" id="LampGlass"]
+albedo_color = Color(0.7, 0.53, 0.31, 1)
+emission_enabled = true
+emission = Color(1, 0.72, 0.4, 1)
+emission_energy_multiplier = 1.4
+[sub_resource type="BoxMesh" id="LampLens"]
+size = Vector3(0.6, 0.035, 0.32)
+material = SubResource("LampGlass")
+
+[node name="SouthRainCourt" type="Node3D"]
+
+[node name="NorthConnection" type="Marker3D" parent="."]
+position = Vector3(0, 0.06, -7)
+[node name="SouthConnection" type="Marker3D" parent="."]
+position = Vector3(0, 0.06, 7)
+
+[node name="WestBed" type="StaticBody3D" parent="."]
+position = Vector3(-12, 0.385, -1)
+
+[node name="North" type="MeshInstance3D" parent="WestBed"]
+position = Vector3(0, 0, -0.78)
+mesh = SubResource("LongRim")
+
+[node name="South" type="MeshInstance3D" parent="WestBed"]
+position = Vector3(0, 0, 0.78)
+mesh = SubResource("LongRim")
+
+[node name="West" type="MeshInstance3D" parent="WestBed"]
+position = Vector3(-2.68, 0, 0)
+mesh = SubResource("ShortRim")
+
+[node name="East" type="MeshInstance3D" parent="WestBed"]
+position = Vector3(2.68, 0, 0)
+mesh = SubResource("ShortRim")
+
+[node name="Soil" type="MeshInstance3D" parent="WestBed"]
+position = Vector3(0, -0.16, 0)
+mesh = SubResource("SoilBed")
+
+[node name="Collision" type="CollisionShape3D" parent="WestBed"]
+shape = SubResource("PlanterCollision")
+
+[node name="EastBed" type="StaticBody3D" parent="."]
+position = Vector3(12, 0.385, 2)
+
+[node name="North" type="MeshInstance3D" parent="EastBed"]
+position = Vector3(0, 0, -0.78)
+mesh = SubResource("LongRim")
+
+[node name="South" type="MeshInstance3D" parent="EastBed"]
+position = Vector3(0, 0, 0.78)
+mesh = SubResource("LongRim")
+
+[node name="West" type="MeshInstance3D" parent="EastBed"]
+position = Vector3(-2.68, 0, 0)
+mesh = SubResource("ShortRim")
+
+[node name="East" type="MeshInstance3D" parent="EastBed"]
+position = Vector3(2.68, 0, 0)
+mesh = SubResource("ShortRim")
+
+[node name="Soil" type="MeshInstance3D" parent="EastBed"]
+position = Vector3(0, -0.16, 0)
+mesh = SubResource("SoilBed")
+
+[node name="Collision" type="CollisionShape3D" parent="EastBed"]
+shape = SubResource("PlanterCollision")
+
+[node name="DrainBed" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.075, 1)
+mesh = SubResource("Drain")
+
+[node name="Grate00" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -2.80)
+mesh = SubResource("Grate")
+
+[node name="Grate01" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -2.40)
+mesh = SubResource("Grate")
+
+[node name="Grate02" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -2.00)
+mesh = SubResource("Grate")
+
+[node name="Grate03" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -1.60)
+mesh = SubResource("Grate")
+
+[node name="Grate04" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -1.20)
+mesh = SubResource("Grate")
+
+[node name="Grate05" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -0.80)
+mesh = SubResource("Grate")
+
+[node name="Grate06" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, -0.40)
+mesh = SubResource("Grate")
+
+[node name="Grate07" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 0.00)
+mesh = SubResource("Grate")
+
+[node name="Grate08" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 0.40)
+mesh = SubResource("Grate")
+
+[node name="Grate09" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 0.80)
+mesh = SubResource("Grate")
+
+[node name="Grate10" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 1.20)
+mesh = SubResource("Grate")
+
+[node name="Grate11" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 1.60)
+mesh = SubResource("Grate")
+
+[node name="Grate12" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 2.00)
+mesh = SubResource("Grate")
+
+[node name="Grate13" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 2.40)
+mesh = SubResource("Grate")
+
+[node name="Grate14" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 2.80)
+mesh = SubResource("Grate")
+
+[node name="Grate15" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 3.20)
+mesh = SubResource("Grate")
+
+[node name="Grate16" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 3.60)
+mesh = SubResource("Grate")
+
+[node name="Grate17" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 4.00)
+mesh = SubResource("Grate")
+
+[node name="Grate18" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 4.40)
+mesh = SubResource("Grate")
+
+[node name="Grate19" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.13, 4.80)
+mesh = SubResource("Grate")
+
+[node name="ServiceLightPost" type="MeshInstance3D" parent="."]
+position = Vector3(8.8, 1.96, 2)
+mesh = SubResource("LampPost")
+[node name="ServiceLightHousing" type="MeshInstance3D" parent="."]
+position = Vector3(8.8, 3.9, 2)
+mesh = SubResource("LampHousing")
+[node name="ServiceLightLens" type="MeshInstance3D" parent="."]
+position = Vector3(8.8, 3.79, 2)
+mesh = SubResource("LampLens")
+cast_shadow = 0
+[node name="ServiceLight" type="SpotLight3D" parent="."]
+position = Vector3(8.8, 3.74, 2)
+rotation = Vector3(-1.5707963, 0, 0)
+light_color = Color(1, 0.78, 0.51, 1)
+light_energy = 8.0
+light_specular = 0.2
+light_volumetric_fog_energy = 0.1
+spot_range = 13.0
+spot_angle = 62.0
+spot_angle_attenuation = 0.7
+shadow_enabled = true

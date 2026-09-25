@@ -141,6 +141,8 @@ func _add_shaft(light: SpotLight3D,target: Vector3,color: Color,cyan: bool) -> v
  mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
  var instance := MeshInstance3D.new()
  instance.name = light.name + "_stable_rays"
+ # Warm fixtures use shadowed volumetric scattering, not three painted rays.
+ instance.visible = cyan
  instance.mesh = mesh
  instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
  var material := ShaderMaterial.new()

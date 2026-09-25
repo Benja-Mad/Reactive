@@ -13,6 +13,8 @@ extends Node
 var dead_zone: Vector2 = Vector2(0.10, 0.13)
 var limit: Vector2 = Vector2(9.0, 3.0)
 var follow_speed: float = 3.2
+## Larger arenas translate on the ground plane to preserve camera height and actor scale.
+var ground_follow: bool = false
 
 var camera: Camera3D
 var anchor: Transform3D
@@ -63,7 +65,11 @@ func _apply() -> void:
 	var lateral: float = 0.0
 	if extra_offset.is_valid():
 		lateral = float(extra_offset.call())
-	var origin: Vector3 = anchor.origin + anchor.basis.x * (offset.x + lateral) + anchor.basis.y * offset.y
+	var vertical_axis: Vector3 = anchor.basis.y
+	if ground_follow:
+		vertical_axis.y = 0.0
+		vertical_axis /= maxf(vertical_axis.length_squared(), 0.01)
+	var origin: Vector3 = anchor.origin + anchor.basis.x * (offset.x + lateral) + vertical_axis * offset.y
 	# Basis is never written, so FOV 30 and the approved orientation survive by construction.
 	camera.global_transform = Transform3D(anchor.basis, origin)
 

@@ -5,6 +5,10 @@
 [ext_resource type="PackedScene" uid="uid://b106u7qjagomh" path="res://scenes/characters/support/support.tscn" id="2_7ykc4"]
 [ext_resource type="PackedScene" uid="uid://dglx0fdj5frd8" path="res://scenes/characters/damage/damage.tscn" id="3_pu3yx"]
 
+[ext_resource type="Script" path="res://scripts/matter/world_matter.gd" id="4_matter"]
+
+[ext_resource type="Script" path="res://scripts/reactive/matter_console.gd" id="5_console"]
+
 [node name="MainScene" type="Node3D" unique_id=942703976]
 script = ExtResource("1_7ykc4")
 support_scene = ExtResource("2_7ykc4")
@@ -13,8 +17,17 @@ damage_scene = ExtResource("3_pu3yx")
 [node name="Arena" parent="." unique_id=1687147662 instance=ExtResource("1_pw63i")]
 lookdev_tools = false
 presentation_mode = 2
+restrained_presentation = true
+lateral_extension = 8.0
+south_extension = 14.0
 
 [node name="Players" type="Node3D" parent="." unique_id=757440430]
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="." unique_id=161068577]
 spawn_path = NodePath("../Players")
+
+[node name="WorldMatter" type="Node3D" parent="."]
+script = ExtResource("4_matter")
+
+[node name="MatterConsole" type="CanvasLayer" parent="."]
+script = ExtResource("5_console")

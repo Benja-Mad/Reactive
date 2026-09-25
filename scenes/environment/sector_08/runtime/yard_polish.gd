@@ -66,7 +66,7 @@ func setup(arena) -> void:
 		# this one sits directly under a visible fixture with a visible beam, so it reads as the
 		# lamp rather than as an object nobody can identify.
 		street.light_specular = 0.30
-		street.light_volumetric_fog_energy = 1.10
+		street.light_volumetric_fog_energy = 0.55
 		street.light_size = 0.65
 	arena._sync_art_lights(arena.controller.get_values())
 	var variants: Dictionary = {}
@@ -398,3 +398,24 @@ func _process(delta: float) -> void:
 	for index: int in rings.size():
 		rings[index].rotation.x = sin(time * 0.8 + index) * 0.18
 		rings[index].rotation.z = cos(time * 0.6 + index) * 0.18
+
+
+## An art-direction variant, applied after the normal pass so the original stays comparable.
+func apply_restrained_presentation(arena) -> void:
+	var environment: Environment = arena.runtime_environment.environment
+	environment.glow_intensity = 0.30
+	environment.glow_bloom = 0.015
+	environment.volumetric_fog_density = 0.0035
+	for material: ShaderMaterial in water_materials:
+		material.set_shader_parameter("wetness", 0.82)
+		material.set_shader_parameter("standing_water", minf(float(material.get_shader_parameter("standing_water")), 0.85))
+		material.set_shader_parameter("reflection_strength", 0.22)
+		material.set_shader_parameter("roughness_floor", 0.42)
+	for emitter: GPUParticles3D in rain_emitters:
+		emitter.amount_ratio = 0.24
+	for volume: FogVolume in fog_volumes:
+		var material := volume.material as ShaderMaterial
+		material.set_shader_parameter("density", float(material.get_shader_parameter("density")) * 0.5)
+	if arena.cinematic_dust != null:
+		for emitter: GPUParticles3D in arena.cinematic_dust.layers:
+			emitter.amount_ratio = 0.16 if emitter.name == &"LensMotes" else 0.35

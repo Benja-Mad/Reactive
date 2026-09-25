@@ -22,8 +22,8 @@
 extends Node3D
 
 ## Matches sector_08_collision.gd, which is what actually stops the player.
-const YARD_MIN := Vector2(-26.0, -26.0)
-const YARD_MAX := Vector2(26.0, 14.0)
+var YARD_MIN := Vector2(-26.0, -26.0)
+var YARD_MAX := Vector2(26.0, 14.0)
 ## How far past the walkable bounds the paving reaches. The camera sees ground out here at full
 ## travel, so stopping the fill at the bounds leaves a visible hole immediately outside them.
 const APRON_SIDE := 13.0
@@ -33,8 +33,8 @@ const APRON_NORTH := 5.0
 const COVERAGE_CELL := 1.0
 ## Fence panels stand on the bound face itself, so the wall that stops the player is the wall
 ## they can see. The previous run sat 0.6 m inside the yard, which let the player walk through it.
-const FENCE_LINE := 26.0
-const FENCE_SOUTH_Z := 14.0
+var FENCE_LINE := 26.0
+var FENCE_SOUTH_Z := 14.0
 ## New south panels are skipped this close to an authored one, so the run meets the existing
 ## fence instead of doubling it.
 const FENCE_MERGE_RADIUS := 2.6
@@ -85,6 +85,8 @@ func build(environment: Node3D, camera: Camera3D = null, framing_distance: float
 	stats["lattice"] = lattice
 	stats["walkable_paved_pct"] = _walkable_coverage()
 	stats["ground_filled"] = _fill_ground(slab, lattice)
+	if FENCE_LINE > 26.0 or FENCE_SOUTH_Z > 14.0:
+		_build_foundation()
 	# Self-check: the same rasterised measurement, run again with the fill included. This is the
 	# number that says whether the edges are actually closed, and it is the number the previous
 	# version of this file got wrong.
@@ -472,3 +474,26 @@ func _emit(id: String, source: MeshInstance3D, transforms: Array[Transform3D]) -
 			instance.set_instance_shader_parameter(parameter, value)
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	add_child(instance)
+
+
+## Continuous support below the reused slabs; closes cracks at their irregular edges.
+func _build_foundation() -> void:
+	var foundation := MeshInstance3D.new()
+	foundation.name = "Ground_Patch_ExtensionFoundation"
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(YARD_MAX.x - YARD_MIN.x + APRON_SIDE * 2.0,
+		YARD_MAX.y - YARD_MIN.y + APRON_NORTH + APRON_SOUTH)
+	foundation.mesh = plane
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.075, 0.085, 0.095)
+	material.roughness = 0.85
+	foundation.material_override = material
+	add_child(foundation)
+	foundation.position = Vector3((YARD_MIN.x + YARD_MAX.x) * 0.5, -0.22,
+		(YARD_MIN.y + YARD_MAX.y + APRON_SOUTH - APRON_NORTH) * 0.5)
+	stats["continuous_foundation"] = true
+	stats["slab_coverage_before_foundation"] = _walkable_coverage()
+	var a := Vector2(YARD_MIN.x - APRON_SIDE, YARD_MIN.y - APRON_NORTH)
+	var b := Vector2(YARD_MAX.x + APRON_SIDE, YARD_MAX.y + APRON_SOUTH)
+	_mark_triangle(a, Vector2(b.x, a.y), b)
+	_mark_triangle(a, b, Vector2(a.x, b.y))

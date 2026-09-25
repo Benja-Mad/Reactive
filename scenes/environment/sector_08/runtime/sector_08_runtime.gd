@@ -13,6 +13,9 @@ const CAL_SURFACE_SHADER_PATH: String = "res://scenes/environment/sector_08/runt
 const CAL_FOLIAGE_SHADER_PATH: String = "res://scenes/environment/sector_08/runtime/calibrated_foliage.gdshader"
 const PATTERN_TEXTURE_PATH: String = "res://scenes/environment/sector_08/slice_all_CS_Glyphs.png"
 
+@export_range(0.0, 12.0, 1.0) var lateral_extension: float = 0.0
+@export_range(0.0, 24.0, 1.0) var south_extension: float = 0.0
+
 @export var enhanced_materials: bool = true
 @export var calibrated_look: bool = true
 ## Redistributes inert ground decoration away from the gameplay core. Lives here rather than in
@@ -76,6 +79,9 @@ func _ready() -> void:
 		collision = preload("res://scenes/environment/sector_08/runtime/sector_08_collision.gd").new()
 		collision.name = "YardCollision"
 		add_child(collision)
+		collision.YARD_MIN.x -= lateral_extension
+		collision.YARD_MAX.x += lateral_extension
+		collision.YARD_MAX.y += south_extension
 		collision.build(imported_environment)
 	if particles_enabled:
 		particles = preload("res://scenes/environment/sector_08/runtime/sector_08_particles.gd").new()
@@ -100,6 +106,11 @@ func _apply_framing_dependent_pass() -> void:
 		perimeter = preload("res://scenes/environment/sector_08/runtime/sector_08_perimeter.gd").new()
 		perimeter.name = "PerimeterFill"
 		add_child(perimeter)
+		perimeter.YARD_MIN.x -= lateral_extension
+		perimeter.YARD_MAX.x += lateral_extension
+		perimeter.FENCE_LINE += lateral_extension
+		perimeter.YARD_MAX.y += south_extension
+		perimeter.FENCE_SOUTH_Z += south_extension
 		perimeter.build(imported_environment, camera, composition_framing_distance)
 	if ground_dressing != null:
 		ground_dressing.setup(imported_environment, camera)

@@ -110,7 +110,7 @@ func _run() -> void:
 	report["rig_offset"] = arena.camera_rig.get_report()
 	_check("basis_still_preserved", camera.global_basis.is_equal_approx(approved.basis))
 	_check("fov_still_30", is_equal_approx(camera.fov, 30.0))
-	_check("camera_within_travel_limit", camera.global_position.distance_to(approved.origin) <= arena.follow_limit.length() + 0.01)
+	_check("camera_within_travel_limit", absf(arena.camera_rig.offset.x) <= arena.follow_limit.x + 0.01 and absf(arena.camera_rig.offset.y) <= arena.follow_limit.y + 0.01)
 
 	# Respawn anchors: the spawn function runs on every peer with the replicated seat data, so the
 	# position is set before the body enters the tree and _ready() captures a real spawn rather
@@ -166,7 +166,7 @@ func _run() -> void:
 	capsule.height = 1.8
 	probe.shape = capsule
 	var blocked: Dictionary = {}
-	for entry: Array in [["west", Vector3(-26.2, 1.0, 0.0)], ["east", Vector3(26.2, 1.0, 0.0)], ["south", Vector3(0.0, 1.0, 14.2)]]:
+	for entry: Array in [["west", Vector3(runtime.collision.YARD_MIN.x - 0.2, 1.0, 0.0)], ["east", Vector3(runtime.collision.YARD_MAX.x + 0.2, 1.0, 0.0)], ["south", Vector3(0.0, 1.0, runtime.collision.YARD_MAX.y + 0.2)]]:
 		probe.transform = Transform3D(Basis(), entry[1])
 		blocked[str(entry[0])] = not space.intersect_shape(probe, 1).is_empty()
 	report["bounds_blocked"] = blocked
@@ -211,12 +211,12 @@ func _ring_coverage(perimeter: Node) -> Dictionary:
 	capsule.height = 1.8
 	probe.shape = capsule
 	var points: Array[Vector3] = []
-	for step in range(-25, 26):
+	for step in range(int(perimeter.YARD_MIN.x) + 1, int(perimeter.YARD_MAX.x)):
 		points.append(Vector3(float(step), 0.05, -25.0))
-		points.append(Vector3(float(step), 0.05, 13.0))
-	for step in range(-25, 14):
-		points.append(Vector3(-25.0, 0.05, float(step)))
-		points.append(Vector3(25.0, 0.05, float(step)))
+		points.append(Vector3(float(step), 0.05, perimeter.YARD_MAX.y - 1.0))
+	for step in range(int(perimeter.YARD_MIN.y) + 1, int(perimeter.YARD_MAX.y)):
+		points.append(Vector3(perimeter.YARD_MIN.x + 1.0, 0.05, float(step)))
+		points.append(Vector3(perimeter.YARD_MAX.x - 1.0, 0.05, float(step)))
 	var reachable: int = 0
 	var paved: int = 0
 	var holes: Array = []

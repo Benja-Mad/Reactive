@@ -1,0 +1,31 @@
+{
+  "camera_preserved": true,
+  "depth_positions_checked": 3,
+  "device": "Apple M5 (Apple9)",
+  "draw_calls_p50": 2181.0,
+  "frame_wall_ms_p50": 23.137,
+  "frame_wall_ms_p95": 27.838,
+  "gpu_ms_p50": 0.0,
+  "gpu_ms_p95": 0.0,
+  "gpu_timing_available": false,
+  "material_instances_stable": true,
+  "pass": true,
+  "reactive_uniform_checks": 4,
+  "render_cpu_ms_p50": 4.93100023269653,
+  "renderer": "forward_plus",
+  "runtime": {
+    "authored_pbr_meshes": 2510,
+    "baseline_overrides": 240,
+    "calibrated_overrides": 374,
+    "collision_shapes": 175,
+    "facade_meshes": 3,
+    "imported_materials": 186,
+    "mesh_instances": 2990,
+    "metadata_nodes": 3043,
+    "shader_materials": 10,
+    "spine_meshes": 27,
+    "surfaces": 2990,
+    "window_glass_meshes": 154,
+    "window_interior_meshes": 56
+  }
+}
