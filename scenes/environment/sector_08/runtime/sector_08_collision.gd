@@ -11,8 +11,8 @@
 extends StaticBody3D
 
 ## Walkable footprint of the yard. Anything centred outside this is scenery, not level.
-const YARD_MIN := Vector2(-26.0, -26.0)
-const YARD_MAX := Vector2(26.0, 14.0)
+var YARD_MIN := Vector2(-26.0, -26.0)
+var YARD_MAX := Vector2(26.0, 14.0)
 const FLOOR_TOP := 0.06
 const WALL_HEIGHT := 6.0
 

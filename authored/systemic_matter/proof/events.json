@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "kind": "created",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "reshaped",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "transformed",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "coated",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "hit",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "broken",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "impulsed",
+    "position": "(-3.0, 0.080001, -6.0)"
+  },
+  {
+    "id": 1,
+    "kind": "commanded",
+    "position": "(-5.780449, 0.080001, -6.617877)"
+  },
+  {
+    "id": 1,
+    "kind": "detonated",
+    "position": "(-7.138649, 0.680001, -6.278327)"
+  },
+  {
+    "id": 1,
+    "kind": "hit",
+    "position": "(-5.780449, 0.080001, -6.617877)"
+  },
+  {
+    "id": 1,
+    "kind": "detonated",
+    "position": "(-5.780449, 0.680001, -6.617877)"
+  },
+  {
+    "id": 1,
+    "kind": "hit",
+    "position": "(-5.780449, 0.080001, -6.617877)"
+  },
+  {
+    "id": 1,
+    "kind": "destroyed",
+    "position": "(-5.780449, 0.080001, -6.617877)"
+  },
+  {
+    "id": 1,
+    "kind": "detonated",
+    "position": "(-4.422249, 0.680001, -6.957427)"
+  },
+  {
+    "id": 2,
+    "kind": "created",
+    "position": "(-8.2, 0.08, -8.0)"
+  },
+  {
+    "id": 2,
+    "kind": "coated",
+    "position": "(-8.2, 0.08, -8.0)"
+  },
+  {
+    "id": 2,
+    "kind": "commanded",
+    "position": "(-8.2, 0.08, -8.0)"
+  },
+  {
+    "id": 2,
+    "kind": "detonated",
+    "position": "(-9.599999, 0.68, -8.0)"
+  },
+  {
+    "id": 2,
+    "kind": "detonated",
+    "position": "(-8.2, 0.68, -8.0)"
+  },
+  {
+    "id": 2,
+    "kind": "detonated",
+    "position": "(-6.8, 0.68, -8.0)"
+  }
+]

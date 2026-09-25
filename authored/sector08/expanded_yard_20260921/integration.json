@@ -1,0 +1,127 @@
+{
+  "bounds_blocked": {
+    "east": true,
+    "south": true,
+    "west": true
+  },
+  "camera_translated_m": 7.47,
+  "checks": {
+    "arena_camera_is_current": true,
+    "arena_replaced_world_map": true,
+    "basis_preserved": true,
+    "basis_still_preserved": true,
+    "bounds_stop_player_at_fence": true,
+    "camera_followed": true,
+    "camera_within_travel_limit": true,
+    "character_camera_yielded_1": true,
+    "character_camera_yielded_2": true,
+    "collision_built": true,
+    "debug_overlay_hidden": true,
+    "fence_exists": true,
+    "fence_on_the_bound_line": true,
+    "fov_is_30": true,
+    "fov_still_30": true,
+    "lookdev_tools_off": true,
+    "moved_along_camera_right": true,
+    "movement_frame_is_camera_relative": true,
+    "movement_frame_not_world_aligned": true,
+    "no_stray_scene_lights": true,
+    "perimeter_built": true,
+    "player_moved": true,
+    "player_rests_on_arena_floor": true,
+    "players_spawned": true,
+    "reachable_ring_paved": true,
+    "respawn_anchor_is_a_spawn_1": true,
+    "respawn_anchor_is_a_spawn_2": true,
+    "rig_follows_local_player": true,
+    "stand_in_hidden": true,
+    "walkable_area_paved": true
+  },
+  "checks_run": 30,
+  "code_block_had_focus": false,
+  "failures": [],
+  "feet_height_m": 0.06,
+  "fence_panels_off_line": 0,
+  "fence_side_panels": 26,
+  "framing": {
+    "basis_preserved": true,
+    "distance_m": 60.0,
+    "follow_limit_m": "(32.0, 14.0)",
+    "fov": 30.0,
+    "lookdev_tools": false,
+    "pitch_deg": 24.0,
+    "target": "(0.0, 6.15, -2.0)",
+    "yaw_deg": 35.0
+  },
+  "perimeter": {
+    "backdrop": {
+      "blocks": 8,
+      "container": 8,
+      "pallet_stack": 6,
+      "wall_segments": 34,
+      "window_banks": 8
+    },
+    "build_ms": 218,
+    "continuous_foundation": true,
+    "draw_calls": 8,
+    "dropped_sample": [
+      "(-35, 5)",
+      "(-33, 7)",
+      "(-36, -4)",
+      "(-34, -7)",
+      "(-40, -15)",
+      "(-38, -13)",
+      "(-35, -11)",
+      "(-38, -18)",
+      "(-36, -16)",
+      "(-33, -14)",
+      "(-36, -20)",
+      "(-34, -18)",
+      "(-31, -16)",
+      "(-34, -23)"
+    ],
+    "fence_panels": 40,
+    "ground_filled": 227,
+    "lattice": {
+      "anchor": "(-14.99, -0.13, 16.09)",
+      "max_residual_m": 0.286,
+      "pitch_m": 3.25,
+      "slabs": 189,
+      "yaw_deg": -53.0
+    },
+    "lattice_points_dropped_as_solid": 37,
+    "paving_triangles": 24784,
+    "slab_coverage_before_foundation": 91.7,
+    "walkable_holes_after": {},
+    "walkable_holes_split": {
+      "inside_solid": 0,
+      "open_ground": 0
+    },
+    "walkable_paved_pct": 72.5,
+    "walkable_paved_pct_after": 100.0
+  },
+  "player_count": 2,
+  "reachable_ring": {
+    "paved": 142,
+    "paved_pct": 100.0,
+    "reachable": 142,
+    "samples": 212,
+    "unpaved_reachable": []
+  },
+  "respawn_anchors": [
+    "(3.0, 0.4, -2.0)",
+    "(-3.0, 0.4, -2.0)"
+  ],
+  "rest_height_m": 1.06,
+  "rig_enabled": true,
+  "rig_has_target": true,
+  "rig_offset": {
+    "basis_preserved": true,
+    "enabled": true,
+    "fov": 30.0,
+    "limit_m": "(32.0, 14.0)",
+    "offset_right_m": 7.475,
+    "offset_up_m": -1.831
+  },
+  "travel_m": 6.96
+}

@@ -12,6 +12,7 @@ var aim_point := Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("yard_sentries")
+	add_to_group("matter_damageable")
 	var collision := CollisionShape3D.new()
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.65
@@ -71,7 +72,7 @@ func _physics_process(delta: float) -> void:
 				var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.3, candidate.global_position + Vector3.UP * 0.4)
 				ray.exclude = [get_rid()]
 				var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
-				if not hit.is_empty() and hit.collider != candidate:
+				if not hit.is_empty() and hit.collider != candidate and not hit.collider.is_in_group("matter_constructs"):
 					continue
 				nearest = candidate
 				distance = separation
@@ -81,15 +82,19 @@ func _physics_process(delta: float) -> void:
 		else:
 			cycle = 0.0
 	if cycle >= 3.6 and not target_path.is_empty():
+		var impact_point: Vector3 = warning.global_position + Vector3.UP * 0.1
 		for candidate: Node in get_tree().get_nodes_in_group("coop_players"):
 			if Vector2(candidate.global_position.x-warning.global_position.x, candidate.global_position.z-warning.global_position.z).length() < 1.15:
 				# Recheck cover at impact: a player may move behind a barrier during the warning.
 				var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.3, candidate.global_position + Vector3.UP * 0.4)
 				ray.exclude = [get_rid()]
 				var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
+				if not hit.is_empty(): impact_point = hit.position
+				if not hit.is_empty() and hit.collider.is_in_group("matter_constructs"):
+					hit.collider.take_damage(8.0)
 				if hit.is_empty() or hit.collider == candidate:
 					candidate.receive_health.rpc(-16.0)
-		finish_shot.rpc()
+		finish_shot.rpc(impact_point)
 		target_path = NodePath()
 		cycle = 0.0
 
@@ -105,10 +110,10 @@ func telegraph(point: Vector3) -> void:
 	sprite.modulate = Color(1.0, 0.45, 0.45)
 
 @rpc("authority", "call_local", "reliable")
-func finish_shot() -> void:
+func finish_shot(impact_point: Vector3) -> void:
 	operative.kick()
-	preload("res://scenes/actions/combat_fx.gd").beam(get_tree().current_scene, global_position + Vector3.UP * 1.2, warning.global_position + Vector3.UP * 0.1, Color(1.0, 0.06, 0.16))
-	preload("res://scenes/actions/combat_fx.gd").burst(get_tree().current_scene, warning.global_position + Vector3.UP * 0.1, Color(1.0, 0.18, 0.08))
+	preload("res://scenes/actions/combat_fx.gd").beam(get_tree().current_scene, global_position + Vector3.UP * 1.2, impact_point, Color(1.0, 0.06, 0.16))
+	preload("res://scenes/actions/combat_fx.gd").burst(get_tree().current_scene, impact_point, Color(1.0, 0.18, 0.08))
 	warning.visible = false
 	sprite.modulate = Color(0.65, 0.72, 0.86)
 

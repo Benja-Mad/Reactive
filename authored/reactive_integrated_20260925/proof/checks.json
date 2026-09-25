@@ -1,0 +1,15 @@
+{
+  "camera_preserved": true,
+  "coating_survives_reaction": true,
+  "collision_cleanup": true,
+  "cover_protects_player": true,
+  "defense_returns_damage": true,
+  "enemy_break_causes_impulse": true,
+  "enemy_damages_cover": true,
+  "preparation_panel_opens": true,
+  "reaction_consumed": true,
+  "reject_arbitrary_program": true,
+  "routine_built_and_armed": true,
+  "routine_started": true,
+  "south_landmark_present": true
+}

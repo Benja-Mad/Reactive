@@ -14,7 +14,7 @@ func _ready() -> void:
 	Character.movement_basis = _movement_basis()
 	arena.activate_camera()
 	# Identical stable paths on every peer; the host alone resolves sentry combat.
-	var sentry_positions: Array[Vector3] = [Vector3(-10, 0.05, -9), Vector3(8, 0.05, -10)]
+	var sentry_positions: Array[Vector3] = [Vector3(-10, 0.05, -9), Vector3(8, 0.05, -10), Vector3(-7, 0.05, 16)]
 	for index in sentry_positions.size():
 		var sentry := preload("res://scenes/characters/yard_sentry.gd").new()
 		sentry.name = "YardSentry%d" % index
@@ -51,6 +51,9 @@ func _on_player_spawned(node: Node) -> void:
 	character.camera_3d.current = false
 	arena.configure_player_presentation(character)
 	if character.is_multiplayer_authority():
+		if has_node("MatterConsole"):
+			character.programming_block.hide()
+			character.programming_block.code_block.release_focus()
 		arena.follow(character)
 
 

@@ -1,0 +1,66 @@
+{
+  "-1_floor_contact": true,
+  "-1_in_frame": true,
+  "-1_open_corridors": 1,
+  "-1_paved": true,
+  "1_floor_contact": true,
+  "1_in_frame": true,
+  "1_open_corridors": 11,
+  "1_paved": true,
+  "bounds_max": "(34.0, 28.0)",
+  "bounds_min": "(-34.0, -26.0)",
+  "camera_height_preserved": true,
+  "perimeter": {
+    "backdrop": {
+      "blocks": 11,
+      "container": 7,
+      "pallet_stack": 6,
+      "wall_segments": 38,
+      "window_banks": 11
+    },
+    "build_ms": 220,
+    "continuous_foundation": true,
+    "draw_calls": 8,
+    "dropped_sample": [
+      "(-35, 26)",
+      "(-35, 5)",
+      "(-33, 7)",
+      "(-36, -4)",
+      "(-34, -7)",
+      "(12, 29)",
+      "(-40, -15)",
+      "(-38, -13)",
+      "(-35, -11)",
+      "(-38, -18)",
+      "(-36, -16)",
+      "(-33, -14)",
+      "(-36, -20)",
+      "(-34, -18)"
+    ],
+    "fence_panels": 54,
+    "ground_filled": 347,
+    "lattice": {
+      "anchor": "(-14.99, -0.13, 16.09)",
+      "max_residual_m": 0.286,
+      "pitch_m": 3.25,
+      "slabs": 189,
+      "yaw_deg": -53.0
+    },
+    "lattice_points_dropped_as_solid": 39,
+    "paving_triangles": 24784,
+    "slab_coverage_before_foundation": 93.1,
+    "walkable_holes_after": {},
+    "walkable_holes_split": {
+      "inside_solid": 0,
+      "open_ground": 0
+    },
+    "walkable_paved_pct": 58.9,
+    "walkable_paved_pct_after": 100.0
+  },
+  "south_floor_contact": true,
+  "south_in_frame": true,
+  "south_open_corridors": 10,
+  "south_paved": true,
+  "surface_patch_accepted": true,
+  "surface_patch_removed": true
+}

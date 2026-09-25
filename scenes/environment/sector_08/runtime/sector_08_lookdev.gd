@@ -9,6 +9,11 @@
 class_name Sector08LookDev
 extends DioramaArena
 
+## Optional art comparison and bounded extension; zero/false preserve the original yard.
+@export var restrained_presentation: bool = false
+@export_range(0.0, 12.0, 1.0) var lateral_extension: float = 0.0
+@export_range(0.0, 24.0, 1.0) var south_extension: float = 0.0
+
 var parallax: Node
 var access_display: Node3D
 var cinematic_dust: Node3D
@@ -48,7 +53,24 @@ var _calibrated_look: bool = true
 var _slider_rows: Dictionary = {}
 
 
+func _enter_tree() -> void:
+	$Sector08Runtime.lateral_extension = lateral_extension
+	$Sector08Runtime.south_extension = south_extension
+	if (lateral_extension > 0.0 or south_extension > 0.0):
+		$Sector08Runtime.billboard_enabled = false
+	# More world travel, with the same perspective and sprite scale.
+	if (lateral_extension > 0.0 or south_extension > 0.0):
+		follow_limit = Vector2(40.0, 24.0)
+
+
 func _ready() -> void:
+	if south_extension > 0.0:
+		var court := preload("res://scenes/environment/sector_08/modules/south_rain_court.tscn").instantiate()
+		add_child(court)
+		court.position = Vector3(0.0, 0.0, 14.0 + south_extension * 0.5)
+		var containment := preload("res://scenes/environment/sector_08/modules/containment_court.gd").new()
+		containment.name = "ContainmentCourt"
+		add_child(containment)
 	_initialise_diorama()
 	_configure_environment()
 	_configure_character()
@@ -73,6 +95,7 @@ func _ready() -> void:
 	add_child(cinematic_dust)
 	cinematic_dust.setup(self)
 	build_camera_rig()
+	camera_rig.ground_follow = (lateral_extension > 0.0 or south_extension > 0.0)
 	# The rig folds the lookdev's lateral sweep in rather than fighting it for the transform.
 	camera_rig.extra_offset = func() -> float: return parallax.offset
 	parallax.rig = camera_rig
@@ -99,6 +122,12 @@ func _add_yard_polish() -> void:
 	polish.name = "YardPolish"
 	add_child(polish)
 	polish.setup(self)
+	if restrained_presentation:
+		polish.apply_restrained_presentation(self)
+	var ground := preload("res://scenes/environment/sector_08/runtime/ground_surface_state.gd").new()
+	ground.name = "GroundSurfaceState"
+	add_child(ground)
+	ground.setup(polish.water_materials, polish.rain_emitters)
 
 
 func _unhandled_input(event: InputEvent) -> void:
