@@ -22,9 +22,6 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if programming_block.get_node("CodeBlock").has_focus():
-		return
-	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
