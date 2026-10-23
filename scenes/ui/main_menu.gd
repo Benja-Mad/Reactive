@@ -22,7 +22,7 @@ func _ready() -> void:
 	join.pressed.connect(func() -> void:
 		Game.instance.solo = false
 		get_tree().change_scene_to_file("res://lobby/join_screen.tscn"))
-	credits.pressed.connect(func() -> void: get_tree().change_scene_to_file("res://ui/credits.tscn"))
+	credits.pressed.connect(func() -> void: get_tree().change_scene_to_file("res://scenes/ui/credits.tscn"))
 	
 	solo.grab_focus()
 
