@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://cmaej13hiussk" path="res://scenes/characters/character.tscn" id="1_o1do0"]
 [ext_resource type="Script" uid="uid://cdcynus866ci4" path="res://scenes/characters/damage/damage.gd" id="2_nivuo"]
-[ext_resource type="PackedScene" uid="uid://b613cvy2u41tx" path="res://scenes/actions/fire_attack.tscn" id="3_pipaw"]
+[ext_resource type="PackedScene" uid="uid://b613cvy2u41tx" path="res://scenes/abilities/fire_attack.tscn" id="3_pipaw"]
 [ext_resource type="Texture2D" uid="uid://c7m18icroiud" path="res://materials/Damage/Idle.png" id="4_btue1"]
 [ext_resource type="Texture2D" uid="uid://dkxtqymhe5k3r" path="res://materials/Damage/Walk.png" id="5_huawp"]
 

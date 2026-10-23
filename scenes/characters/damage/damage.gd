@@ -20,13 +20,19 @@ func _physics_process(delta: float) -> void:
 	if direction.length() > 0:
 		facing_dir = direction
 			
-func use_ability(ability: String) -> void:
-	if not is_multiplayer_authority():
+func use_ability(ability: Statics.Ability) -> void:
+	if not is_multiplayer_authority() or is_dead:
 		return
 		
 	match ability:
-		"fire":
+		Statics.Ability.FIRE:
 			_fire()
+		Statics.Ability.FLAME_WAVE:
+			_flame_wave()
+
+
+func _flame_wave() -> void:
+	trigger_particles_all(^"FlameWaveParticles")
 		
 func _fire() -> void:
 	fire_attack_spawner.spawn({

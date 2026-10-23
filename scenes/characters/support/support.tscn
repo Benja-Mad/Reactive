@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://b7ieil0tluar7" path="res://materials/Support/Idle.png" id="1_cvogi"]
 [ext_resource type="Texture2D" uid="uid://dlm521j66ukv5" path="res://materials/Support/Light_ball.png" id="1_u31f1"]
 [ext_resource type="Texture2D" uid="uid://du865f1j0wsua" path="res://materials/Support/Walk.png" id="2_u31f1"]
+[ext_resource type="PackedScene" uid="uid://bn0qi7h2cr3eo" path="res://scenes/abilities/ice_shard.tscn" id="3_ypglp"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g4v7s"]
 radius = 0.32910156
@@ -177,6 +178,7 @@ animations = [{
 
 [node name="Support" unique_id=566357814 instance=ExtResource("1_8fleb")]
 script = ExtResource("1_365rs")
+ice_shard_scene = ExtResource("3_ypglp")
 
 [node name="CollisionShape3D" parent="." index="0" unique_id=1813903693]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19091797, 0)
@@ -188,3 +190,9 @@ texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_d2sfv")
 animation = &"Heal"
 frame_progress = 0.5191337
+
+[node name="Marker3D" type="Marker3D" parent="." index="7" unique_id=1654977084]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.312667, 0.16624153, 0)
+
+[node name="IceShardSpawner" type="MultiplayerSpawner" parent="." index="8" unique_id=1512982522]
+spawn_path = NodePath(".")

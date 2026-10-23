@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://b613cvy2u41tx"]
+[gd_scene format=3 uid="uid://bn0qi7h2cr3eo"]
 
-[ext_resource type="Script" uid="uid://f1mfd0svxvcw" path="res://scenes/actions/fire_attack.gd" id="1_mjoj0"]
+[ext_resource type="Script" uid="uid://f1mfd0svxvcw" path="res://scenes/abilities/fire_attack.gd" id="1_l3ds6"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pcsv5"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vkasl"]
-albedo_color = Color(0.9606051, 0.29856056, 1.92523e-07, 1)
+albedo_color = Color(0.2968262, 0.6210436, 0.62974143, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_pcsv5"]
 material = SubResource("StandardMaterial3D_vkasl")
@@ -15,8 +15,10 @@ properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[node name="FireAttack" type="Area3D" unique_id=966753201]
-script = ExtResource("1_mjoj0")
+[node name="IceShard" type="Area3D" unique_id=966753201]
+collision_layer = 2147483648
+collision_mask = 2
+script = ExtResource("1_l3ds6")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=388790331]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
