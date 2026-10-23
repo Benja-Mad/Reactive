@@ -13,6 +13,15 @@ enum Role {
 }
 
 
+enum Ability {
+	NONE,
+	FIRE,
+	FLAME_WAVE,
+	ICE_SHARD,
+	HEAL,
+}
+
+
 static func get_role_name(role: Role) -> String:
 	match role:
 		Role.NONE:
@@ -22,6 +31,15 @@ static func get_role_name(role: Role) -> String:
 		Role.DAMAGE:
 			return "Daño"
 	return "Unknown"
+
+
+static func get_ability_role(ability: Ability) -> Role:
+	match ability:
+		Ability.FIRE, Ability.FLAME_WAVE:
+			return Role.DAMAGE
+		Ability.ICE_SHARD, Ability.HEAL:
+			return Role.SUPPORT
+	return Role.NONE
 
 
 class PlayerData:

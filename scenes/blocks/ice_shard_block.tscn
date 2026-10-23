@@ -1,13 +1,13 @@
-[gd_scene format=3 uid="uid://cdcedsrb4k4hi"]
+[gd_scene format=3 uid="uid://ubuoy7v8m13m"]
 
-[ext_resource type="Script" uid="uid://dgk22ck000mf1" path="res://scenes/actions/code/scripts/fire_block.gd" id="1_wumr0"]
+[ext_resource type="Script" uid="uid://be54eub4ggq4j" path="res://scenes/blocks/ice_shard_block.gd" id="1_eyv7f"]
 
-[node name="FireBlock" type="PanelContainer" unique_id=1322697723]
+[node name="IceShardBlock" type="PanelContainer" unique_id=1322697723]
 offset_right = 53.0
 offset_bottom = 23.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-script = ExtResource("1_wumr0")
+script = ExtResource("1_eyv7f")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=573290871]
 layout_mode = 2
@@ -19,5 +19,5 @@ mouse_filter = 2
 
 [node name="Label" type="Label" parent="." unique_id=284909603]
 layout_mode = 2
-text = "fire()"
+text = "ice_shard()"
 horizontal_alignment = 1

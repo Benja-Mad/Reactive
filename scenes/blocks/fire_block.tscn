@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://cdcedsrb4k4hi"]
+
+[ext_resource type="Script" uid="uid://dgk22ck000mf1" path="res://scenes/blocks/fire_block.gd" id="1_wumr0"]
+
+[node name="FireBlock" type="PanelContainer" unique_id=1322697723]
+offset_right = 53.0
+offset_bottom = 23.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_wumr0")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=573290871]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1346872692]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="." unique_id=284909603]
+layout_mode = 2
+text = "fire()"
+horizontal_alignment = 1

@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c0pq3kgi8hon5"]
+
+[ext_resource type="Script" uid="uid://d0lw36nmp3xt7" path="res://scenes/blocks/hp_above_block.gd" id="1_00w5y"]
+
+[node name="HpAboveBlock" type="PanelContainer" unique_id=689569176]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_00w5y")
+
+[node name="Label" type="Label" parent="." unique_id=1453000364]
+layout_mode = 2
+text = "vida > 50%"

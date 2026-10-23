@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bq52ao21jn0lt"]
+
+[ext_resource type="Script" uid="uid://vktby7nxemkp" path="res://scenes/blocks/hp_below_block.gd" id="1_13k1h"]
+
+[node name="HpBelowBlock" type="PanelContainer" unique_id=1959711288]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_13k1h")
+
+[node name="Label" type="Label" parent="." unique_id=675034147]
+layout_mode = 2
+text = "vida < 50%"

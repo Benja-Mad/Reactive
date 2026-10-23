@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bkxnrg3rqpdom"]
+
+[ext_resource type="Script" uid="uid://bovbuf0gssr0c" path="res://scenes/blocks/heal_block.gd" id="1_u1dlj"]
+
+[node name="HealBlock" type="PanelContainer" unique_id=1322697723]
+offset_right = 53.0
+offset_bottom = 23.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_u1dlj")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=573290871]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1346872692]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="." unique_id=284909603]
+layout_mode = 2
+text = "heal()"
+horizontal_alignment = 1

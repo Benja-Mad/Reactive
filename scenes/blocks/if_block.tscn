@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://kbacwuxsnlmm"]
+
+[ext_resource type="Script" uid="uid://gekbdskb3ty2" path="res://scenes/blocks/if_block.gd" id="1_nxb8c"]
+[ext_resource type="Script" uid="uid://co2xvtd3rh7u6" path="res://scenes/blocks/condition_container.gd" id="2_6hro1"]
+[ext_resource type="Script" uid="uid://cgcpc5w8ksrib" path="res://scenes/blocks/then_container.gd" id="3_amtef"]
+[ext_resource type="Script" uid="uid://3udir1mf1dlh" path="res://scenes/blocks/else_container.gd" id="4_niurx"]
+
+[node name="IfBlock" type="PanelContainer" unique_id=1322697723]
+offset_right = 53.0
+offset_bottom = 23.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_nxb8c")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1402916650]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer" unique_id=284909603]
+layout_mode = 2
+text = "if"
+horizontal_alignment = 1
+
+[node name="ConditionContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=1215498543]
+visible = false
+custom_minimum_size = Vector2(120, 30)
+layout_mode = 2
+script = ExtResource("2_6hro1")
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1019610663]
+visible = false
+layout_mode = 2
+text = "then"
+horizontal_alignment = 1
+
+[node name="ThenContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=59626411]
+visible = false
+custom_minimum_size = Vector2(120, 30)
+layout_mode = 2
+script = ExtResource("3_amtef")
+
+[node name="Label3" type="Label" parent="VBoxContainer" unique_id=1901690122]
+visible = false
+layout_mode = 2
+text = "else"
+horizontal_alignment = 1
+
+[node name="ElseContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=1282046109]
+visible = false
+custom_minimum_size = Vector2(120, 30)
+layout_mode = 2
+script = ExtResource("4_niurx")
