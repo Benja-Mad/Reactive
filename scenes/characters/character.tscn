@@ -17,6 +17,9 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="ViewportTexture" id="ViewportTexture_bhunq"]
+viewport_path = NodePath("Sprite3D/SubViewport")
+
 [node name="Character" type="CharacterBody3D" unique_id=566357814]
 script = ExtResource("1_365rs")
 
@@ -31,7 +34,7 @@ sprite_frames = SubResource("SpriteFrames_x31xa")
 animation = &"Walk"
 
 [node name="Label3D" type="Label3D" parent="." unique_id=1961000855]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8375354, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.97868204, 0)
 billboard = 1
 text = "dwa"
 
@@ -41,3 +44,20 @@ text = "dwa"
 wait_time = 0.1
 
 [node name="ProgrammingBlock" parent="." unique_id=1644286038 instance=ExtResource("3_e22cc")]
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=991821673]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0, 0, 0, 0.1, 0, 1.1464113, 0)
+pixel_size = 0.003
+billboard = 1
+texture = SubResource("ViewportTexture_bhunq")
+
+[node name="SubViewport" type="SubViewport" parent="Sprite3D" unique_id=282052186]
+size = Vector2i(300, 100)
+render_target_update_mode = 4
+
+[node name="ProgressBar" type="ProgressBar" parent="Sprite3D/SubViewport" unique_id=1757045388]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
