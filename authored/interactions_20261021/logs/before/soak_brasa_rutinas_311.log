@@ -1,0 +1,12 @@
+ERROR: Failed to open 'user://logs/godot2026-10-21T23.39.41.log'.
+   at: copy (core/io/dir_access.cpp:429)
+ERROR: Failed to open log file for writing: user://logs/godot.log
+   at: rotate_file (core/io/logger.cpp:169)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1035)
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ART TRIAL {"details_hidden":1338,"models_rebuilt":23,"surfaces":550}
+SURVIVOR SOAK {"attack":["cold"],"automations":373,"damage":{"all":1896.0,"bowl":16.9,"weapon":1464.0},"durability":false,"kills":94,"kinds_seen":{"0":true,"1":true,"2":true,"3":true,"4":true,"5":true},"level":7,"peak_enemies":33,"peak_machine_sync_bytes":2020,"peak_matter":26,"peak_pickups":16,"peak_snapshot_bytes":14120,"phase":"lost","reserve":{"current":1,"fire":3,"scrap":3,"water":3},"routines":[{"on":"broken","steps":["raise","cold","push","repel"],"then":"fragmentos","when":"cerca"},{"on":"contact","steps":["repel"],"then":"cadena","when":"derribo"}],"rule_stats":{"arcs":19,"boiled":10,"bowled":2,"capped":0,"chilled":0,"crushed":0,"detonated":0,"dried":19,"frozen":1,"grounded":19,"ignited":8,"impacts":1,"jumps":20,"longest":2,"melted":1,"quenched":0,"reddened":0,"scalded":0,"spread":30},"rules":true,"time":132.266666666663,"upgrades":["repair","repel","cold","derribo","cadena","repel"],"water":{"drawn":29}}

@@ -12,14 +12,16 @@ func check(key: String, value: bool) -> void:
 func shot(sentry: Node, player: Node) -> void:
 	sentry.cycle = 3.7
 	sentry.target_path = player.get_path()
-	sentry.warning.global_position = player.global_position
+	sentry.locked = true
+	sentry.lock_point = player.global_position
 	sentry._physics_process(0.01)
 func capture(file: String) -> void:
 	for i in 20: await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out.path_join(file+".png"))
 func run() -> void:
-	out = OS.get_cmdline_user_args()[0]
+	var args := OS.get_cmdline_user_args()
+	out = args[0] if not args.is_empty() else "user://reactive_integrated"
 	DirAccess.make_dir_recursive_absolute(out)
 	get_window().size = Vector2i(1920,1080)
 	Game.instance.players = [Statics.PlayerData.new(1,"Operador",0,Statics.Role.DAMAGE)]

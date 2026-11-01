@@ -25,6 +25,7 @@ var _materials: Array[ShaderMaterial] = []
 var _uniforms_by_material: Dictionary = {}
 var _targets: Dictionary = {}
 var _values: Dictionary = {}
+var _wave_tween: Tween
 
 
 func _ready() -> void:
@@ -78,9 +79,12 @@ func trigger_wave(intensity: float = 1.0) -> void:
 	auto_demo = false
 	_targets["wave_intensity"] = clampf(intensity, 0.0, 1.0)
 	wave_phase = fmod(effect_time * wave_speed + 0.5, 1.0)
-	var tween: Tween = create_tween()
-	tween.tween_interval(3.0)
-	tween.tween_method(func(value: float) -> void: _targets["wave_intensity"] = value, float(_targets["wave_intensity"]), 0.18, 1.6)
+	# A new wave owns the fade; an earlier one's pending fade would otherwise cut it short.
+	if _wave_tween != null:
+		_wave_tween.kill()
+	_wave_tween = create_tween()
+	_wave_tween.tween_interval(3.0)
+	_wave_tween.tween_method(func(value: float) -> void: _targets["wave_intensity"] = value, float(_targets["wave_intensity"]), 0.18, 1.6)
 
 
 func trigger_blackout() -> void:

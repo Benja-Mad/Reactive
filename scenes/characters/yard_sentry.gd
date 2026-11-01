@@ -1,14 +1,20 @@
 extends StaticBody3D
 
+const ACQUIRE_AT := 2.5
+const LOCK_AT := 3.25
+const FIRE_AT := 3.6
+const Discharge = preload("res://scenes/actions/sentry_discharge.gd")
+
 var health: float = 30.0
 var cycle: float = 0.0
 var target_path: NodePath
 var sprite: AnimatedSprite3D
 var label: Label3D
-var warning: MeshInstance3D
+var telegraph: Node3D
+var lock_point := Vector3.ZERO
+var locked: bool = false
 var down: bool = false
 var operative: Node3D
-var aim_point := Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("yard_sentries")
@@ -44,77 +50,132 @@ func _ready() -> void:
 	label.modulate = Color(1.0, 0.15, 0.25)
 	label.text = "━━━━━\n⌄"
 	add_child(label)
-	warning = MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.9
-	torus.outer_radius = 1.0
-	warning.mesh = torus
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.albedo_color = Color(1.0, 0.06, 0.15)
-	material.emission_enabled = true
-	material.emission = Color(1.0, 0.03, 0.08)
-	material.emission_energy_multiplier = 2.0
-	warning.material_override = material
-	add_child(warning)
-	warning.visible = false
+	telegraph = preload("res://scenes/characters/sentry_telegraph.gd").new()
+	telegraph.name = "Telegraph"
+	telegraph.operative = operative
+	add_child(telegraph)
 
+## Host-only cadence: idle, acquire, hunt with the beam, commit to a point, fire at it.
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or down:
 		return
 	cycle += delta
-	if cycle >= 2.5 and target_path.is_empty():
+	if cycle >= ACQUIRE_AT and target_path.is_empty():
 		var nearest: Node3D
 		var distance: float = 22.0
 		for candidate: Node in get_tree().get_nodes_in_group("coop_players"):
 			var separation: float = global_position.distance_to(candidate.global_position)
-			if separation < distance:
-				var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.3, candidate.global_position + Vector3.UP * 0.4)
-				ray.exclude = [get_rid()]
-				var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
-				if not hit.is_empty() and hit.collider != candidate and not hit.collider.is_in_group("matter_constructs"):
-					continue
+			if separation < distance and _can_see(candidate):
 				nearest = candidate
 				distance = separation
 		if nearest != null:
 			target_path = nearest.get_path()
-			telegraph.rpc(nearest.global_position)
+			locked = false
+			begin_track.rpc(target_path, LOCK_AT - ACQUIRE_AT)
 		else:
 			cycle = 0.0
-	if cycle >= 3.6 and not target_path.is_empty():
-		var impact_point: Vector3 = warning.global_position + Vector3.UP * 0.1
-		for candidate: Node in get_tree().get_nodes_in_group("coop_players"):
-			if Vector2(candidate.global_position.x-warning.global_position.x, candidate.global_position.z-warning.global_position.z).length() < 1.15:
-				# Recheck cover at impact: a player may move behind a barrier during the warning.
-				var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.3, candidate.global_position + Vector3.UP * 0.4)
-				ray.exclude = [get_rid()]
-				var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
-				if not hit.is_empty(): impact_point = hit.position
-				if not hit.is_empty() and hit.collider.is_in_group("matter_constructs"):
-					hit.collider.take_damage(8.0)
-				if hit.is_empty() or hit.collider == candidate:
-					candidate.receive_health.rpc(-16.0)
-		finish_shot.rpc(impact_point)
-		target_path = NodePath()
-		cycle = 0.0
+	if not target_path.is_empty() and not locked and cycle >= LOCK_AT:
+		var tracked := get_node_or_null(target_path) as Node3D
+		if tracked == null:
+			_abort()
+			return
+		lock_point = tracked.global_position
+		locked = true
+		commit.rpc(lock_point)
+	if cycle >= FIRE_AT and not target_path.is_empty():
+		_fire()
+
+## Acquisition sees through matter constructs (they are what the sentry is meant to break) but
+## not through scenery, and not through the dense core of a cloud.
+func _can_see(candidate: Node3D) -> bool:
+	var eye: Vector3 = global_position + Vector3.UP * 1.3
+	var chest: Vector3 = candidate.global_position + Vector3.UP * 0.4
+	var ray := PhysicsRayQueryParameters3D.create(eye, chest)
+	ray.exclude = [get_rid()]
+	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
+	if not hit.is_empty() and hit.collider != candidate and not hit.collider.is_in_group("matter_constructs"):
+		return false
+	var matter := _matter()
+	return matter == null or not matter.sight_blocked(eye, chest)
+
+func _fire() -> void:
+	var eye: Vector3 = global_position + Vector3.UP * 1.3
+	var matter := _matter()
+	# With nobody under the lock, the shot carries on past the aim to whatever is behind it.
+	var outcome: int = Discharge.Outcome.SCENERY
+	var impact_point: Vector3 = _first_surface(eye, lock_point + Vector3.UP * 0.9)
+	var missed_veil: Variant = matter.sight_obstruction(eye, impact_point) if matter != null else null
+	if missed_veil != null:
+		impact_point = missed_veil
+		outcome = Discharge.Outcome.VEILED
+	for candidate: Node in get_tree().get_nodes_in_group("coop_players"):
+		if Vector2(candidate.global_position.x - lock_point.x, candidate.global_position.z - lock_point.z).length() < 1.15:
+			# Recheck cover at impact: a player may move behind a barrier during the warning.
+			var chest: Vector3 = candidate.global_position + Vector3.UP * 0.4
+			var ray := PhysicsRayQueryParameters3D.create(eye, chest)
+			ray.exclude = [get_rid()]
+			var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
+			var veiled: Variant = matter.sight_obstruction(eye, hit.position if not hit.is_empty() else chest) if matter != null else null
+			if veiled != null:
+				# The beam scatters in the vapour short of anything solid.
+				impact_point = veiled
+				outcome = Discharge.Outcome.VEILED
+				continue
+			if not hit.is_empty(): impact_point = hit.position
+			if not hit.is_empty() and hit.collider.is_in_group("matter_constructs"):
+				hit.collider.take_damage(8.0)
+				outcome = Discharge.Outcome.COVER
+			elif hit.is_empty() or hit.collider == candidate:
+				candidate.receive_health.rpc(-16.0)
+				var shove := Vector3(candidate.global_position.x - global_position.x, 0.0, candidate.global_position.z - global_position.z)
+				candidate.knock.rpc(shove.normalized() * 4.5)
+				impact_point = candidate.global_position + Vector3.UP * 0.9
+				outcome = Discharge.Outcome.PLAYER
+			else:
+				outcome = Discharge.Outcome.SCENERY
+	finish_shot.rpc(impact_point, outcome)
+	target_path = NodePath()
+	locked = false
+	cycle = 0.0
+
+func _first_surface(from: Vector3, through: Vector3) -> Vector3:
+	var reach: Vector3 = from + (through - from) * 1.8
+	var ray := PhysicsRayQueryParameters3D.create(from, reach)
+	ray.exclude = [get_rid()]
+	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
+	return through if hit.is_empty() else hit.position
+
+func _abort() -> void:
+	target_path = NodePath()
+	locked = false
+	cycle = 0.0
+	cancel_track.rpc()
+
+func _matter() -> Node:
+	return get_tree().get_first_node_in_group("world_matter")
 
 @rpc("authority", "call_local", "reliable")
-func telegraph(point: Vector3) -> void:
-	aim_point = point
-	operative.aim_direction = Vector3(point.x - global_position.x, 0, point.z - global_position.z).normalized()
-	preload("res://scenes/actions/combat_fx.gd").beam(get_tree().current_scene, global_position + Vector3.UP * 1.2, Vector3(point.x, 0.08, point.z), Color(0.8, 0.025, 0.1), 1.1, 0.008)
-	warning.global_position = Vector3(point.x, 0.04, point.z)
-	warning.visible = true
-	warning.scale = Vector3.ONE * 1.5
-	create_tween().tween_property(warning, "scale", Vector3.ONE, 1.1)
+func begin_track(path: NodePath, duration: float) -> void:
+	var tracked := get_node_or_null(path) as Node3D
+	if tracked == null: return
+	telegraph.begin(tracked, duration)
 	sprite.modulate = Color(1.0, 0.45, 0.45)
 
 @rpc("authority", "call_local", "reliable")
-func finish_shot(impact_point: Vector3) -> void:
+func commit(point: Vector3) -> void:
+	lock_point = point
+	telegraph.lock(point)
+
+@rpc("authority", "call_local", "reliable")
+func cancel_track() -> void:
+	telegraph.cancel()
+	sprite.modulate = Color(0.65, 0.72, 0.86)
+
+@rpc("authority", "call_local", "reliable")
+func finish_shot(impact_point: Vector3, outcome: int) -> void:
 	operative.kick()
-	preload("res://scenes/actions/combat_fx.gd").beam(get_tree().current_scene, global_position + Vector3.UP * 1.2, impact_point, Color(1.0, 0.06, 0.16))
-	preload("res://scenes/actions/combat_fx.gd").burst(get_tree().current_scene, impact_point, Color(1.0, 0.18, 0.08))
-	warning.visible = false
+	telegraph.release()
+	Discharge.fire(get_tree().current_scene, telegraph.muzzle(), impact_point, outcome)
 	sprite.modulate = Color(0.65, 0.72, 0.86)
 
 func take_damage(amount: float) -> void:
@@ -137,6 +198,7 @@ func update_health(value: float) -> void:
 	sprite.modulate = Color(0.18, 0.22, 0.27) if down else Color(1.0, 0.6, 0.55)
 	sprite.rotation.z = -0.8 if down else 0.0
 	if down:
-		warning.visible = false
+		telegraph.cancel()
 		cycle = 0.0
+		locked = false
 		target_path = NodePath()

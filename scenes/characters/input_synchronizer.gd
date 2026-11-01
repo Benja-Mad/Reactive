@@ -17,6 +17,12 @@ func _physics_process(_delta: float) -> void:
 		return
 	
 	move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	if get_tree().get_first_node_in_group("survivor_run") != null:
+		var arrows := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+		move_input = (move_input + arrows).limit_length()
+		aim_direction = Vector3.ZERO
+		jump = false
+		return
 	# A single mouse movement used to disable keyboard facing for the rest of the session. Moving
 	# on the keyboard hands it back.
 	if mouse_aim_active and move_input.length_squared() > 0.25:

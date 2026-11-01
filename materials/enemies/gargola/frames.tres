@@ -1,0 +1,161 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://materials/enemies/gargola/air.png" id="1_lbh3i"]
+[ext_resource type="Texture2D" path="res://materials/enemies/gargola/crouch.png" id="2_h1v7v"]
+[ext_resource type="Texture2D" path="res://materials/enemies/gargola/idle.png" id="3_fuc44"]
+[ext_resource type="Texture2D" path="res://materials/enemies/gargola/open.png" id="4_8qtlx"]
+[ext_resource type="Texture2D" path="res://materials/enemies/gargola/walk.png" id="5_npbij"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kkj5n"]
+atlas = ExtResource("1_lbh3i")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ide8"]
+atlas = ExtResource("1_lbh3i")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lcmdo"]
+atlas = ExtResource("2_h1v7v")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v7vxf"]
+atlas = ExtResource("2_h1v7v")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1yx7y"]
+atlas = ExtResource("3_fuc44")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iph86"]
+atlas = ExtResource("3_fuc44")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xfgag"]
+atlas = ExtResource("3_fuc44")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cuyay"]
+atlas = ExtResource("3_fuc44")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w1cbr"]
+atlas = ExtResource("4_8qtlx")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6x4ed"]
+atlas = ExtResource("4_8qtlx")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ws1oa"]
+atlas = ExtResource("4_8qtlx")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l0y4y"]
+atlas = ExtResource("5_npbij")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qgseh"]
+atlas = ExtResource("5_npbij")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hfsww"]
+atlas = ExtResource("5_npbij")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d85ju"]
+atlas = ExtResource("5_npbij")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2e34"]
+atlas = ExtResource("5_npbij")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_av5ll"]
+atlas = ExtResource("5_npbij")
+region = Rect2(640, 0, 128, 128)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kkj5n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ide8")
+}],
+"loop": 1,
+"name": &"Air",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lcmdo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v7vxf")
+}],
+"loop": 1,
+"name": &"Crouch",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1yx7y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_iph86")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xfgag")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cuyay")
+}],
+"loop": 1,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w1cbr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6x4ed")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ws1oa")
+}],
+"loop": 1,
+"name": &"Open",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0y4y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qgseh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hfsww")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d85ju")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e2e34")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_av5ll")
+}],
+"loop": 1,
+"name": &"Walk",
+"speed": 10.0
+}]
+metadata/anchors = {
+"Air": Vector2(56, 120),
+"Crouch": Vector2(56, 120),
+"Idle": Vector2(56, 120),
+"Open": Vector2(56, 120),
+"Walk": Vector2(56, 120)
+}

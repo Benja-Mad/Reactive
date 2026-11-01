@@ -1,0 +1,231 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/aim.png" id="1_qfdkq"]
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/drink.png" id="2_w50k4"]
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/wail.png" id="3_cciso"]
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/wander0.png" id="4_iewo8"]
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/wander1.png" id="5_1j4qa"]
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/wander2.png" id="6_olqww"]
+[ext_resource type="Texture2D" path="res://materials/enemies/novia/wander3.png" id="7_dxtrm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_60ebu"]
+atlas = ExtResource("1_qfdkq")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wkahy"]
+atlas = ExtResource("1_qfdkq")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e6r7m"]
+atlas = ExtResource("1_qfdkq")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_750of"]
+atlas = ExtResource("2_w50k4")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uqdln"]
+atlas = ExtResource("2_w50k4")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wky6q"]
+atlas = ExtResource("2_w50k4")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nhgqj"]
+atlas = ExtResource("3_cciso")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uhtph"]
+atlas = ExtResource("3_cciso")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tro4o"]
+atlas = ExtResource("3_cciso")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y3vyk"]
+atlas = ExtResource("4_iewo8")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2v38r"]
+atlas = ExtResource("4_iewo8")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fvdtk"]
+atlas = ExtResource("4_iewo8")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_66osp"]
+atlas = ExtResource("4_iewo8")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_en2lu"]
+atlas = ExtResource("5_1j4qa")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cf0nc"]
+atlas = ExtResource("5_1j4qa")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t30dj"]
+atlas = ExtResource("5_1j4qa")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_obse7"]
+atlas = ExtResource("5_1j4qa")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2aysn"]
+atlas = ExtResource("6_olqww")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atp5n"]
+atlas = ExtResource("6_olqww")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5q8ex"]
+atlas = ExtResource("6_olqww")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tbtlm"]
+atlas = ExtResource("6_olqww")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_blw12"]
+atlas = ExtResource("7_dxtrm")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jecx0"]
+atlas = ExtResource("7_dxtrm")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r2rag"]
+atlas = ExtResource("7_dxtrm")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hv35v"]
+atlas = ExtResource("7_dxtrm")
+region = Rect2(384, 0, 128, 128)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_60ebu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wkahy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e6r7m")
+}],
+"loop": 1,
+"name": &"Aim",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_750of")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uqdln")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wky6q")
+}],
+"loop": 1,
+"name": &"Drink",
+"speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nhgqj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uhtph")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tro4o")
+}],
+"loop": 1,
+"name": &"Wail",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y3vyk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2v38r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fvdtk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_66osp")
+}],
+"loop": 1,
+"name": &"Wander0",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_en2lu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cf0nc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t30dj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_obse7")
+}],
+"loop": 1,
+"name": &"Wander1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2aysn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_atp5n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5q8ex")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tbtlm")
+}],
+"loop": 1,
+"name": &"Wander2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_blw12")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jecx0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r2rag")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hv35v")
+}],
+"loop": 1,
+"name": &"Wander3",
+"speed": 5.0
+}]
+metadata/anchors = {
+"Aim": Vector2(66, 118),
+"Drink": Vector2(66, 118),
+"Wail": Vector2(66, 118),
+"Wander0": Vector2(66, 118),
+"Wander1": Vector2(66, 118),
+"Wander2": Vector2(66, 118),
+"Wander3": Vector2(66, 118)
+}

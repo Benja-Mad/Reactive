@@ -1,0 +1,72 @@
+{
+ "Aim": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/aim.png",
+  "fps": 10,
+  "frames": 3,
+  "loop": true
+ },
+ "Drink": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/drink.png",
+  "fps": 9,
+  "frames": 3,
+  "loop": true
+ },
+ "Wail": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/wail.png",
+  "fps": 14,
+  "frames": 3,
+  "loop": true
+ },
+ "Wander0": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/wander0.png",
+  "fps": 5,
+  "frames": 4,
+  "loop": true
+ },
+ "Wander1": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/wander1.png",
+  "fps": 5,
+  "frames": 4,
+  "loop": true
+ },
+ "Wander2": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/wander2.png",
+  "fps": 5,
+  "frames": 4,
+  "loop": true
+ },
+ "Wander3": {
+  "anchor": [
+   66,
+   118
+  ],
+  "file": "res://materials/enemies/novia/wander3.png",
+  "fps": 5,
+  "frames": 4,
+  "loop": true
+ }
+}

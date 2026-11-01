@@ -1,0 +1,98 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://materials/enemies/animita/doused.png" id="1_ngep2"]
+[ext_resource type="Texture2D" path="res://materials/enemies/animita/sputter.png" id="2_g0abu"]
+[ext_resource type="Texture2D" path="res://materials/enemies/animita/walk.png" id="3_ajcvh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_10ork"]
+atlas = ExtResource("1_ngep2")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dbjo8"]
+atlas = ExtResource("1_ngep2")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wsikw"]
+atlas = ExtResource("1_ngep2")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_td1ia"]
+atlas = ExtResource("2_g0abu")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y4wtu"]
+atlas = ExtResource("2_g0abu")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_670rl"]
+atlas = ExtResource("2_g0abu")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n2yb2"]
+atlas = ExtResource("3_ajcvh")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uovfg"]
+atlas = ExtResource("3_ajcvh")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y38o2"]
+atlas = ExtResource("3_ajcvh")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_448g1"]
+atlas = ExtResource("3_ajcvh")
+region = Rect2(384, 0, 128, 128)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_10ork")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dbjo8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wsikw")
+}],
+"loop": 1,
+"name": &"Doused",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_td1ia")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y4wtu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_670rl")
+}],
+"loop": 1,
+"name": &"Sputter",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n2yb2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uovfg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y38o2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_448g1")
+}],
+"loop": 1,
+"name": &"Walk",
+"speed": 6.0
+}]
+metadata/anchors = {
+"Doused": Vector2(63, 120),
+"Sputter": Vector2(63, 120),
+"Walk": Vector2(63, 120)
+}

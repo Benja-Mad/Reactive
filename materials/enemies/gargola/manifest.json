@@ -1,0 +1,52 @@
+{
+ "Air": {
+  "anchor": [
+   56,
+   120
+  ],
+  "file": "res://materials/enemies/gargola/air.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Crouch": {
+  "anchor": [
+   56,
+   120
+  ],
+  "file": "res://materials/enemies/gargola/crouch.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Idle": {
+  "anchor": [
+   56,
+   120
+  ],
+  "file": "res://materials/enemies/gargola/idle.png",
+  "fps": 5,
+  "frames": 4,
+  "loop": true
+ },
+ "Open": {
+  "anchor": [
+   56,
+   120
+  ],
+  "file": "res://materials/enemies/gargola/open.png",
+  "fps": 8,
+  "frames": 3,
+  "loop": true
+ },
+ "Walk": {
+  "anchor": [
+   56,
+   120
+  ],
+  "file": "res://materials/enemies/gargola/walk.png",
+  "fps": 10,
+  "frames": 6,
+  "loop": true
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "Bare": {
+  "anchor": [
+   62,
+   120
+  ],
+  "file": "res://materials/enemies/quiltro/bare.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Flee": {
+  "anchor": [
+   62,
+   120
+  ],
+  "file": "res://materials/enemies/quiltro/flee.png",
+  "fps": 12,
+  "frames": 4,
+  "loop": true
+ },
+ "Idle": {
+  "anchor": [
+   62,
+   120
+  ],
+  "file": "res://materials/enemies/quiltro/idle.png",
+  "fps": 6,
+  "frames": 4,
+  "loop": true
+ },
+ "Lunge": {
+  "anchor": [
+   62,
+   120
+  ],
+  "file": "res://materials/enemies/quiltro/lunge.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": false
+ },
+ "Run": {
+  "anchor": [
+   62,
+   120
+  ],
+  "file": "res://materials/enemies/quiltro/run.png",
+  "fps": 12,
+  "frames": 6,
+  "loop": true
+ },
+ "Shake": {
+  "anchor": [
+   62,
+   120
+  ],
+  "file": "res://materials/enemies/quiltro/shake.png",
+  "fps": 14,
+  "frames": 3,
+  "loop": true
+ }
+}

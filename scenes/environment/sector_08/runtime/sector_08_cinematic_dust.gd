@@ -128,6 +128,8 @@ func _layer(config: Dictionary, framing: Transform3D) -> void:
 	quad.size = Vector2(float(config["size"]), float(config["size"])) * _scale
 
 	var emitter := GPUParticles3D.new()
+	# Prewarming must use the actual process material, not a temporary fallback.
+	emitter.process_material = process
 	emitter.name = str(config["id"])
 	emitter.amount = int(config["count"])
 	emitter.lifetime = float(config["lifetime"])
@@ -143,7 +145,6 @@ func _layer(config: Dictionary, framing: Transform3D) -> void:
 	emitter.seed = 614 + layers.size() * 31
 	emitter.visibility_aabb = AABB(-extents - Vector3.ONE * 12.0, extents * 2.0 + Vector3.ONE * 24.0)
 	emitter.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	emitter.process_material = process
 	emitter.draw_pass_1 = quad
 	emitter.material_override = material
 	add_child(emitter)

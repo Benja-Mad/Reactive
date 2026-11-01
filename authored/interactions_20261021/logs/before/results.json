@@ -1,0 +1,1299 @@
+[
+  {
+    "name": "validate",
+    "exit": 0,
+    "seconds": 7.12
+  },
+  {
+    "name": "bending_reactions",
+    "exit": 0,
+    "seconds": 1.91
+  },
+  {
+    "name": "specialists",
+    "exit": 0,
+    "seconds": 37.44
+  },
+  {
+    "name": "water",
+    "exit": 0,
+    "seconds": 1.78
+  },
+  {
+    "name": "substances",
+    "exit": 0,
+    "seconds": 2.35
+  },
+  {
+    "name": "attack",
+    "exit": 0,
+    "seconds": 2.38
+  },
+  {
+    "name": "validate_bending",
+    "exit": 0,
+    "seconds": 4.4
+  },
+  {
+    "name": "validate_matter",
+    "exit": 0,
+    "seconds": 10.88
+  },
+  {
+    "name": "soak_brasa_rutinas_8026",
+    "exit": 0,
+    "seconds": 33.0,
+    "soak": {
+      "attack": [],
+      "automations": 717,
+      "damage": {
+        "all": 4828.3,
+        "bowl": 87.6,
+        "crush": 45.9,
+        "weapon": 3149.5
+      },
+      "durability": false,
+      "kills": 198,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 11,
+      "peak_enemies": 41,
+      "peak_machine_sync_bytes": 2500,
+      "peak_matter": 32,
+      "peak_pickups": 34,
+      "peak_snapshot_bytes": 17764,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "coat"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "repel",
+            "well",
+            "fire",
+            "fire"
+          ],
+          "then": "colapso",
+          "when": "herido"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 34,
+        "boiled": 34,
+        "bowled": 11,
+        "capped": 0,
+        "chilled": 0,
+        "crushed": 9,
+        "detonated": 2,
+        "dried": 117,
+        "frozen": 1,
+        "grounded": 34,
+        "ignited": 7,
+        "impacts": 21,
+        "jumps": 45,
+        "longest": 2,
+        "melted": 0,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 10,
+        "spread": 126
+      },
+      "rules": true,
+      "time": 191.16666666666,
+      "upgrades": [
+        "coat",
+        "herido",
+        "repel",
+        "repair",
+        "colapso",
+        "well",
+        "fire",
+        "fire",
+        "cadence",
+        "cadence"
+      ],
+      "water": {
+        "blocked": 1,
+        "drawn": 38
+      }
+    }
+  },
+  {
+    "name": "soak_brasa_rutinas_311",
+    "exit": 0,
+    "seconds": 23.36,
+    "soak": {
+      "attack": [
+        "cold"
+      ],
+      "automations": 373,
+      "damage": {
+        "all": 1896.0,
+        "bowl": 16.9,
+        "weapon": 1464.0
+      },
+      "durability": false,
+      "kills": 94,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 7,
+      "peak_enemies": 33,
+      "peak_machine_sync_bytes": 2020,
+      "peak_matter": 26,
+      "peak_pickups": 16,
+      "peak_snapshot_bytes": 14120,
+      "phase": "lost",
+      "reserve": {
+        "current": 1,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "repel"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "repel"
+          ],
+          "then": "cadena",
+          "when": "derribo"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 19,
+        "boiled": 10,
+        "bowled": 2,
+        "capped": 0,
+        "chilled": 0,
+        "crushed": 0,
+        "detonated": 0,
+        "dried": 19,
+        "frozen": 1,
+        "grounded": 19,
+        "ignited": 8,
+        "impacts": 1,
+        "jumps": 20,
+        "longest": 2,
+        "melted": 1,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 30
+      },
+      "rules": true,
+      "time": 132.266666666663,
+      "upgrades": [
+        "repair",
+        "repel",
+        "cold",
+        "derribo",
+        "cadena",
+        "repel"
+      ],
+      "water": {
+        "drawn": 29
+      }
+    }
+  },
+  {
+    "name": "soak_brasa_rutinas_7",
+    "exit": 0,
+    "seconds": 48.64,
+    "soak": {
+      "attack": [
+        "wall"
+      ],
+      "automations": 1586,
+      "damage": {
+        "all": 12937.6,
+        "bowl": 60.2,
+        "weapon": 10510.7
+      },
+      "durability": false,
+      "kills": 450,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 19,
+      "peak_enemies": 51,
+      "peak_machine_sync_bytes": 3260,
+      "peak_matter": 36,
+      "peak_pickups": 42,
+      "peak_snapshot_bytes": 19228,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 2,
+        "scrap": 3,
+        "water": 2
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "push"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "raise",
+            "repel",
+            "cold",
+            "cold"
+          ],
+          "then": "cadena",
+          "when": "grupo"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 85,
+        "boiled": 114,
+        "bowled": 8,
+        "capped": 132,
+        "chilled": 1,
+        "crushed": 0,
+        "detonated": 0,
+        "dried": 434,
+        "frozen": 0,
+        "grounded": 85,
+        "ignited": 52,
+        "impacts": 5,
+        "jumps": 105,
+        "longest": 2,
+        "melted": 3,
+        "quenched": 7,
+        "reddened": 8,
+        "scalded": 0,
+        "spread": 284
+      },
+      "rules": true,
+      "time": 284.566666666663,
+      "upgrades": [
+        "grupo",
+        "cadena",
+        "push",
+        "cadence",
+        "boots",
+        "power",
+        "raise",
+        "power",
+        "repair",
+        "cadence",
+        "repel",
+        "pressure",
+        "cold",
+        "power",
+        "cold",
+        "wall",
+        "repair",
+        "pressure"
+      ],
+      "water": {
+        "blocked": 1,
+        "drawn": 67
+      }
+    }
+  },
+  {
+    "name": "soak_brasa_arma_8026",
+    "exit": 0,
+    "seconds": 32.02,
+    "soak": {
+      "attack": [
+        "coat",
+        "raise",
+        "wall"
+      ],
+      "automations": 553,
+      "damage": {
+        "all": 4943.1,
+        "crush": 167.6,
+        "nanites": 1470.5,
+        "weapon": 2116.6
+      },
+      "durability": false,
+      "kills": 204,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 11,
+      "peak_enemies": 33,
+      "peak_machine_sync_bytes": 2180,
+      "peak_matter": 32,
+      "peak_pickups": 36,
+      "peak_snapshot_bytes": 16964,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 2,
+        "scrap": 3,
+        "water": 2
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "well"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "fire",
+            "arc",
+            "push"
+          ],
+          "then": "cadena",
+          "when": "grupo"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "",
+          "when": ""
+        }
+      ],
+      "rule_stats": {
+        "arcs": 55,
+        "boiled": 46,
+        "bowled": 0,
+        "capped": 0,
+        "chilled": 0,
+        "crushed": 34,
+        "detonated": 217,
+        "dried": 130,
+        "frozen": 0,
+        "grounded": 49,
+        "ignited": 69,
+        "impacts": 0,
+        "jumps": 63,
+        "longest": 3,
+        "melted": 3,
+        "quenched": 16,
+        "reddened": 25,
+        "scalded": 14,
+        "spread": 72
+      },
+      "rules": true,
+      "time": 185.06666666666,
+      "upgrades": [
+        "coat",
+        "raise",
+        "wall",
+        "grupo",
+        "fire",
+        "well",
+        "slot",
+        "arc",
+        "cadena",
+        "push"
+      ],
+      "water": {
+        "drawn": 37
+      }
+    }
+  },
+  {
+    "name": "soak_brasa_arma_311",
+    "exit": 0,
+    "seconds": 44.64,
+    "soak": {
+      "attack": [
+        "repel",
+        "drop",
+        "coat"
+      ],
+      "automations": 877,
+      "damage": {
+        "all": 10093.7,
+        "bowl": 796.0,
+        "crush": 288.9,
+        "nanites": 3402.8,
+        "weapon": 3742.4
+      },
+      "durability": false,
+      "kills": 355,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 16,
+      "peak_enemies": 55,
+      "peak_machine_sync_bytes": 3628,
+      "peak_matter": 36,
+      "peak_pickups": 67,
+      "peak_snapshot_bytes": 19360,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "wall"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "raise",
+            "repel",
+            "fire",
+            "push"
+          ],
+          "then": "colapso",
+          "when": "cada"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "estallar",
+          "when": "grupo"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 60,
+        "boiled": 101,
+        "bowled": 88,
+        "capped": 167,
+        "chilled": 0,
+        "crushed": 36,
+        "detonated": 379,
+        "dried": 242,
+        "frozen": 2,
+        "grounded": 60,
+        "ignited": 25,
+        "impacts": 37,
+        "jumps": 68,
+        "longest": 2,
+        "melted": 3,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 6,
+        "spread": 263
+      },
+      "rules": true,
+      "time": 260.866666666658,
+      "upgrades": [
+        "repair",
+        "repel",
+        "drop",
+        "coat",
+        "cada",
+        "wall",
+        "pressure",
+        "raise",
+        "colapso",
+        "slot",
+        "repel",
+        "fire",
+        "push",
+        "grupo",
+        "estallar"
+      ],
+      "water": {
+        "drawn": 66
+      }
+    }
+  },
+  {
+    "name": "soak_brasa_arma_7",
+    "exit": 0,
+    "seconds": 43.36,
+    "soak": {
+      "attack": [
+        "push",
+        "arc",
+        "coat"
+      ],
+      "automations": 911,
+      "damage": {
+        "all": 10045.1,
+        "bowl": 252.3,
+        "crush": 337.5,
+        "nanites": 2254.7,
+        "weapon": 3680.7
+      },
+      "durability": false,
+      "kills": 354,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 16,
+      "peak_enemies": 40,
+      "peak_machine_sync_bytes": 2424,
+      "peak_matter": 40,
+      "peak_pickups": 57,
+      "peak_snapshot_bytes": 21452,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 0
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "well"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "raise",
+            "coat",
+            "repel",
+            "arc"
+          ],
+          "then": "cadena",
+          "when": "grupo"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "colapso",
+          "when": "derribo"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 285,
+        "boiled": 65,
+        "bowled": 27,
+        "capped": 12,
+        "chilled": 0,
+        "crushed": 82,
+        "detonated": 291,
+        "dried": 313,
+        "frozen": 0,
+        "grounded": 76,
+        "ignited": 6,
+        "impacts": 15,
+        "jumps": 308,
+        "longest": 2,
+        "melted": 3,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 144
+      },
+      "rules": true,
+      "time": 253.266666666657,
+      "upgrades": [
+        "grupo",
+        "cadena",
+        "push",
+        "arc",
+        "slot",
+        "coat",
+        "raise",
+        "well",
+        "derribo",
+        "coat",
+        "colapso",
+        "pressure",
+        "power",
+        "repel",
+        "arc"
+      ],
+      "water": {
+        "drawn": 81,
+        "dry": 32
+      }
+    }
+  },
+  {
+    "name": "soak_sereno_rutinas_8026",
+    "exit": 0,
+    "seconds": 28.24,
+    "soak": {
+      "attack": [],
+      "automations": 289,
+      "damage": {
+        "all": 3182.5,
+        "bowl": 32.0,
+        "weapon": 2026.0
+      },
+      "durability": false,
+      "kills": 142,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 7,
+      "peak_enemies": 42,
+      "peak_machine_sync_bytes": 2648,
+      "peak_matter": 38,
+      "peak_pickups": 67,
+      "peak_snapshot_bytes": 20084,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "arc"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "repel"
+          ],
+          "then": "colapso",
+          "when": "eco"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "",
+          "when": "cada"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 47,
+        "boiled": 45,
+        "bowled": 3,
+        "capped": 503,
+        "chilled": 0,
+        "crushed": 0,
+        "detonated": 0,
+        "dried": 258,
+        "frozen": 2,
+        "grounded": 38,
+        "ignited": 14,
+        "impacts": 1,
+        "jumps": 61,
+        "longest": 3,
+        "melted": 0,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 112
+      },
+      "rules": true,
+      "time": 161.666666666662,
+      "upgrades": [
+        "eco",
+        "arc",
+        "repel",
+        "slot",
+        "cada",
+        "colapso"
+      ],
+      "water": {
+        "drawn": 19
+      }
+    }
+  },
+  {
+    "name": "soak_sereno_rutinas_311",
+    "exit": 0,
+    "seconds": 36.0,
+    "soak": {
+      "attack": [
+        "coat",
+        "arc"
+      ],
+      "automations": 471,
+      "damage": {
+        "all": 6712.5,
+        "bowl": 857.6,
+        "crush": 174.3,
+        "nanites": 191.0,
+        "weapon": 3042.5
+      },
+      "durability": false,
+      "kills": 250,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 12,
+      "peak_enemies": 41,
+      "peak_machine_sync_bytes": 2708,
+      "peak_matter": 38,
+      "peak_pickups": 67,
+      "peak_snapshot_bytes": 20296,
+      "phase": "lost",
+      "reserve": {
+        "current": 1,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "repel"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "cold",
+            "coat",
+            "push",
+            "well"
+          ],
+          "then": "colapso",
+          "when": "herido"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 38,
+        "boiled": 64,
+        "bowled": 81,
+        "capped": 0,
+        "chilled": 0,
+        "crushed": 25,
+        "detonated": 22,
+        "dried": 220,
+        "frozen": 31,
+        "grounded": 34,
+        "ignited": 8,
+        "impacts": 20,
+        "jumps": 47,
+        "longest": 3,
+        "melted": 7,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 177
+      },
+      "rules": true,
+      "time": 208.366666666659,
+      "upgrades": [
+        "herido",
+        "colapso",
+        "cadence",
+        "repel",
+        "cold",
+        "coat",
+        "pressure",
+        "push",
+        "well",
+        "coat",
+        "arc"
+      ],
+      "water": {
+        "drawn": 46
+      }
+    }
+  },
+  {
+    "name": "soak_sereno_rutinas_7",
+    "exit": 0,
+    "seconds": 36.02,
+    "soak": {
+      "attack": [],
+      "automations": 409,
+      "damage": {
+        "all": 5412.2,
+        "bowl": 104.7,
+        "weapon": 3452.1
+      },
+      "durability": false,
+      "kills": 226,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 10,
+      "peak_enemies": 55,
+      "peak_machine_sync_bytes": 3524,
+      "peak_matter": 36,
+      "peak_pickups": 78,
+      "peak_snapshot_bytes": 19332,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "cold"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "wall",
+            "repel",
+            "coat",
+            "fire"
+          ],
+          "then": "fragmentos",
+          "when": "herido"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 61,
+        "boiled": 84,
+        "bowled": 9,
+        "capped": 766,
+        "chilled": 0,
+        "crushed": 0,
+        "detonated": 0,
+        "dried": 372,
+        "frozen": 4,
+        "grounded": 61,
+        "ignited": 21,
+        "impacts": 5,
+        "jumps": 74,
+        "longest": 3,
+        "melted": 1,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 224
+      },
+      "rules": true,
+      "time": 209.166666666659,
+      "upgrades": [
+        "cold",
+        "herido",
+        "wall",
+        "repel",
+        "fragmentos",
+        "repair",
+        "power",
+        "coat",
+        "fire"
+      ],
+      "water": {
+        "blocked": 2,
+        "drawn": 44
+      }
+    }
+  },
+  {
+    "name": "soak_sereno_arma_8026",
+    "exit": 0,
+    "seconds": 37.44,
+    "soak": {
+      "attack": [
+        "arc",
+        "drop",
+        "well"
+      ],
+      "automations": 415,
+      "damage": {
+        "all": 5884.6,
+        "bowl": 80.5,
+        "weapon": 3218.4
+      },
+      "durability": false,
+      "kills": 230,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 10,
+      "peak_enemies": 55,
+      "peak_machine_sync_bytes": 3644,
+      "peak_matter": 39,
+      "peak_pickups": 70,
+      "peak_snapshot_bytes": 20236,
+      "phase": "lost",
+      "reserve": {
+        "current": 1,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "arc"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "fragmentos",
+          "when": "eco"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "cadena",
+          "when": "cada"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 190,
+        "boiled": 88,
+        "bowled": 8,
+        "capped": 1156,
+        "chilled": 0,
+        "crushed": 0,
+        "detonated": 0,
+        "dried": 384,
+        "frozen": 1,
+        "grounded": 57,
+        "ignited": 18,
+        "impacts": 1,
+        "jumps": 243,
+        "longest": 3,
+        "melted": 1,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 164
+      },
+      "rules": true,
+      "time": 217.566666666659,
+      "upgrades": [
+        "eco",
+        "arc",
+        "drop",
+        "slot",
+        "cada",
+        "fragmentos",
+        "well",
+        "cadena",
+        "arc"
+      ],
+      "water": {
+        "drawn": 39
+      }
+    }
+  },
+  {
+    "name": "soak_sereno_arma_311",
+    "exit": 0,
+    "seconds": 46.84,
+    "soak": {
+      "attack": [
+        "repel",
+        "raise",
+        "coat"
+      ],
+      "automations": 658,
+      "damage": {
+        "all": 12295.9,
+        "bowl": 1106.5,
+        "crush": 226.8,
+        "nanites": 2312.5,
+        "weapon": 4329.5
+      },
+      "durability": false,
+      "kills": 411,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 16,
+      "peak_enemies": 53,
+      "peak_machine_sync_bytes": 3200,
+      "peak_matter": 35,
+      "peak_pickups": 90,
+      "peak_snapshot_bytes": 18672,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "push"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [
+            "repel",
+            "arc",
+            "fire",
+            "coat"
+          ],
+          "then": "colapso",
+          "when": "herido"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 71,
+        "boiled": 110,
+        "bowled": 111,
+        "capped": 193,
+        "chilled": 0,
+        "crushed": 37,
+        "detonated": 224,
+        "dried": 442,
+        "frozen": 10,
+        "grounded": 59,
+        "ignited": 15,
+        "impacts": 42,
+        "jumps": 99,
+        "longest": 3,
+        "melted": 1,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 320
+      },
+      "rules": true,
+      "time": 274.066666666661,
+      "upgrades": [
+        "herido",
+        "colapso",
+        "cadence",
+        "repel",
+        "cadence",
+        "raise",
+        "coat",
+        "push",
+        "repel",
+        "pressure",
+        "arc",
+        "pressure",
+        "repair",
+        "fire",
+        "coat"
+      ],
+      "water": {
+        "blocked": 1,
+        "drawn": 69
+      }
+    }
+  },
+  {
+    "name": "soak_sereno_arma_7",
+    "exit": 0,
+    "seconds": 25.08,
+    "soak": {
+      "attack": [
+        "cold",
+        "cold",
+        "push"
+      ],
+      "automations": 261,
+      "damage": {
+        "all": 2175.7,
+        "bowl": 18.5,
+        "weapon": 1509.4
+      },
+      "durability": false,
+      "kills": 99,
+      "kinds_seen": {
+        "0": true,
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "level": 7,
+      "peak_enemies": 48,
+      "peak_machine_sync_bytes": 3052,
+      "peak_matter": 37,
+      "peak_pickups": 22,
+      "peak_snapshot_bytes": 19280,
+      "phase": "lost",
+      "reserve": {
+        "current": 3,
+        "fire": 3,
+        "scrap": 3,
+        "water": 3
+      },
+      "routines": [
+        {
+          "on": "broken",
+          "steps": [
+            "raise",
+            "cold",
+            "push",
+            "arc"
+          ],
+          "then": "fragmentos",
+          "when": "cerca"
+        },
+        {
+          "on": "contact",
+          "steps": [],
+          "then": "cadena",
+          "when": "derribo"
+        }
+      ],
+      "rule_stats": {
+        "arcs": 32,
+        "boiled": 20,
+        "bowled": 2,
+        "capped": 442,
+        "chilled": 27,
+        "crushed": 0,
+        "detonated": 0,
+        "dried": 101,
+        "frozen": 102,
+        "grounded": 32,
+        "ignited": 2,
+        "impacts": 3,
+        "jumps": 45,
+        "longest": 3,
+        "melted": 7,
+        "quenched": 0,
+        "reddened": 0,
+        "scalded": 0,
+        "spread": 74
+      },
+      "rules": true,
+      "time": 143.566666666663,
+      "upgrades": [
+        "cold",
+        "derribo",
+        "cold",
+        "push",
+        "cadena",
+        "arc"
+      ],
+      "water": {
+        "drawn": 41
+      }
+    }
+  }
+]

@@ -120,6 +120,8 @@ func _field(id: String, config: Dictionary) -> void:
 	quad.size = Vector2(config["size"], config["size"])
 
 	var emitter := GPUParticles3D.new()
+	# Assign before preprocess: prewarming without it allocates a fallback shader.
+	emitter.process_material = process
 	emitter.name = id
 	emitter.amount = int(config["amount"])
 	emitter.lifetime = float(config["lifetime"])
@@ -127,7 +129,6 @@ func _field(id: String, config: Dictionary) -> void:
 	emitter.randomness = 0.6
 	emitter.fixed_fps = 30
 	emitter.interpolate = true
-	emitter.process_material = process
 	emitter.draw_pass_1 = quad
 	emitter.material_override = _material
 	emitter.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

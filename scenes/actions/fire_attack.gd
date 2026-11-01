@@ -6,6 +6,7 @@ extends Area3D
 var direction : Vector3
 var spent: bool = false
 var _trail: MeshInstance3D
+var _matter: Node
 
 func _ready() -> void:
 	var spawn_transform: Transform3D = global_transform
@@ -35,6 +36,7 @@ func _ready() -> void:
 	light.omni_range = 3.0
 	add_child(light)
 	preload("res://scenes/actions/combat_fx.gd").burst(get_tree().current_scene, global_position, Color(1.0, 0.57, 0.13))
+	_matter = get_tree().get_first_node_in_group("world_matter")
 	var operative := get_parent().get_node_or_null("OperativeVisual")
 	if operative != null:
 		operative.kick()
@@ -59,6 +61,9 @@ func _physics_process(delta: float) -> void:
 		_trail.global_basis = Basis(side, travel, side.cross(travel).normalized()).scaled(Vector3(1.0, 1.6, 1.0))
 		_trail.global_position = global_position - travel * 0.8
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
+	# Standing water is not solid, so the bolt passes through it -- and boils it on the way.
+	if multiplayer.is_server() and is_instance_valid(_matter):
+		_matter.heat_along(global_position, next if hit.is_empty() else hit.position)
 	if not hit.is_empty():
 		spent = true
 		global_position = hit.position

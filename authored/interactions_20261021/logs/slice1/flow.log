@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1035)
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ART TRIAL {"details_hidden":1338,"models_rebuilt":23,"surfaces":550}
+FLOW CHECKS {"field_expires_without_consuming_carrier":true,"flow_boundary_matches_drawing":true,"flow_forward_has_no_mass_multiplier":true,"flow_motion_replicable_current":true,"flow_motion_replicable_fire":true,"flow_motion_replicable_scrap":true,"flow_motion_replicable_water":true,"flow_moves_current_within_half_second":true,"flow_moves_fire_within_half_second":true,"flow_moves_scrap_within_half_second":true,"flow_moves_water_within_half_second":true,"flow_preserves_current":true,"flow_preserves_fire":true,"flow_preserves_scrap":true,"flow_preserves_water":true,"flow_rejects_invalid_direction":true,"flow_respects_anchors_and_outside":true,"machines_follow_the_same_arrows":true,"no_proximity_crush":true,"reverse_is_the_same_lane_backwards":true,"snapshot_keeps_origin_heading_and_expiry":true}

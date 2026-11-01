@@ -22,11 +22,20 @@ var target: Node3D
 var offset: Vector2 = Vector2.ZERO
 var enabled: bool = false
 var extra_offset: Callable = Callable()
+## A translation-only tremor in metres, decaying; the basis is still never written.
+var shake: float = 0.0
+var _shake_seed: float = 0.0
 
 
 func setup(gameplay_camera: Camera3D, approved: Transform3D) -> void:
 	camera = gameplay_camera
 	anchor = approved
+	add_to_group("camera_shakers")
+
+
+## Called when the followed player takes a heavy hit.
+func add_shake(amount: float) -> void:
+	shake = maxf(shake, amount)
 
 
 func set_target(node: Node3D) -> void:
@@ -41,7 +50,9 @@ func set_enabled(value: bool) -> void:
 
 
 func _process(delta: float) -> void:
-	if not enabled or target == null:
+	shake = move_toward(shake, 0.0, delta * 0.9)
+	_shake_seed += delta * 38.0
+	if not enabled or target == null or not target.is_inside_tree():
 		return
 	var viewport: Vector2 = camera.get_viewport().get_visible_rect().size
 	var screen: Vector2 = camera.unproject_position(target.global_position + Vector3.UP * 1.1)
@@ -70,6 +81,8 @@ func _apply() -> void:
 		vertical_axis.y = 0.0
 		vertical_axis /= maxf(vertical_axis.length_squared(), 0.01)
 	var origin: Vector3 = anchor.origin + anchor.basis.x * (offset.x + lateral) + vertical_axis * offset.y
+	if shake > 0.0:
+		origin += anchor.basis.x * sin(_shake_seed * 1.3) * shake + anchor.basis.y * cos(_shake_seed * 1.7) * shake * 0.7
 	# Basis is never written, so FOV 30 and the approved orientation survive by construction.
 	camera.global_transform = Transform3D(anchor.basis, origin)
 

@@ -5,6 +5,7 @@ var cooldown: float = 0.0
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
+	if get_tree().get_first_node_in_group("survivor_run") != null: return
 	cooldown = maxf(0.0, cooldown - delta)
 	if is_multiplayer_authority() and Input.is_action_pressed("Fire") and not programming_block.code_block.has_focus():
 		use_ability("heal")

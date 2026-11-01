@@ -17,6 +17,8 @@ func setup(owner_scene: Node) -> void:
  label.position = Vector2(740,12)
  label.add_theme_font_size_override("font_size",12)
  owner_scene.debug_layer.add_child(label)
+ # F1-F4 are lookdev keys; in a match they would shift or sweep the player camera.
+ set_process_unhandled_input(owner_scene.lookdev_tools)
  set_offset(0.0)
 func set_offset(meters: float) -> void:
  offset = clampf(meters,-EXTENT,EXTENT)

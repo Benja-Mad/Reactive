@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ART TRIAL {"details_hidden":1338,"models_rebuilt":23,"surfaces":550}
+SURVIVOR NETWORK {"both_choices_resume_world":true,"both_peers_spawned":true,"both_receive_choices":true,"client_has_body":true,"client_has_builds":true,"client_has_host_kills":true,"client_movement_replicates":true,"client_phase_resumed":true,"client_report_received":true,"client_sees_flow_geometry":true,"client_sees_held_sphere_and_trigger":true,"client_sees_landing_mark":true,"client_sees_machine_props":true,"client_sees_specialist_phase":true,"client_sees_well_field":false,"client_worker_present":true,"host_auto_combat":true,"host_builds_held_ice":true,"host_builds_well":true,"host_cannot_spend_client_choice":true,"host_specialist_crouches":true}

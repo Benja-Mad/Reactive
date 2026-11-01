@@ -1,10 +1,17 @@
 extends Node3D
 
+const DistrictEnvironment = preload("res://scenes/environment/sector_08/stylized/yard_art_trial.gd")
+## The comparison harness opts out so it can restore the original environment.
+@export var polished_environment_enabled: bool = true
 @export var support_scene: PackedScene
 @export var damage_scene: PackedScene
 @onready var arena: DioramaArena = $Arena
 @onready var players: Node3D = $Players
 @onready var player_spawner: MultiplayerSpawner = $PlayerSpawner
+## Peers that have this scene loaded. The host spawns nobody until every seat has reported in:
+## a spawn sent to a peer still loading the scene is dropped, and that peer never gets a body.
+var _loaded_peers: Dictionary = {}
+var _spawned: Dictionary = {}
 
 
 func _ready() -> void:
@@ -13,18 +20,73 @@ func _ready() -> void:
 	# frame. Set before any character spawns, since Character reads it every physics tick.
 	Character.movement_basis = _movement_basis()
 	arena.activate_camera()
-	# Identical stable paths on every peer; the host alone resolves sentry combat.
-	var sentry_positions: Array[Vector3] = [Vector3(-10, 0.05, -9), Vector3(8, 0.05, -10), Vector3(-7, 0.05, 16)]
-	for index in sentry_positions.size():
-		var sentry := preload("res://scenes/characters/yard_sentry.gd").new()
-		sentry.name = "YardSentry%d" % index
-		sentry.position = sentry_positions[index]
-		add_child(sentry)
 	players.child_entered_tree.connect(_on_player_spawned)
-	if not multiplayer.is_server():
-		return
-	await get_tree().create_timer(0.2).timeout
+	_start_session.call_deferred()
+
+
+func _start_session() -> void:
+	# Arena dressing and perimeter fill finish on earlier deferred calls. Apply the
+	# visual replacements and their collision repairs before announcing readiness.
+	if polished_environment_enabled:
+		var environment := DistrictEnvironment.new()
+		environment.name = "DistrictEnvironment"
+		arena.add_child(environment)
+		environment.setup(arena)
+	if multiplayer.is_server():
+		multiplayer.peer_disconnected.connect(func(_id: int) -> void: _spawn_when_loaded.call_deferred())
+		_mark_loaded.call_deferred(multiplayer.get_unique_id())
+		# A seat that never reports in must not hold the others hostage.
+		get_tree().create_timer(12.0).timeout.connect(_spawn_seats.bind(true))
+	else:
+		_announce_loaded()
+
+
+## Repeats until this peer's body exists: the host may still be loading the scene when the first
+## report arrives, and an RPC to a node that does not exist yet is simply lost.
+func _announce_loaded() -> void:
+	while is_inside_tree() and not players.has_node(str(multiplayer.get_unique_id())):
+		_report_loaded.rpc_id(1)
+		await get_tree().create_timer(0.5).timeout
+
+
+@rpc("any_peer", "reliable")
+func _report_loaded() -> void:
+	if multiplayer.is_server():
+		_mark_loaded(multiplayer.get_remote_sender_id())
+
+
+func _mark_loaded(peer: int) -> void:
+	_loaded_peers[peer] = true
+	_spawn_when_loaded()
+
+
+## Seats that belong to someone actually here: the host, or a connected peer. Test rosters can
+## list more seats than there are running instances.
+func _present_seats() -> Array[Statics.PlayerData]:
+	var present: Array[Statics.PlayerData] = []
+	if not is_inside_tree():
+		return present
+	var peers: PackedInt32Array = multiplayer.get_peers()
 	for player_data: Statics.PlayerData in Game.instance.players:
+		if player_data.id == multiplayer.get_unique_id() or player_data.id in peers:
+			present.append(player_data)
+	return present
+
+
+func _spawn_when_loaded() -> void:
+	for player_data: Statics.PlayerData in _present_seats():
+		if not _loaded_peers.has(player_data.id):
+			return
+	_spawn_seats(false)
+
+
+func _spawn_seats(forced: bool) -> void:
+	if not is_inside_tree():
+		return
+	for player_data: Statics.PlayerData in _present_seats():
+		if _spawned.has(player_data.id) or not (forced or _loaded_peers.has(player_data.id)):
+			continue
+		_spawned[player_data.id] = true
 		player_spawner.spawn(player_data.to_dict())
 
 
@@ -51,9 +113,14 @@ func _on_player_spawned(node: Node) -> void:
 	character.camera_3d.current = false
 	arena.configure_player_presentation(character)
 	if character.is_multiplayer_authority():
-		if has_node("MatterConsole"):
+		if has_node("MatterConsole") or has_node("SurvivorRun"):
 			character.programming_block.hide()
+			character.programming_block.set_process_input(false)
+			character.programming_block.code_list.hide()
+			character.programming_block.cast_timer.stop()
 			character.programming_block.code_block.release_focus()
+		if character.has_node("ShiftWorker"):
+			character.get_node("ShiftWorker").mark_local()
 		arena.follow(character)
 
 

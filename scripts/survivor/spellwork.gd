@@ -1,0 +1,472 @@
+## The host side of the crew's routines. Builds each routine's matter through the recipe table
+## (the same one the editor reads), fires THEN reactions when their moment comes, carries relay
+## pulses between routines, and applies what matter does to machines: wells pull, repulsors push,
+## waves and rain soak, scalding steam burns.
+extends Node
+const Build = preload("res://scripts/survivor/build.gd")
+const Recipe = preload("res://scripts/survivor/recipe.gd")
+const Catalog = preload("res://scripts/matter/materials.gd")
+const PULSE_SPEED := 9.0
+var run: Node
+var world: Node
+## Relay pulses on their way: {"to": id, "left": seconds}.
+var _pulses: Array[Dictionary] = []
+## Records a pulse reached this frame; answered in `tick`, outside the world's own resolution.
+var _arrived: Array[int] = []
+var _splashes: Array[Vector3] = []
+## Per repulsor record, the machines its front has already thrown.
+var _thrown: Dictionary = {}
+## Recent machine deaths, for «on kill»: {"point", "at" (msec)}.
+var _kills: Array[Dictionary] = []
+## Heat and conduction (see rules.gd); gravity by mass is in `_forces`.
+var rules: Node
+var _fx: Node3D
+
+func _ready() -> void:
+	world = run.world
+	world.matter_event.connect(_on_event)
+	rules = preload("res://scripts/survivor/rules.gd").new()
+	rules.name = "Rules"
+	rules.spellwork = self
+	rules.world = world
+	add_child(rules)
+	if DisplayServer.get_name() != "headless":
+		_fx = preload("res://scripts/survivor/fields_fx.gd").new()
+		_fx.name = "FieldsFx"
+		_fx.world = world
+		_fx.machines = run.machines
+		add_child(_fx)
+
+## What a rule just did, drawn on every peer: an arc's path, a puff of steam, a crust of frost.
+@rpc("authority", "call_local", "unreliable")
+func rule_fx(kind: String, points: PackedVector3Array) -> void:
+	if _fx != null: _fx.rule(kind, points)
+
+## A weapon's ball going up from the operator at `from` and falling on `spot` in `time` seconds.
+@rpc("authority", "call_local", "reliable")
+func fall_fx(from: Vector3, spot: Vector3, base: String, time: float) -> void:
+	if _fx != null: _fx.fall(from, spot, base, time)
+
+func _on_event(event: Dictionary) -> void:
+	if multiplayer.is_server() and event["kind"] == "splashed" and _splashes.size() < 32: _splashes.append(event["position"])
+	if multiplayer.is_server() and event["kind"] == "released": _let_go(int(event["id"]), event["position"])
+	if multiplayer.is_server() and event["kind"] == "pulsed" and _arrived.size() < 32: _arrived.append(int(event["id"]))
+
+func note_kill(point: Vector3) -> void:
+	_kills.append({"point": point, "at": Time.get_ticks_msec()})
+	if _kills.size() > 16: _kills.pop_front()
+
+## «on kill»: the freshest death within reach of `me`, consumed so it fires once.
+func take_kill(me: Vector3) -> Variant:
+	var now: int = Time.get_ticks_msec()
+	for index: int in range(_kills.size() - 1, -1, -1):
+		var kill: Dictionary = _kills[index]
+		if now - int(kill["at"]) > 1500: continue
+		if Vector2(kill["point"].x - me.x, kill["point"].z - me.z).length() <= 10.0:
+			_kills.remove_at(index)
+			return kill["point"]
+	return null
+
+# --- Building a routine -------------------------------------------------------------------------
+
+## A routine never makes matter: it draws a draught from the yard within reach of its operator --
+## water from a puddle, fire from a drum, current from a transformer, scrap from a heap -- the
+## draught runs along the floor to where the routine acts, and there each DO step happens one
+## beat after the last, with a beam from the operator for every energy it puts in.
+const DRAW_REACH := Build.DRAW_REACH
+const DRAW_SPEED := 18.0
+const STEP_BEAT := 0.28
+## Routines under way: {"peer", "index", "point", "toward", "depth", "left", "id", "steps", "then", "on"}.
+## `id` is 0 while the drawn water is still running to its spot.
+var _casts: Array[Dictionary] = []
+
+## The puddle (drum, transformer, heap) `peer`'s operator would draw `substance` from for a routine
+## acting at `point`: of what lies within DRAW_REACH of the operator, the one nearest the point
+## (matter already there is used in place).
+func water_for(peer: int, point: Vector3, substance: String = "water") -> int:
+	var player: Node3D = world._player(peer)
+	if player == null: return 0
+	var best: int = 0
+	var nearest: float = INF
+	for record: Dictionary in world.records.values():
+		if not Catalog.drawable(record, substance) or float(record.get("volume", 1.0)) < 0.99: continue
+		if _flat(record["position"] - player.global_position).length() > DRAW_REACH: continue
+		var distance: float = _flat(record["position"] - point).length()
+		if distance < nearest:
+			nearest = distance
+			best = record["id"]
+	return best
+
+## A routine fired in play. Returns "" when it is under way, "dry" when its operator has none of
+## its matter within reach nor on them, or "blocked" when there is nowhere to put it; either way
+## nothing is taken.
+## `source` names the puddle to draw from, for a trigger that already chose one.
+func begin(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 0, source: int = 0) -> String:
+	var routine: Dictionary = run.builds[peer]["routines"][index]
+	var substance: String = routine.get("from", "water")
+	point.y = 0.07
+	if not world.preview(peer, "create", 0, {"point": point, "material": substance}).get("ok", false): return "blocked"
+	if source == 0 or not world.records.has(source) or not Catalog.drawable(world.records[source], substance): source = water_for(peer, point, substance)
+	var from: Variant = world.draw_from(source) if source != 0 else null
+	if from == null:
+		# Nothing of it in reach: the draught the operator carries pours from their hands instead.
+		var player: Node3D = world._player(peer)
+		if player == null or not run.take_reserve(peer, substance): return "dry"
+		from = Vector3(player.global_position.x, 0.07, player.global_position.z)
+	var travel: float = maxf(0.15, _flat(point - from).length() / DRAW_SPEED)
+	stream_fx.rpc(from, point, travel, substance)
+	_casts.append({"peer": peer, "index": index, "point": point, "toward": toward, "depth": depth, "left": travel, "id": 0, "material": substance,
+		"steps": routine["steps"].duplicate(), "then": routine["then"], "on": routine.get("on", "contact")})
+	run.automations_fired += 1
+	return ""
+
+## Every cast under way, one beat at a time: the water lands, then each step acts, then the THEN
+## is armed and an echo below begins.
+func _advance(delta: float) -> void:
+	for cast: Dictionary in _casts.duplicate():
+		cast["left"] -= delta
+		if cast["left"] > 0.0: continue
+		var peer: int = cast["peer"]
+		if cast["id"] == 0:
+			var made: Dictionary = world.execute(peer, "create", 0, {"point": cast["point"], "material": cast["material"]})
+			if not made.get("ok", false):
+				# The water (or scrap) got there all the same: it stays on the floor.
+				if cast["material"] in ["water", "scrap"]: world.spill(cast["point"], 1.0, cast["material"])
+				_casts.erase(cast)
+				continue
+			cast["id"] = made["id"]
+			world.records[cast["id"]]["ttl"] = 12.0
+			world.records[cast["id"]]["forming"] = true
+			cast["left"] = STEP_BEAT * 0.6
+			continue
+		var id: int = cast["id"]
+		if not world.records.has(id) or not run.builds.has(peer):
+			_casts.erase(cast)
+			continue
+		if not cast["steps"].is_empty():
+			_apply_step(peer, id, cast["steps"].pop_front(), cast["toward"], true)
+			cast["left"] = STEP_BEAT
+			continue
+		_casts.erase(cast)
+		if not world.records.has(id): continue
+		world.records[id].erase("forming")
+		_arm(peer, cast["index"], id, cast["then"], cast["on"], cast["toward"])
+		var routines: Array = run.builds[peer]["routines"]
+		var below: int = cast["index"] + 1
+		if cast["depth"] < Build.MAX_ROUTINES and below < routines.size() and routines[below]["when"] == "eco":
+			begin(peer, below, world.records[id]["position"] + cast["toward"] * 2.5 if world.records.has(id) else cast["point"], cast["toward"], cast["depth"] + 1)
+
+## Whether `peer` has a routine still taking shape.
+func casting(peer: int) -> bool:
+	for cast: Dictionary in _casts: if cast["peer"] == peer: return true
+	return false
+
+## One DO step compiled against the matter as it is now. Paced, a push is aimed at the machine
+## nearest the matter when it happens, and the operator's beam shows where the energy came from.
+func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool = false) -> void:
+	var plan: Dictionary = Recipe.step(Recipe.state_of(world.records[id]), key)
+	if plan["op"] == "": return
+	var at: Vector3 = world.records[id]["position"]
+	var heading: Vector3 = _aim(at, toward) if paced and plan["op"] in ["push", "slide"] else toward
+	var vector: Vector3 = toward.cross(Vector3.UP) * 4.0 if plan["op"] == "wall" else heading * 9.0
+	var before: Dictionary = world.records[id].duplicate()
+	if paced and key in TETHERED: tether_fx.rpc(key, peer, at + Vector3.UP * (0.9 if before.get("suspended", false) else 0.2))
+	if world.execute(peer, plan["op"], id, {"vector": vector}).get("ok", false): _after_step(plan["op"], before, id)
+
+## Steps that put the operator's own energy into the matter, drawn as a beam from them to it.
+const TETHERED := ["cold", "fire", "arc", "coat", "push", "well", "repel"]
+
+## The finished matter armed with its THEN, and remembered as this routine's for a relay.
+func _arm(peer: int, index: int, id: int, then: String, on: String, toward: Vector3) -> void:
+	if not run.clocks[peer].has("made"): run.clocks[peer]["made"] = {}
+	run.clocks[peer]["made"][index] = id
+	if not world.records.has(id): return
+	var record: Dictionary = world.records[id]
+	if record["material"] == "steam": record["survivor_steam"] = 0.5
+	if record["material"] in ["ice", "scrap"] and record["shape"] != "fragments": record["integrity"] = (20.0 + record["size"].y * 4.0) * (world.HARD_INTEGRITY if Catalog.hard(record) else 1.0)
+	if then != "":
+		# `trigger` is not a world event, so the generic scheduler leaves it to this script;
+		# the construct still shows itself armed.
+		record["reaction"] = {"trigger": "survivor", "action": then, "vector": toward * 14.0, "routine": index, "on": on, "after": Recipe.REACTION_DELAY}
+		if then == "cadena": _wire(peer, index, id)
+	world._dirty = true
+
+## The whole routine at once, on water conjured at `point`: what the checks and captures use to
+## look at a routine's result without waiting for it. Play goes through `begin`. Returns the id.
+func cast(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 0) -> int:
+	var routines: Array = run.builds[peer]["routines"]
+	var routine: Dictionary = routines[index]
+	point.y = 0.07
+	var created: Dictionary = world.execute(peer, "create", 0, {"point": point, "material": routine.get("from", "water")})
+	if not created.get("ok", false): return 0
+	var id: int = created["id"]
+	world.records[id]["ttl"] = 12.0
+	for key: String in routine["steps"]:
+		if not world.records.has(id): break
+		_apply_step(peer, id, key, toward)
+	run.automations_fired += 1
+	_arm(peer, index, id, routine["then"], routine.get("on", "contact"), toward)
+	# An echo below fires right after, a little further along.
+	if depth < Build.MAX_ROUTINES and index + 1 < routines.size() and routines[index + 1]["when"] == "eco":
+		cast(peer, index + 1, point + toward * 2.5, toward, depth + 1)
+	return id
+
+## A draught running along the floor from where it was drawn to where a routine acts: water,
+## a trail of burning fuel, current crawling over the paving, scrap dragged scraping.
+@rpc("authority", "call_local", "unreliable")
+func stream_fx(from: Vector3, to: Vector3, duration: float, substance: String = "water") -> void:
+	if _fx != null: _fx.stream(from, to, duration, substance)
+
+## The operator putting a step's energy into the matter at `to`.
+@rpc("authority", "call_local", "unreliable")
+func tether_fx(key: String, peer: int, to: Vector3) -> void:
+	var player: Node3D = world._player(peer)
+	if _fx != null and player != null: _fx.tether(key, player.global_position + Vector3.UP * 0.2, to)
+
+## What a step does to machines, on top of what it did to the matter.
+func _after_step(op: String, before: Dictionary, id: int) -> void:
+	var at: Vector3 = world.records[id]["position"] if world.records.has(id) else before["position"]
+	match op:
+		"drop":
+			var radius: float = 2.6 if before["shape"] == "wall" else Recipe.DROP_SOAK_RADIUS
+			match before["material"]:
+				"water", "steam":
+					for enemy: Node3D in _enemies_near(at, radius): enemy.soak(_flat(enemy.global_position - at).normalized() * 2.0)
+				"fire":
+					for enemy: Node3D in _enemies_near(at, 2.6): rules.light(enemy)
+				"current":
+					# Current brought down to the floor goes to ground through all of them at once.
+					rules.shock_around(at, radius, _enemies_near(at, radius), Catalog.temp_of(before) >= 1)
+					if world.records.has(id): world.spend(id)
+
+## The conduit a relay pulse will travel, drawn as soon as both ends exist.
+func _wire(peer: int, index: int, id: int) -> int:
+	var target: int = Build.relay_target(run.builds[peer]["routines"], index)
+	if target < 0: return 0
+	var other: int = int(run.clocks[peer].get("made", {}).get(target, 0))
+	if other == id or not world.records.has(other): return 0
+	if world.records[id].get("link", 0) != other: world.execute(peer, "link", id, {"to": other, "remote": true})
+	return other if world.records[id].get("link", 0) == other else 0
+
+# --- Every tick ---------------------------------------------------------------------------------
+
+func tick(delta: float) -> void:
+	_advance(delta)
+	for point: Vector3 in _splashes: _splash(point, 2.0, 0.0)
+	_splashes.clear()
+	for index: int in range(_pulses.size() - 1, -1, -1):
+		var pulse: Dictionary = _pulses[index]
+		pulse["left"] -= delta
+		if pulse["left"] > 0.0: continue
+		_pulses.remove_at(index)
+		world.deliver_pulse(pulse["to"])
+	var arrived: Array[int] = _arrived.duplicate()
+	_arrived.clear()
+	for id: int in arrived:
+		if not world.records.has(id): continue
+		var reaction: Dictionary = world.records[id].get("reaction", {})
+		if reaction.get("trigger", "") == "survivor" and reaction.get("on", "contact") == "pulse": fire(id)
+		
+	for id: int in world.records.keys():
+		if not world.records.has(id): continue
+		var record: Dictionary = world.records[id]
+		if record.get("reaction", {}).get("trigger", "") == "survivor":
+			record["reaction"]["after"] = float(record["reaction"].get("after", Recipe.REACTION_DELAY)) - delta
+		if record.get("reaction", {}).get("trigger", "") == "survivor" and _moment(record):
+			fire(id)
+			if not world.records.has(id): continue
+		_forces(record, delta)
+	for id: int in _thrown.keys():
+		if not world.records.has(id) or Catalog.field(world.records[id]) != "repel": _thrown.erase(id)
+	var live: Array[Node3D] = []
+	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"): if not enemy.down: live.append(enemy)
+	rules.tick(delta, live)
+
+## Whether this record's THEN should fire now.
+func _moment(record: Dictionary) -> bool:
+	match record["reaction"].get("on", "contact"):
+		"contact": return _touched(record)
+		"broken": return record["shape"] == "fragments"
+		"timer": return float(record["reaction"].get("after", 1.0)) <= 0.0
+	return false # A relay explicitly delivers the pulse.
+
+func _touched(record: Dictionary) -> bool:
+	var inverse: Basis = Basis(Vector3.UP, record["yaw"]).inverse()
+	for enemy: Node3D in _enemies_near(record["position"], 3.2):
+		var local: Vector3 = inverse * (enemy.global_position - record["position"])
+		match record["shape"]:
+			"orb": if Vector2(local.x, local.z).length() < Catalog.ORB_SIZE.x * 0.5 + 0.45: return true
+			"wall": if absf(local.x) < 2.3 and absf(local.z) < 1.0: return true
+			"patch": if absf(local.x) < record["size"].x * 0.5 + 0.3 and absf(local.z) < record["size"].z * 0.5 + 0.3: return true
+			_: if Vector2(local.x, local.z).length() < 2.4: return true
+	return false
+
+## What standing matter does to machines around it, every tick.
+func _forces(record: Dictionary, delta: float) -> void:
+	var at: Vector3 = record["position"]
+	var field: String = Catalog.field(record)
+	if field == "well":
+		# Caught machines go round the ring with the matter; a specialist busy with its own motion
+		# answers for itself (see enemy.pulled).
+		var center: Vector3 = Catalog.field_center(record)
+		for enemy: Node3D in _enemies_near(center, Catalog.VORTEX_REACH, true):
+			if enemy.pulled(field, center) or enemy.airborne(): continue
+			enemy.shove = Catalog.orbit_velocity(enemy.shove, center, enemy.global_position, delta, Catalog.gravity(record))
+	elif field == "repel":
+		# The front throws each machine once as it passes; then the bubble keeps them out.
+		var center: Vector3 = Catalog.field_center(record)
+		var front: float = Catalog.wave_front(float(record.get("wave_age", 0.0)))
+		var thrown: Dictionary = _thrown.get(record["id"], {})
+		_thrown[record["id"]] = thrown
+		for enemy: Node3D in _enemies_near(center, Catalog.BLAST_REACH, true):
+			if enemy.pulled(field, center) or enemy.airborne(): continue
+			var gap: Vector3 = _flat(enemy.global_position - center)
+			if not thrown.has(enemy) and gap.length() <= front:
+				thrown[enemy] = true
+				enemy.shove = Catalog.blast_velocity(center, enemy.global_position)
+			elif thrown.has(enemy) and gap.length() < Catalog.BUBBLE:
+				enemy.shove = enemy.shove.move_toward(gap.normalized() * 4.5, Catalog.FIELD_ACCEL * delta)
+	if record.get("sliding", false) and record["material"] == "water":
+		for enemy: Node3D in _enemies_near(at, 2.0):
+			if enemy.soaked < 0.6: enemy.soak(_flat(record["velocity"]).normalized() * 4.0)
+	# A tongue of fire lights what it runs over.
+	if record.get("sliding", false) and record["material"] == "fire":
+		for enemy: Node3D in _enemies_near(at, 2.0):
+			if enemy.temp < 2: rules.light(enemy)
+
+# --- Reactions ----------------------------------------------------------------------------------
+
+## A record's THEN, now. The reaction is spent before it acts, so nothing fires twice.
+func fire(id: int) -> void:
+	var record: Dictionary = world.records[id]
+	var reaction: Dictionary = record["reaction"]
+	record.erase("reaction")
+	world._dirty = true
+	rules.discharge(record)
+	match reaction["action"]:
+		"fragmentos": _shrapnel(id, reaction["vector"])
+		"estallar": _burst(id)
+		"detonar": _detonate(id)
+		"colapso":
+			world.execute(record["owner"], "well", id, {"time": 1.0, "remote": true})
+			# A short hard whirl; letting go flings it all (see _let_go).
+			if world.records.has(id): world.records[id]["grav_power"] = 2.5
+		"cadena":
+			_relay(id, int(reaction.get("routine", -1)))
+
+func _shrapnel(id: int, fallback: Vector3) -> void:
+	var record: Dictionary = world.records[id]
+	var peer: int = record["owner"]
+	match record["material"]:
+		"ice":
+			if record["shape"] != "fragments": world.damage_construct(id, 999.0)
+			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback) * 14.0, "remote": true})
+		"water":
+			_splash(record["position"], Recipe.SPLASH_RADIUS, 3.0)
+			world.spend(id)
+		"steam":
+			_gust(id)
+			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback) * 9.0, "remote": true})
+		"scrap":
+			# Shrapnel: the scrap breaks and its pieces fly at the nearest machine.
+			if record["shape"] != "fragments": world.damage_construct(id, 999.0)
+			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback) * 16.0, "remote": true})
+		"fire":
+			# Sparks thrown out: every dry machine around catches.
+			spark_fx.rpc(record["position"], Recipe.SPLASH_RADIUS)
+			for enemy: Node3D in _enemies_near(record["position"], Recipe.SPLASH_RADIUS): rules.light(enemy)
+			world.spend(id)
+		"current":
+			# Let go: it jumps machine to machine until its charge is gone.
+			while world.records.has(id) and int(world.records[id].get("charge", 0)) > 0:
+				var before: int = int(world.records[id]["charge"])
+				rules.discharge(world.records[id])
+				if world.records.has(id) and int(world.records[id].get("charge", 0)) == before: break
+			if world.records.has(id): world.spend(id)
+
+## Radial: everything around takes the hit and is thrown out; the matter is spent.
+func _burst(id: int) -> void:
+	if not world.records.has(id): return
+	var record: Dictionary = world.records[id]
+	var at: Vector3 = record["position"]
+	if record["material"] == "water": _splash(at, Recipe.BURST_RADIUS, 0.0)
+	elif record["material"] == "current": rules.shock_around(at, Recipe.BURST_RADIUS, _enemies_near(at, Recipe.BURST_RADIUS), Catalog.temp_of(record) >= 1)
+	else:
+		for enemy: Node3D in _enemies_near(at, Recipe.BURST_RADIUS):
+			var away: Vector3 = _flat(enemy.global_position - at)
+			if record["material"] in ["ice", "scrap"]: enemy.take_damage(Catalog.impact(record, 6.0))
+			elif record["material"] == "fire": rules.light(enemy)
+			elif Catalog.scald(record): enemy.take_damage(Recipe.GUST_DAMAGE)
+			if is_instance_valid(enemy) and not enemy.down: enemy.shove += away.normalized() * 6.0
+	world.announce_burst(id)
+	if not world.records.has(id): return
+	if record["material"] in ["ice", "scrap"] and record["shape"] != "fragments": world.damage_construct(id, 999.0)
+	elif record["material"] not in ["ice", "scrap"]: world.spend(id)
+
+## Sparks flying out of a fire let go, drawn on every peer.
+@rpc("authority", "call_local", "unreliable")
+func spark_fx(at: Vector3, radius: float) -> void:
+	if _fx != null: _fx.sparks(at, radius)
+
+func _splash(at: Vector3, radius: float, damage: float) -> void:
+	for enemy: Node3D in _enemies_near(at, radius):
+		var away: Vector3 = _flat(enemy.global_position - at)
+		enemy.take_damage(damage)
+		if is_instance_valid(enemy) and not enemy.down: enemy.soak((away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 8.0)
+
+func _gust(id: int) -> void:
+	var at: Vector3 = world.records[id]["position"]
+	for enemy: Node3D in _enemies_near(at, Recipe.SPLASH_RADIUS):
+		var away: Vector3 = _flat(enemy.global_position - at)
+		if Catalog.scald(world.records[id]): enemy.take_damage(Recipe.GUST_DAMAGE)
+		if is_instance_valid(enemy) and not enemy.down: enemy.shove += (away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 6.0
+
+## A well letting go (world event "released"): the machines riding its ring fly off along it,
+## into whatever stands there, and the well's own matter is flung out with them -- water splashes,
+## fire scatters burning, scrap and ice break into what is round them, current discharges. A wall
+## was only ever the heart of the whirl and stays standing.
+func _let_go(id: int, at: Vector3) -> void:
+	var center := Vector3(at.x, at.y, at.z)
+	if world.records.has(id): center = Catalog.field_center(world.records[id])
+	for enemy: Node3D in _enemies_near(center, Catalog.VORTEX_RING + Catalog.RING_BAND * 1.5):
+		if enemy.pulled("well", center): continue
+		enemy.shove = Catalog.sling(center, enemy.global_position)
+	rules.count("slung")
+	rule_fx.rpc("sling", PackedVector3Array([center]))
+	if world.records.has(id) and world.records[id]["shape"] != "wall": _burst(id)
+
+func _detonate(id: int) -> void:
+	if world.records.has(id) and world.records[id]["attachments"].has("nanites"):
+		world.execute(world.records[id]["owner"], "command", id, {"command": "detonate", "remote": true})
+
+func _relay(id: int, routine: int) -> void:
+	if not world.records.has(id) or routine < 0: return
+	var peer: int = world.records[id]["owner"]
+	if not run.builds.has(peer): return
+	var other: int = _wire(peer, routine, id)
+	if other == 0: return
+	var travel: float = world.announce_pulse(id, other)
+	if travel > 0.0 and _pulses.size() < 32: _pulses.append({"to": other, "left": travel})
+
+# --- Helpers ------------------------------------------------------------------------------------
+
+## Machines within `radius` of `at`, flat. `aloft` also takes flyers and leapers overhead.
+func _enemies_near(at: Vector3, radius: float, aloft: bool = false) -> Array[Node3D]:
+	var found: Array[Node3D] = []
+	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
+		if enemy.down or (enemy.airborne() and not aloft): continue
+		var gap: Vector3 = enemy.global_position - at
+		if Vector2(gap.x, gap.z).length() < radius and absf(gap.y) < (6.0 if aloft else 2.5): found.append(enemy)
+	return found
+
+## Toward the machine nearest `from`, flat; `fallback` when there is none.
+func _aim(from: Vector3, fallback: Vector3) -> Vector3:
+	var best: Node3D = null
+	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
+		if enemy.down: continue
+		if best == null or enemy.global_position.distance_squared_to(from) < best.global_position.distance_squared_to(from): best = enemy
+	var aim: Vector3 = _flat(best.global_position - from) if best != null else _flat(fallback)
+	return aim.normalized() if aim.length() > 0.05 else Vector3.FORWARD
+
+static func _flat(value: Vector3) -> Vector3:
+	return Vector3(value.x, 0.0, value.z)

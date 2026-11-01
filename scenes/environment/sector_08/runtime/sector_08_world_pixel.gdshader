@@ -10,6 +10,15 @@ uniform bool diorama_enabled = false;
 // the whole yard fell inside the *near* ramp, so the gameplay plane went soft and the level
 // looked like it had lost its depth when in fact only the focus had been left behind.
 uniform float focus_distance = 85.8;
+// Gameplay can soften the miniature look: the near band is where machines walk in from.
+uniform float near_strength = 1.0;
+uniform float far_strength = 1.0;
+// Mip levels of blur at full strength. A world drawn into a smaller buffer needs fewer levels for
+// the same blur on screen: each level is twice as many screen pixels.
+uniform float blur_levels = 3.25;
+// 1 keeps the play plane itself out of the near band, so pixel-art operators standing on it stay
+// crisp; the foreground below them still softens. 0 is the original ramp.
+uniform float play_band = 0.0;
 uniform bool subtle_dither = false;
 uniform bool subtle_quantization = false;
 void vertex(){ POSITION=vec4(VERTEX.xy,1.0,1.0); }
@@ -34,7 +43,10 @@ void fragment(){
   // access panel at 83.6 m on almost none: an 18x jump across 8 m, so the sign read as a razor
   // sharp object floating inside a soft foreground. Widening it makes the band continuous.
   float near_amount=1.0-smoothstep(0.828*focus_distance,1.084*focus_distance,distance);
-  float blur=max(far_amount,near_amount)*3.25;
+  near_amount*=1.0-play_band*smoothstep(0.86*focus_distance,0.94*focus_distance,distance);
+  far_amount*=far_strength;
+  near_amount*=near_strength;
+  float blur=max(far_amount,near_amount)*blur_levels;
   color=textureLod(world_color,uv,blur).rgb;
   color=mix(color,vec3(0.028,0.047,0.058),far_amount*0.16);
   vec2 edge=SCREEN_UV*2.0-1.0;

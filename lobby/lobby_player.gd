@@ -26,7 +26,8 @@ func update() -> void:
 		return
 	name_label.text = player.name
 	role_label.text = Statics.get_role_name(player.role)
-	ready_icon.modulate = Color.GREEN if player.vote else Color.WHITE
+	ready_icon.texture = preload("res://ui/operator_portraits.gd").portrait(player.role, true)
+	ready_icon.modulate = Color.WHITE if player.vote else Color(0.55, 0.57, 0.62)
 
 
 func _handle_player_updated(id: int) -> void:

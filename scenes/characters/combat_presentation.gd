@@ -67,6 +67,8 @@ func _process(delta: float) -> void:
 	previous_health = player.health
 	damage_flash = maxf(0, damage_flash - delta)
 	lamp.light_color = Color(1, 0.12, 0.08) if damage_flash > 0 else tint
+	# The figure itself blanches on the hit frame, then runs red as the flash fades.
+	player.animated_sprite_3d.modulate = Color.WHITE.lerp(Color(1.6, 0.45, 0.4), clampf(damage_flash / 0.3, 0.0, 1.0)) if damage_flash > 0 else Color.WHITE
 	if step_time > 0.32 and player.is_on_floor() and Vector2(player.velocity.x, player.velocity.z).length() > 0.5:
 		step_time = 0.0
 		_foot_ripple()

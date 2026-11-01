@@ -38,6 +38,11 @@ func _try_host() -> bool:
 		Game.instance.update_player_id()
 		_update_window_placement(0)
 		start_game_timer.timeout.connect(_on_start_game_timeout)
+		# The timer used to autostart, so the host left for the match a second after launch and
+		# any instance that connected later was stranded here with no body. Wait for the seats;
+		# a lone test seat starts at once.
+		if Game.instance.players.size() <= 1:
+			start_game_timer.start(0.5)
 	return err == OK
 
 
@@ -55,7 +60,8 @@ func _on_peer_connected(id: int) -> void:
 		for i: int in Game.instance.players.size():
 			_send_player_data_id.rpc(i, Game.instance.players[i].id)
 		player_index += 1
-		start_game_timer.start()
+		# Every seat filled: go. Otherwise give the remaining instances a few seconds to arrive.
+		start_game_timer.start(0.6 if player_index >= Game.instance.players.size() else 4.0)
 
 
 @rpc("reliable")

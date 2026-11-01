@@ -1,0 +1,111 @@
+{
+	"bounds_max": "(34.0, 28.0)",
+	"bounds_min": "(-34.0, -26.0)",
+	"components": [
+		{
+			"max": "(-7.0, -17.0)",
+			"min": "(-23.0, -25.0)",
+			"samples": 306,
+			"within_spawn_rectangle": 0
+		},
+		{
+			"max": "(33.0, 27.0)",
+			"min": "(-33.0, -25.0)",
+			"samples": 10476,
+			"within_spawn_rectangle": 7634
+		},
+		{
+			"max": "(10.0, -25.0)",
+			"min": "(10.0, -25.0)",
+			"samples": 1,
+			"within_spawn_rectangle": 0
+		},
+		{
+			"max": "(-1.5, -22.0)",
+			"min": "(-1.5, -22.0)",
+			"samples": 1,
+			"within_spawn_rectangle": 0
+		},
+		{
+			"max": "(-23.5, -21.0)",
+			"min": "(-23.5, -21.0)",
+			"samples": 1,
+			"within_spawn_rectangle": 0
+		},
+		{
+			"max": "(-26.0, -8.5)",
+			"min": "(-33.0, -15.5)",
+			"samples": 112,
+			"within_spawn_rectangle": 2
+		},
+		{
+			"max": "(-25.5, -9.5)",
+			"min": "(-25.5, -9.5)",
+			"samples": 1,
+			"within_spawn_rectangle": 1
+		},
+		{
+			"max": "(-24.0, -6.0)",
+			"min": "(-25.0, -9.0)",
+			"samples": 17,
+			"within_spawn_rectangle": 17
+		},
+		{
+			"max": "(-20.5, -7.0)",
+			"min": "(-23.0, -8.5)",
+			"samples": 12,
+			"within_spawn_rectangle": 12
+		},
+		{
+			"max": "(-10.5, 22.5)",
+			"min": "(-10.5, 22.5)",
+			"samples": 1,
+			"within_spawn_rectangle": 1
+		}
+	],
+	"connected_regions_samples": [
+		10476,
+		306,
+		112,
+		17,
+		12,
+		1,
+		1,
+		1,
+		1,
+		1
+	],
+	"district_connections": {
+		"central": {
+			"distance_m": 0.0,
+			"nearest_connected_cell": "(-7.0, -9.0)"
+		},
+		"east": {
+			"distance_m": 0.0,
+			"nearest_connected_cell": "(23.0, 9.0)"
+		},
+		"south": {
+			"distance_m": 0.0,
+			"nearest_connected_cell": "(0.0, 23.0)"
+		},
+		"west": {
+			"distance_m": 0.0,
+			"nearest_connected_cell": "(-25.0, 9.0)"
+		}
+	},
+	"frame_post_still_solid": true,
+	"free_capsule_samples": 10928,
+	"furniture_shapes_match_visuals": true,
+	"hidden_source_colliders": [],
+	"largest_connected_area_m2_approx": 2619.0,
+	"missing_floor_samples": 0,
+	"nominal_area_m2": 3672.0,
+	"open_frame_capsule_pass": true,
+	"perimeter_sweeps_passed": 4,
+	"projection_colliders_disabled": true,
+	"replacement_shapes": 28,
+	"retired_block_assembly_clear": true,
+	"retired_colliders": 59,
+	"sampling_step_m": 0.5,
+	"straight_crossing_seconds_at_base_speed": "(19.42857, 15.42857)"
+}

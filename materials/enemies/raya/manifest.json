@@ -1,0 +1,202 @@
+{
+ "Dive0": {
+  "anchor": [
+   64,
+   52
+  ],
+  "file": "res://materials/enemies/raya/dive0.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Dive1": {
+  "anchor": [
+   80,
+   58
+  ],
+  "file": "res://materials/enemies/raya/dive1.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Dive2": {
+  "anchor": [
+   87,
+   70
+  ],
+  "file": "res://materials/enemies/raya/dive2.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Dive3": {
+  "anchor": [
+   76,
+   76
+  ],
+  "file": "res://materials/enemies/raya/dive3.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Dive4": {
+  "anchor": [
+   64,
+   80
+  ],
+  "file": "res://materials/enemies/raya/dive4.png",
+  "fps": 12,
+  "frames": 2,
+  "loop": true
+ },
+ "Glide0": {
+  "anchor": [
+   64,
+   52
+  ],
+  "file": "res://materials/enemies/raya/glide0.png",
+  "fps": 8,
+  "frames": 4,
+  "loop": true
+ },
+ "Glide1": {
+  "anchor": [
+   80,
+   58
+  ],
+  "file": "res://materials/enemies/raya/glide1.png",
+  "fps": 8,
+  "frames": 4,
+  "loop": true
+ },
+ "Glide2": {
+  "anchor": [
+   87,
+   70
+  ],
+  "file": "res://materials/enemies/raya/glide2.png",
+  "fps": 8,
+  "frames": 4,
+  "loop": true
+ },
+ "Glide3": {
+  "anchor": [
+   76,
+   76
+  ],
+  "file": "res://materials/enemies/raya/glide3.png",
+  "fps": 8,
+  "frames": 4,
+  "loop": true
+ },
+ "Glide4": {
+  "anchor": [
+   64,
+   80
+  ],
+  "file": "res://materials/enemies/raya/glide4.png",
+  "fps": 8,
+  "frames": 4,
+  "loop": true
+ },
+ "Grounded0": {
+  "anchor": [
+   64,
+   77
+  ],
+  "file": "res://materials/enemies/raya/grounded0.png",
+  "fps": 4,
+  "frames": 3,
+  "loop": true
+ },
+ "Grounded1": {
+  "anchor": [
+   80,
+   87
+  ],
+  "file": "res://materials/enemies/raya/grounded1.png",
+  "fps": 4,
+  "frames": 3,
+  "loop": true
+ },
+ "Grounded2": {
+  "anchor": [
+   87,
+   92
+  ],
+  "file": "res://materials/enemies/raya/grounded2.png",
+  "fps": 4,
+  "frames": 3,
+  "loop": true
+ },
+ "Grounded3": {
+  "anchor": [
+   76,
+   92
+  ],
+  "file": "res://materials/enemies/raya/grounded3.png",
+  "fps": 4,
+  "frames": 3,
+  "loop": true
+ },
+ "Grounded4": {
+  "anchor": [
+   64,
+   92
+  ],
+  "file": "res://materials/enemies/raya/grounded4.png",
+  "fps": 4,
+  "frames": 3,
+  "loop": true
+ },
+ "Lock0": {
+  "anchor": [
+   64,
+   52
+  ],
+  "file": "res://materials/enemies/raya/lock0.png",
+  "fps": 10,
+  "frames": 2,
+  "loop": true
+ },
+ "Lock1": {
+  "anchor": [
+   80,
+   58
+  ],
+  "file": "res://materials/enemies/raya/lock1.png",
+  "fps": 10,
+  "frames": 2,
+  "loop": true
+ },
+ "Lock2": {
+  "anchor": [
+   87,
+   70
+  ],
+  "file": "res://materials/enemies/raya/lock2.png",
+  "fps": 10,
+  "frames": 2,
+  "loop": true
+ },
+ "Lock3": {
+  "anchor": [
+   76,
+   76
+  ],
+  "file": "res://materials/enemies/raya/lock3.png",
+  "fps": 10,
+  "frames": 2,
+  "loop": true
+ },
+ "Lock4": {
+  "anchor": [
+   64,
+   80
+  ],
+  "file": "res://materials/enemies/raya/lock4.png",
+  "fps": 10,
+  "frames": 2,
+  "loop": true
+ }
+}

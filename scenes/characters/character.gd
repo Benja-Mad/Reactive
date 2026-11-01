@@ -14,9 +14,16 @@ static var movement_basis: Basis = Basis.IDENTITY
 ## one camera per player for which is current.
 @export var use_own_camera: bool = true
 var health: float = 100.0
+var eliminated: bool = false
+var hurt_time: float = 0.0
+var move_multiplier: float = 1.0
 var respawn_position: Vector3
 var coyote_time: float = 0.0
 var jump_buffer: float = 0.0
+## While positive, a one-off action animation owns the sprite instead of walk/idle.
+var _action_time: float = 0.0
+## While positive, a heavy hit has the body: input steers only weakly.
+var _stagger: float = 0.0
 @onready var animated_sprite_3d: AnimatedSprite3D = $AnimatedSprite3D
 @onready var label_3d: Label3D = $Label3D
 @onready var camera_3d: Camera3D = $Camera3D
@@ -37,6 +44,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	hurt_time = maxf(0.0, hurt_time - delta)
+	if eliminated:
+		velocity = Vector3.ZERO
+		return
 	if programming_block.get_node("CodeBlock").has_focus():
 		input_synchronizer.move_input = Vector2.ZERO
 	# Add the gravity.
@@ -57,14 +68,17 @@ func _physics_process(delta: float) -> void:
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var input_dir: Vector2 = input_synchronizer.move_input
 	var direction: Vector3 = (movement_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	_action_time = maxf(0.0, _action_time - delta)
+	_stagger = maxf(0.0, _stagger - delta)
+	var grip: float = 0.18 if _stagger > 0.0 else 1.0
 	if direction:
-		animated_sprite_3d.play("Walk")
-		velocity.x = move_toward(velocity.x, direction.x * SPEED, delta * 22.0)
-		velocity.z = move_toward(velocity.z, direction.z * SPEED, delta * 22.0)
+		if _action_time <= 0.0: animated_sprite_3d.play("Walk")
+		velocity.x = move_toward(velocity.x, direction.x * SPEED * move_multiplier, delta * 22.0 * grip)
+		velocity.z = move_toward(velocity.z, direction.z * SPEED * move_multiplier, delta * 22.0 * grip)
 	else:
-		animated_sprite_3d.play("Idle")
-		velocity.x = move_toward(velocity.x, 0.0, delta * 28.0)
-		velocity.z = move_toward(velocity.z, 0.0, delta * 28.0)
+		if _action_time <= 0.0: animated_sprite_3d.play("Idle")
+		velocity.x = move_toward(velocity.x, 0.0, delta * 28.0 * grip)
+		velocity.z = move_toward(velocity.z, 0.0, delta * 28.0 * grip)
 
 	move_and_slide()
 	
@@ -85,12 +99,33 @@ func _sync(pos: Vector3, vel: Vector3) -> void:
 func use_ability(ability: String) -> void:
 	return
 
+## Plays a one-off animation if this operator has one, holding it for `duration` seconds.
+func play_action(animation: StringName, duration: float) -> void:
+	if animated_sprite_3d.sprite_frames.has_animation(animation):
+		animated_sprite_3d.play(animation)
+		_action_time = duration
+
+
+## A heavy hit shoves the body. Only the host may send it; only the owner moves.
+@rpc("any_peer", "call_local", "reliable")
+func knock(push: Vector3) -> void:
+	if multiplayer.get_remote_sender_id() not in [0, 1] or not is_multiplayer_authority():
+		return
+	push.y = 0.0
+	velocity += push.limit_length(6.0) + Vector3.UP * 1.2
+	_stagger = 0.22
+	get_tree().call_group("camera_shakers", "add_shake", 0.22)
+
 
 @rpc("any_peer", "call_local", "reliable")
 func receive_health(amount: float) -> void:
 	# Only the host resolves combat; each player retains movement authority.
 	if multiplayer.get_remote_sender_id() not in [0, 1]:
 		return
+	if eliminated: return
+	if amount < 0.0 and get_tree().get_first_node_in_group("survivor_run") != null:
+		if hurt_time > 0.0: return
+		hurt_time = 0.65
 	var applied: float = clampf(health + amount, 0.0, 100.0) - health
 	if not is_zero_approx(applied):
 		var color := Color(0.1, 1, 0.85) if applied > 0 else Color(1, 0.25, 0.18)
@@ -98,6 +133,11 @@ func receive_health(amount: float) -> void:
 	health = clampf(health + amount, 0.0, 100.0)
 	if health <= 0.0:
 		preload("res://scenes/actions/combat_fx.gd").burst(get_tree().current_scene, global_position, Color(0.15, 0.85, 1.0))
+		if get_tree().get_first_node_in_group("survivor_run") != null:
+			eliminated = true
+			velocity = Vector3.ZERO
+			collision_layer = 0
+			return
 		health = 100.0
 		if is_multiplayer_authority():
 			global_position = respawn_position + Vector3.UP * 0.6

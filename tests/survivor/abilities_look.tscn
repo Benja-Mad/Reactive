@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/survivor/abilities_look.gd" id="1"]
+
+[node name="AbilitiesLook" type="Node"]
+script = ExtResource("1")

@@ -1,9 +1,8 @@
-## NOT INSTANTIATED. An articulated procedural-mesh operative, written to replace the players'
-## sprites. It is kept because the 3D-character direction may be worth revisiting, but the game
-## uses the pixel-art AnimatedSprite3D: the whole presentation is built around it -- nearest
-## filtering, alpha-cut, and the pixel world filter the arena renders through. Swapping in meshes
-## changed the game's identity, and was not asked for. To try it again, call it from
-## Sector08LookDev.configure_player_presentation instead of the sprite fit.
+## Used by YardSentry for the hostile figures. It was written to replace the players' sprites,
+## but players keep the pixel-art AnimatedSprite3D: the whole presentation is built around it --
+## nearest filtering, alpha-cut, and the pixel world filter the arena renders through. Swapping in
+## meshes changed the game's identity, and was not asked for. To try it on players again, call it
+## from Sector08LookDev.configure_player_presentation instead of the sprite fit.
 ## Articulated presentation only. The owning network body keeps movement and combat authority.
 extends Node3D
 

@@ -7,4 +7,3 @@ script = ExtResource("1_cksts")
 
 [node name="StartGameTimer" type="Timer" parent="."]
 one_shot = true
-autostart = true

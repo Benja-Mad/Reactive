@@ -29,7 +29,6 @@ var change_window_scale : bool = true :
 			_update_window_scale()
 
 
-var _is_window_small: bool = false
 var _initial_window_scale_mode: Window.ContentScaleMode
 var _initial_window_scale_aspect: Window.ContentScaleAspect
 
@@ -110,6 +109,8 @@ func update_indices(player_indices: Dictionary) -> void:
 @rpc("any_peer", "reliable", "call_local")
 func set_player_role(id: int, role: Statics.Role) -> void:
 	var player: Statics.PlayerData = get_player(id)
+	if not player:
+		return
 	player.role = role
 	player_updated.emit(id)
 
@@ -160,24 +161,15 @@ func reset_window_scale() -> void:
 func _handle_size_changed() -> void:
 	if not change_window_scale:
 		return
-	
-	var was_windows_small: bool = _is_window_small
-	#get_window().min_size = Vector2i(1280, 720)
-	_is_window_small =  get_window().size.x < 1280 or get_window().size.y < 720
-
-	if was_windows_small == _is_window_small:
-		return
-	
 	_update_window_scale()
 
 
+## The menus are drawn in the crew's pixel kit on the same 1152x648 canvas as the shift's HUD, so
+## they scale with the window at every size. At 1:1 they shrank to a corner on large or
+## high-density screens.
 func _update_window_scale() -> void:
-	if _is_window_small:
-		get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
-	else:
-		get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
-		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 
 
 func _handle_node_added(node: Node) -> void:

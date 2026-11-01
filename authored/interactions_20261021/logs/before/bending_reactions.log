@@ -1,0 +1,12 @@
+ERROR: Failed to open 'user://logs/godot2026-10-21T23.38.07.log'.
+   at: copy (core/io/dir_access.cpp:429)
+ERROR: Failed to open log file for writing: user://logs/godot.log
+   at: rotate_file (core/io/logger.cpp:169)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1035)
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ART TRIAL {"details_hidden":1338,"models_rebuilt":23,"surfaces":550}
+BENDING REACTIONS {"break_launches_shards_once":true,"break_waits_for_actual_fracture":true,"contact_discharges_before_spending_carrier":true,"contact_fires_[\"coat\"]":true,"contact_fires_[\"fire\", \"fire\"]":true,"contact_fires_[\"fire\"]":true,"contact_fires_[]":true,"detonation_keeps_water_false":true,"detonation_keeps_water_true":true,"detonation_requires_coat_false":true,"detonation_requires_coat_true":true,"editor_click_changes_trigger":true,"heat_melts_without_shattering":true,"hot_steam_burns":true,"no_free_explosion_[\"coat\"]":true,"no_free_explosion_[\"fire\"]":true,"no_free_explosion_[]":true,"pulse_does_not_override_contact":true,"pulse_fires_selected_action":true,"pulse_has_no_secret_timeout":true,"scatter_never_detonates_[\"coat\"]":true,"scatter_never_detonates_[\"fire\", \"fire\"]":true,"scatter_never_detonates_[\"fire\"]":true,"scatter_never_detonates_[]":true,"suspended_water_wets_on_contact":true,"timer_fires_[\"cold\"]":true,"timer_fires_[\"fire\"]":true,"timer_fires_[\"raise\"]":true,"timer_fires_[]":true,"timer_waits_[\"cold\"]":true,"timer_waits_[\"fire\"]":true,"timer_waits_[\"raise\"]":true,"timer_waits_[]":true,"water_scatter_wets_[\"coat\"]":true,"water_scatter_wets_[]":true}

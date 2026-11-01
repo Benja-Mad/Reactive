@@ -1,0 +1,32 @@
+{
+ "Doused": {
+  "anchor": [
+   63,
+   120
+  ],
+  "file": "res://materials/enemies/animita/doused.png",
+  "fps": 5,
+  "frames": 3,
+  "loop": true
+ },
+ "Sputter": {
+  "anchor": [
+   63,
+   120
+  ],
+  "file": "res://materials/enemies/animita/sputter.png",
+  "fps": 12,
+  "frames": 3,
+  "loop": true
+ },
+ "Walk": {
+  "anchor": [
+   63,
+   120
+  ],
+  "file": "res://materials/enemies/animita/walk.png",
+  "fps": 6,
+  "frames": 4,
+  "loop": true
+ }
+}

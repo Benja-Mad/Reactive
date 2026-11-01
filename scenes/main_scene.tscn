@@ -7,7 +7,7 @@
 
 [ext_resource type="Script" path="res://scripts/matter/world_matter.gd" id="4_matter"]
 
-[ext_resource type="Script" path="res://scripts/reactive/matter_console.gd" id="5_console"]
+[ext_resource type="Script" path="res://scripts/survivor/run.gd" id="5_console"]
 
 [node name="MainScene" type="Node3D" unique_id=942703976]
 script = ExtResource("1_7ykc4")
@@ -16,6 +16,11 @@ damage_scene = ExtResource("3_pu3yx")
 
 [node name="Arena" parent="." unique_id=1687147662 instance=ExtResource("1_pw63i")]
 lookdev_tools = false
+framing_target = Vector3(0, 1.2, -2)
+framing_distance = 50.0
+framing_pitch_degrees = 38.0
+framing_fov = 38.0
+follow_dead_zone = Vector2(0.055, 0.065)
 presentation_mode = 2
 restrained_presentation = true
 lateral_extension = 8.0
@@ -29,5 +34,5 @@ spawn_path = NodePath("../Players")
 [node name="WorldMatter" type="Node3D" parent="."]
 script = ExtResource("4_matter")
 
-[node name="MatterConsole" type="CanvasLayer" parent="."]
+[node name="SurvivorRun" type="Node" parent="."]
 script = ExtResource("5_console")

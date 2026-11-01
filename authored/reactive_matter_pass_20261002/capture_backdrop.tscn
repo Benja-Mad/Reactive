@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://authored/reactive_matter_pass_20261002/capture_backdrop.gd" id="1"]
+[node name="BackdropCapture" type="Node"]
+script = ExtResource("1")

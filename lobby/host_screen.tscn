@@ -6,50 +6,75 @@
 [node name="HostScreen" instance=ExtResource("1_uvmm6")]
 script = ExtResource("2_l54gy")
 
-[node name="Label" parent="MarginContainer2/VBoxContainer/Panel" index="0"]
-text = "Host"
+[node name="Heading" parent="Page" index="0"]
+visible = false
+text = "Abrir turno"
 
-[node name="MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer" parent="MarginContainer2/VBoxContainer/MarginContainer/Control" index="0"]
-offset_left = -314.0
-offset_right = 315.0
-offset_bottom = 226.0
+[node name="HeadingGap" parent="Page" index="1"]
+visible = false
 
-[node name="Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer" type="MarginContainer" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer" index="0"]
-layout_mode = 2
+[node name="Body" parent="Page" index="2"]
+visible = false
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer/Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer" index="0"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+[node name="BodyGap" parent="Page" index="3"]
+custom_minimum_size = Vector2(0, 64)
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer/Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer/VBoxContainer" index="0"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer/Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer/VBoxContainer/HBoxContainer" index="0"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Player"
-
-[node name="PlayerName" type="LineEdit" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer/Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer/VBoxContainer/HBoxContainer" index="1"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-alignment = 1
-
-[node name="HostButton" type="Button" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer/Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer/VBoxContainer" index="1"]
+[node name="Lead" type="Label" parent="Page/Content" index="0"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Host
-"
+theme_type_variation = &"Muted"
+text = "Pásale esta IP a tu compa."
 
-[node name="ErrorLabel" type="Label" parent="MarginContainer2/VBoxContainer/MarginContainer/Control/MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer/Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel_MarginContainer2_VBoxContainer_MarginContainer_Panel#PanelContainer#MarginContainer/VBoxContainer" index="2"]
+[node name="AddressBlock" type="VBoxContainer" parent="Page/Content" index="1"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="AddressValue" type="Label" parent="Page/Content/AddressBlock" index="0"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 96
+text = "127.0.0.1"
+
+[node name="OtherAddresses" type="Label" parent="Page/Content/AddressBlock" index="1"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.647059, 0, 1)
-text = "An error occurred · o ·)>"
-horizontal_alignment = 1
+theme_type_variation = &"Muted"
 
-[node name="ErrorTimer" type="Timer" parent="." index="1"]
-wait_time = 3.0
+[node name="NameRow" type="HBoxContainer" parent="Page/Content" index="2"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Page/Content/NameRow" index="0"]
+layout_mode = 2
+theme_type_variation = &"Muted"
+text = "operador"
+
+[node name="PlayerName" type="LineEdit" parent="Page/Content/NameRow" index="1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_length = 14
+
+[node name="HostButton" type="Button" parent="Page/Actions" index="0"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Abrir turno"
+
+[node name="ErrorGap" type="Control" parent="Page" index="7"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="ErrorLabel" type="Label" parent="Page" index="8"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.5411765, 0.6509804, 1)
+text = "El puerto 5409 está ocupado. ¿Ya hay un turno abierto en este PC?"
+autowrap_mode = 3
+
+[node name="ErrorTimer" type="Timer" parent="." index="3"]
+wait_time = 4.0
 one_shot = true

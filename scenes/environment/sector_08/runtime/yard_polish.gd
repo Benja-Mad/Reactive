@@ -14,7 +14,7 @@ func setup(arena) -> void:
 	var environment: Environment = arena.runtime_environment.environment
 	# Measured at 2x supersampling, screen-space reflections at 128 steps were 47.6 ms of frame
 	# against 6.9 ms with them off -- about 85% of the frame, while every other part of this pass
-	# (rain, the fog volumes, the probe, the wet shader) measured free. On a night yard where the
+	# (rain, the fog volumes, the wet shader) measured free. On a night yard where the
 	# far field is under a heavy depth blur anyway, that is not a trade worth 128 steps.
 	environment.ssr_enabled = true
 	environment.ssr_max_steps = 24
@@ -33,18 +33,23 @@ func setup(arena) -> void:
 	environment.glow_strength = 1.05
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	environment.glow_hdr_threshold = 0.85
-	environment.ambient_light_color = Color(0.16, 0.24, 0.34)
-	environment.ambient_light_energy = 0.34
+	environment.ambient_light_color = Color(0.32, 0.34, 0.36)
+	environment.ambient_light_energy = 0.50
 	# Separate the miniature's silhouettes while keeping the play plane in focus.
-	environment.adjustment_contrast = 1.10
+	environment.adjustment_contrast = 1.06
 	environment.adjustment_saturation = 1.06
 	environment.fog_density = 0.0011
 	# 0.0020 was a sixth of the approved medium, which all but extinguished the light shafts the
 	# fixtures are aimed through. The haze stays thin; the volume that carries the beams does not.
 	environment.volumetric_fog_density = 0.0090
-	arena.key_light.light_energy = 1.55
+	# Near-neutral key reveals material colours; the restrained lavender fill
+	# separates vertical faces without tinting every surface cobalt blue.
+	arena.key_light.light_color = Color(0.82, 0.84, 0.86)
+	arena.key_light.light_energy = 1.75
 	arena.key_light.light_angular_distance = 2.5
-	arena.fill_light.light_energy = 0.65
+	arena.fill_light.light_color = Color(0.58, 0.57, 0.68)
+	arena.fill_light.light_energy = 0.55
+	environment.fog_light_color = Color(0.14, 0.17, 0.20)
 	arena.spine_cyan_light.light_specular = 0.38
 	arena.industrial_amber_center.light_specular = 0.40
 	arena.industrial_amber_west.light_specular = 0.22
@@ -122,13 +127,9 @@ func setup(arena) -> void:
 			fill.material_override = wet
 			water_materials.append(wet)
 
-	var probe := ReflectionProbe.new()
-	probe.position = Vector3(0, 4, -5)
-	probe.size = Vector3(58, 24, 54)
-	probe.box_projection = true
-	probe.intensity = 0.5
-	probe.max_distance = 90
-	add_child(probe)
+	# The matte yard uses the sky and screen-space reflections already configured
+	# above. Do not allocate the old wet-floor reflection atlas: Godot 4.7 leaks its
+	# colour buffer and six views on teardown (godotengine/godot#122498).
 	_build_relay()
 	_build_rain()
 	_build_service_markings(arena, street)
@@ -333,13 +334,8 @@ func _build_rain() -> void:
 	_rain_layer("YardRain", Vector3(0, 15, -4), Vector3(28, 2, 18), 1500, 0.022, 0.50, 0.30)
 	_rain_layer("ForegroundRain", Vector3(0, 12, 17), Vector3(27, 1, 6), 110, 0.065, 0.85, 0.13)
 
-## Releases what this pass allocated, the way the other two particle systems here already do.
-##
-## It does not silence the "1 shaders of type ParticlesShaderRD were never freed" line at exit:
-## freeing all three particle systems thirty frames before quitting leaves that message, and the
-## seven leaked texture RIDs, exactly as they were. They are the rendering server's own shutdown
-## accounting, not this project's. Kept anyway because deterministic release is right regardless
-## of what the exit prints.
+## Detach render resources on teardown. Particle prewarming is configured only
+## after its process material below, so no fallback particle shader is left behind.
 func _exit_tree() -> void:
 	for emitter: GPUParticles3D in rain_emitters:
 		emitter.emitting = false
@@ -363,7 +359,6 @@ func _rain_layer(id: String, origin: Vector3, extent: Vector3, count: int, width
 	rain.position = origin
 	rain.amount = count
 	rain.lifetime = 1.45
-	rain.preprocess = 1.45
 	rain.local_coords = false
 	rain.use_fixed_seed = true
 	rain.seed = 808 + rain_materials.size() * 37
@@ -377,6 +372,8 @@ func _rain_layer(id: String, origin: Vector3, extent: Vector3, count: int, width
 	process.initial_velocity_max = 16.0
 	process.gravity = Vector3(0, -2, 0)
 	rain.process_material = process
+	# Configure the process material before requesting particle prewarming.
+	rain.preprocess = 1.45
 	var drop := QuadMesh.new()
 	drop.size = Vector2(width, length)
 	var mat := ShaderMaterial.new()

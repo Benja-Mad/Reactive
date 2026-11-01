@@ -60,6 +60,7 @@ var runtime_environment: WorldEnvironment
 var camera_rig: Node
 var pixel_presentation: Node
 var approved_transform: Transform3D
+var _previous_msaa_3d: Viewport.MSAA = Viewport.MSAA_DISABLED
 
 
 ## Call from the derived scene's _ready() before any level-specific setup.
@@ -67,9 +68,16 @@ func _initialise_diorama() -> void:
 	gameplay_camera = get_node("GameplayCamera") as Camera3D
 	runtime_environment = get_node("RuntimeEnvironment") as WorldEnvironment
 	# Thin rails and cables need edge coverage at a framing this stable.
+	_previous_msaa_3d = get_viewport().msaa_3d
 	get_viewport().msaa_3d = Viewport.MSAA_2X
 	apply_framing()
 	approved_transform = gameplay_camera.global_transform
+
+
+## The viewport outlives the arena: hand the menu and later scenes back their own MSAA.
+func _exit_tree() -> void:
+	if runtime_environment != null:
+		get_viewport().msaa_3d = _previous_msaa_3d
 
 
 ## Places the camera on the approved framing. Position is derived, so a level only states where

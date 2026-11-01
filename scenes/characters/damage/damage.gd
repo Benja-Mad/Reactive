@@ -15,6 +15,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
+	if get_tree().get_first_node_in_group("survivor_run") != null: return
 	fire_cooldown = maxf(0.0, fire_cooldown - delta)
 	var input_dir: Vector2 = input_synchronizer.move_input
 	var direction: Vector3 = (movement_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -39,13 +40,16 @@ func _fire() -> void:
 		return
 	# Soft target assistance within the facing hemisphere keeps F useful at diorama scale.
 	var best_distance: float = 19.0
+	# Judge every candidate against the player's own aim, not against a direction already
+	# snapped to an earlier candidate, or group order decides which sentry gets shot.
+	var aim: Vector3 = facing_dir
+	var aim_cone: float = 0.94 if input_synchronizer.aim_direction.length_squared() > 0.1 else 0.15
 	for enemy: Node3D in get_tree().get_nodes_in_group("yard_sentries"):
 		if enemy.down:
 			continue
 		var difference: Vector3 = enemy.global_position - global_position
 		difference.y = 0.0
-		var aim_cone: float = 0.94 if input_synchronizer.aim_direction.length_squared() > 0.1 else 0.15
-		if difference.length() >= best_distance or difference.normalized().dot(facing_dir) < aim_cone:
+		if difference.length() >= best_distance or difference.normalized().dot(aim) < aim_cone:
 			continue
 		var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.55, enemy.global_position + Vector3.UP * 1.1)
 		query.exclude = [get_rid()]
@@ -62,6 +66,8 @@ func _fire() -> void:
 func _spawn_fire_attack(data: Dictionary) -> Node:
 	if not fire_attack_scene:
 		return null
+	# Runs on every peer as the spawn replicates, so everyone sees the lance kick.
+	play_action(&"Fire", 0.28)
 	var fire_inst: Node3D = fire_attack_scene.instantiate()
 	fire_inst.direction = data.facing_dir
 	fire_inst.position = to_local(data.pos)

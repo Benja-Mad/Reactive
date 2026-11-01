@@ -18,9 +18,9 @@ static func get_role_name(role: Role) -> String:
 		Role.NONE:
 			return "None"
 		Role.SUPPORT:
-			return "Soporte"
+			return "El Sereno · sellos y ánimas"
 		Role.DAMAGE:
-			return "Daño"
+			return "Brasa · brazo de combustión"
 	return "Unknown"
 
 
@@ -39,7 +39,7 @@ class PlayerData:
 		role = new_role
 	
 	func _to_string() -> String:
-		return "Player: {id: %d, name: %s, index: %d, role: %d}" % [id, name, index, Statics.get_role_name(role)]
+		return "Player: {id: %d, name: %s, index: %d, role: %s}" % [id, name, index, Statics.get_role_name(role)]
 	
 	func to_dict() -> Dictionary:
 		return {

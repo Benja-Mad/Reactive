@@ -1,0 +1,12 @@
+ERROR: Failed to open 'user://logs/godot2026-10-21T23.38.46.log'.
+   at: copy (core/io/dir_access.cpp:429)
+ERROR: Failed to open log file for writing: user://logs/godot.log
+   at: rotate_file (core/io/logger.cpp:169)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1035)
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ART TRIAL {"details_hidden":1338,"models_rebuilt":23,"surfaces":550}
+WATER CHECKS {"armed_after_last_step":true,"carried_draught_lands":true,"carried_draught_pours":true,"cloud_rains_back_into_its_puddle":true,"drawn_dry_source_stays":true,"draws_from_reach":true,"dry_routine_waits":true,"editor_names_the_water":true,"empty_pocket_is_dry":true,"every_source_opens":true,"far_puddle_untouched":true,"fire_boils_a_draught_off_deep_water":true,"fire_boils_yard_water":true,"first_step_alone":true,"forming_matter_cannot_be_drawn":true,"ice_breaks_to_shards":true,"lands_as_water_still_forming":true,"novia_drinks_a_draught":true,"novia_spill_joins_the_puddle":true,"own_element_refills":true,"reserve_starts_with_own_element":true,"salvage_is_scrap":true,"second_step_a_beat_later":true,"shards_melt_into_a_puddle":true,"siphon_needs_to_walk_by":true,"siphons_the_yard":true,"source_gives_a_draught":true,"source_refills":true,"sources_start_full":true,"splash_leaves_a_puddle":true,"steam_rains_back":true,"wade_finds_the_puddle":true,"wade_freezes_under_the_machine":true,"wade_works_in_place":true,"water_is_conserved_in_flight":true,"water_joins_a_puddle_nearby":true,"water_lands_where_routine_acts":true,"water_runs_before_it_lands":true,"yard_ice_melts_back":true,"yard_puddle_freezes":true}

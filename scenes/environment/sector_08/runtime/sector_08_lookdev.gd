@@ -851,8 +851,60 @@ func _apply_readable_vegetation() -> void:
 		mesh.set_surface_override_material(0, variants[source])
 
 
+## The survivor shift is a working yard at night, not a data district: drop the projected
+## holograms, the glowing tank traces and the diagnostic screens. Geometry stays for audits.
+const SURVIVOR_HIDDEN: Array[String] = [
+	"CS_REACTIVE/OWNER_YARD/YARD_programmable/Hologram",
+	"CS_REACTIVE/OWNER_YARD/YARD_programmable/Hologram_001",
+	"CS_REACTIVE/OWNER_YARD/YARD_programmable/Hologram_002",
+	"CS_REACTIVE/OWNER_SPINE/SPINE_execution_traces",
+	"CS_REACTIVE/OWNER_SPINE/SPINE_screens",
+	"CS_REACTIVE/OWNER_SPINE/SPINE_rings",
+	"DistantHolo",
+	"DistantHolo_001",
+]
+
+
+## The miniature look at a little over half strength: the near band still softens the frame
+## edge and the far architecture still falls away, but machines entering the play field read.
+const DIORAMA_NEAR: float = 0.55
+const DIORAMA_FAR: float = 0.85
+
+
+func apply_survivor_dressing() -> void:
+	for path: String in SURVIVOR_HIDDEN:
+		var node := sector_runtime.imported_environment.get_node_or_null(path) as Node3D
+		if node != null:
+			node.visible = false
+	pixel_presentation.presentation_material.set_shader_parameter("near_strength", DIORAMA_NEAR)
+	pixel_presentation.presentation_material.set_shader_parameter("far_strength", DIORAMA_FAR)
+	# Yard polish is added on a deferred call; its relay beacon (floating orb, energy rings, cyan
+	# lamp) becomes a plain bolted service flange under a dim sodium work light.
+	var polish: Node = get_node_or_null("YardPolish")
+	while polish == null and is_inside_tree():
+		await get_tree().process_frame
+		polish = get_node_or_null("YardPolish")
+	if polish == null or polish.relay == null: return
+	for ring: MeshInstance3D in polish.rings: ring.visible = false
+	polish.orb.visible = false
+	for child: Node in polish.relay.get_children():
+		if child is OmniLight3D:
+			(child as OmniLight3D).light_color = Color(1.0, 0.72, 0.42)
+			(child as OmniLight3D).light_energy = 1.1
+
+
 ## Fit only real-player visuals to the approved arena framing. Never resize their bodies.
 func configure_player_presentation(character: Character) -> void:
+	if get_parent().has_node("SurvivorRun"):
+		character.animated_sprite_3d.hide()
+		character.label_3d.hide()
+		var worker := preload("res://scripts/survivor/operator_sprite.gd").new()
+		worker.name = "ShiftWorker"
+		worker.support = character is Support
+		var collision := character.get_node("CollisionShape3D") as CollisionShape3D
+		worker.position.y = collision.position.y - (collision.shape as CapsuleShape3D).height * 0.5
+		character.add_child(worker)
+		return
 	var sprite: AnimatedSprite3D = character.animated_sprite_3d
 	if sprite.has_meta("sector08_visual_fitted"):
 		return

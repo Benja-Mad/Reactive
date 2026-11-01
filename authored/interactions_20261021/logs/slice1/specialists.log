@@ -1,0 +1,36 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1035)
+Sector08Runtime: meshes=2990 surfaces=2990 imported_materials=186 baseline_overrides=240 calibrated_overrides=374 shared_shaders=10 metadata_nodes=3043
+Sector08 arena ready. Keys: 1/2/3 depth, Space wave, X blackout/recovery, B baseline, A auto-demo.
+ART TRIAL {"details_hidden":1338,"models_rebuilt":23,"surfaces":550}
+ERROR: SPECIALISTS: diver_lands_at_well_lip
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/survivor/specialists.gd:17)
+       [1] gravity (res://tests/survivor/specialists.gd:317)
+       [2] frames (res://tests/survivor/specialists.gd:14)
+ERROR: SPECIALISTS: well_bends_leap
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/survivor/specialists.gd:17)
+       [1] gravity (res://tests/survivor/specialists.gd:332)
+ERROR: SPECIALISTS: bent_leap_lands_at_lip
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/survivor/specialists.gd:17)
+       [1] gravity (res://tests/survivor/specialists.gd:333)
+       [2] until (res://tests/survivor/specialists.gd:22)
+ERROR: SPECIALISTS: well_bends_dash
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/survivor/specialists.gd:17)
+       [1] gravity (res://tests/survivor/specialists.gd:348)
+ERROR: SPECIALISTS: bent_dash_puts_him_down
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/survivor/specialists.gd:17)
+       [1] gravity (res://tests/survivor/specialists.gd:349)
+       [2] until (res://tests/survivor/specialists.gd:25)
+SPECIALIST CHECKS {"anima_blast_splashes_neighbour":true,"animas_reach_flyer":true,"animas_wait_for_flight":true,"animita_caught_resists_douse":true,"animita_contact_hurts":true,"animita_doused_by_water":true,"animita_melts_ice":true,"animita_relights":true,"animita_tough_while_lit":true,"bent_dash_puts_him_down":false,"bent_leap_lands_at_lip":false,"choked_drinker_staggers_back":true,"choked_jet_never_fires":true,"crash_damages_wall":true,"director_introduces_specialists":true,"dive_hits_on_lane":true,"diver_casts_shadow":true,"diver_dives":true,"diver_flies":true,"diver_grounded_and_open":true,"diver_harmless_while_circling":true,"diver_lands_at_well_lip":false,"diver_locks_a_lane":true,"drinker_aims_jet":true,"drinker_drains_puddle":true,"drinker_fires":true,"drinker_open_while_drinking":true,"drinker_seeks_water":true,"drinker_swells":true,"drinker_takes_aim":true,"flame_cannot_reach_flyer":true,"flame_hurries_relight":true,"ice_sheet_setup":true,"jet_hits_on_lane":true,"jet_leaves_water":true,"lane_runs_through_operator":true,"leaper_arcs_high":true,"leaper_clears_barrier":true,"leaper_cracks_ice":true,"leaper_crouches_first":true,"leaper_exposed_after_landing":true,"leaper_jumps":true,"leaper_marks_landing":true,"leaper_slam_hurts_on_mark":true,"leaper_spares_barrier":true,"quiltro_bares_teeth_first":true,"quiltro_bite_hurts":true,"quiltro_flees_fire":true,"quiltro_flees_only_once":true,"quiltro_lunges":true,"quiltro_returns":true,"quiltro_runs_away":true,"quiltro_shakes_when_soaked":true,"quiltro_still_while_shaking":true,"repartidor_crashes_into_wall":true,"repartidor_dash_hurts":true,"repartidor_dashes":true,"repartidor_lane_through_operator":true,"repartidor_pings_lane":true,"repartidor_slips_on_water":true,"repartidor_stumbles_open":true,"repel_breaks_drinker_aim":true,"slip_puts_him_down":true,"steam_knocks_diver_down":true,"steam_scalds_drinker":true,"well_bends_dash":false,"well_bends_leap":false,"well_grounds_diver":true}
