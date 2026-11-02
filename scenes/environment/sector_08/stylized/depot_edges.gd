@@ -49,7 +49,7 @@ const LIGHT_MARKERS := {
 	"GateLamp": {"kind": "gate lamp, OFF until the relief arrives (watch gate_lamp_changed / gate_lamp_on)", "color": "e8d9a8", "energy": 4.0, "range": 8.0},
 	"FuenteDeSoda": {"kind": "fluorescent glow of the fuente de soda across the street", "color": "cfe6d2", "energy": 1.5, "range": 6.0},
 	"Botilleria": {"kind": "dim interior of the botillería behind its rejas", "color": "d6b183", "energy": 0.6, "range": 4.0},
-	"TallerNeon": {"kind": "neon: magenta tube sign «EL CHISPA» over the taller's open bay", "color": "ff3fae", "energy": 1.8, "range": 5.0},
+	"TallerNeon": {"kind": "neon: magenta tube sign «EL CHISPA» over the taller's staff door", "color": "ff3fae", "energy": 1.8, "range": 5.0},
 	"ChargerLeds": {"kind": "neon: cyan charging LEDs on the electric micros' chargers", "color": "35dcff", "energy": 1.2, "range": 3.5},
 	"HoloBotilleria": {"kind": "neon holo-ad, flickering, over the botillería (meta glass is its panel)", "color": "8cefe0", "energy": 1.0, "range": 4.0},
 }
@@ -499,22 +499,29 @@ func depot_edges_build_north_fence() -> void:
 	depot_edges_box(north, "DoorHeader", Vector3((DOOR_A.x + DOOR_A.y) * 0.5, 2.36, -FENCE_B), Vector3(DOOR_A.y - DOOR_A.x + 0.12, 0.08, 0.08), steel)
 	# One hinge still holds a twisted strip of the door frame.
 	depot_edges_box(north, "TornHingeStrip", Vector3(DOOR_A.x + 0.1, 1.5, -FENCE_B - 0.12), Vector3(0.06, 0.9, 0.04), depot_edges_paint("6f7a76"), false, Vector3(0, 35, 14))
-	# Zinc run closing the fence's east end; the gate leaf parks behind it when it rolls open.
+	# Chain-link run closing the fence's east end: the gate leaf parks behind it when it rolls open,
+	# and the relief, pulled up along it, stays in view through the mesh.
 	var zinc_start: float = GATE_A.y + 0.15
 	var zinc_end: float = 17.6
-	var sheets: Array[Transform3D] = []
-	var tints: Array[Color] = []
-	var a: float = zinc_start + 0.45
-	var index: int = 0
-	while a < zinc_end:
-		var lean: float = sin(float(index) * 2.3) * 1.4
-		sheets.append(Transform3D(Basis.from_euler(Vector3(deg_to_rad(lean), 0, 0)).scaled(Vector3(0.92, 2.2 + 0.08 * sin(index * 1.7), 0.04)), Vector3(a, 1.12, -FENCE_B - 0.1)))
-		tints.append([Color("737773"), Color("6a6862"), Color("7c6f62"), Color("80807a")][index % 4])
-		a += 0.86
-		index += 1
-	depot_edges_multimesh(north, "GateSideZinc", depot_edges_unit_box(), sheets, depot_edges_vertex_paint("zinc"), tints)
 	var run_length: float = zinc_end - zinc_start
-	var zinc_body := depot_edges_box(north, "GateSideZincCollider", Vector3(zinc_start + run_length * 0.5, 1.12, -FENCE_B - 0.1), Vector3(run_length, 2.24, 0.1), steel, true)
+	var run_mid: float = zinc_start + run_length * 0.5
+	var mesh_paint := StandardMaterial3D.new()
+	mesh_paint.albedo_color = Color(0.36, 0.4, 0.4, 0.3)
+	mesh_paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh_paint.roughness = 0.7
+	mesh_paint.metallic_specular = 0.4
+	mesh_paint.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var link := depot_edges_box(north, "GateSideMesh", Vector3(run_mid, 1.12, -FENCE_B - 0.1), Vector3(run_length, 2.1, 0.01), mesh_paint)
+	link.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var wires: Array[Transform3D] = []
+	var wire_a: float = zinc_start + 0.15
+	while wire_a < zinc_end:
+		wires.append(Transform3D(Basis.IDENTITY.scaled(Vector3(0.018, 2.1, 0.018)), Vector3(wire_a, 1.12, -FENCE_B - 0.1)))
+		wire_a += 0.3
+	depot_edges_multimesh(north, "GateSideWires", depot_edges_unit_box(), wires, depot_edges_paint("4f5958"))
+	for rail_y: float in [0.1, 2.18]:
+		depot_edges_box(north, "GateSideRail", Vector3(run_mid, rail_y, -FENCE_B - 0.1), Vector3(run_length, 0.05, 0.05), steel)
+	var zinc_body := depot_edges_box(north, "GateSideZincCollider", Vector3(run_mid, 1.12, -FENCE_B - 0.1), Vector3(run_length, 2.24, 0.1), steel, true)
 	zinc_body.visible = false
 	for post: float in [zinc_start + 2.6, zinc_end - 0.1]:
 		depot_edges_box(north, "ZincPost", Vector3(post, 1.15, -FENCE_B + 0.02), Vector3(0.1, 2.3, 0.1), steel)
@@ -555,6 +562,14 @@ func depot_edges_build_caseta() -> void:
 	# Cable from the street pole into the roof, and a satellite dish for the TV.
 	depot_edges_box(caseta, "Dish", Vector3(0.85, FLOOR_Y + 2.75, -0.7), Vector3(0.42, 0.42, 0.06), depot_edges_paint("9a9a92"), false, Vector3(-25, 20, 0))
 	depot_edges_box(caseta, "DishArm", Vector3(0.85, FLOOR_Y + 2.62, -0.62), Vector3(0.04, 0.3, 0.04), trim)
+	# The depot's name board on two struts over the caseta roof, beside the gate but off its lane.
+	var board_at := Vector3(0.0, FLOOR_Y + 3.2, 0.7)
+	for sx: float in [-1.05, 1.05]:
+		depot_edges_box(caseta, "NameBoardStrut", Vector3(sx, FLOOR_Y + 2.85, 0.68), Vector3(0.06, 0.62, 0.06), trim)
+	depot_edges_box(caseta, "NameBoard", board_at, Vector3(2.8, 0.66, 0.06), depot_edges_paint("b9b19b"))
+	depot_edges_box(caseta, "NameBoardRail", board_at + Vector3(0, -0.36, 0), Vector3(2.7, 0.05, 0.08), trim)
+	depot_edges_text(caseta, "TERMINAL LÍNEA 08\nENCIERRO", board_at + Vector3(0, 0, 0.04), 0.17, "27313a")
+	depot_edges_text(caseta, "TERMINAL LÍNEA 08\nENCIERRO", board_at + Vector3(0, 0, -0.04), 0.17, "27313a", false, 180.0)
 	depot_edges_marker(caseta, "CasetaWindow", Vector3(0.2, FLOOR_Y + 1.6, 0.6), Vector3(0.2, 0.2, 3.5))
 	depot_edges_marker(caseta, "CasetaEave", Vector3(-0.3, FLOOR_Y + 2.28, 1.42), Vector3(-1.8, 0.0, 2.2))
 
@@ -569,15 +584,6 @@ func depot_edges_build_gate() -> void:
 	# never behind a board from the gameplay camera.
 	for a: float in [GATE_A.x, GATE_A.y]:
 		depot_edges_box(north, "GatePost", Vector3(a, FLOOR_Y + 1.3, -FENCE_B), Vector3(0.28, 2.6, 0.28), steel, true)
-	# The depot's name board rides the zinc run east of the gate, clear of the lane.
-	var board_center := Vector3(14.9, FLOOR_Y + 2.95, -FENCE_B + 0.1)
-	for a: float in [12.6, 17.2]:
-		depot_edges_box(north, "NameBoardStrut", Vector3(a, FLOOR_Y + 2.62, -FENCE_B + 0.06), Vector3(0.08, 0.9, 0.06), dark)
-	depot_edges_box(north, "NameBoard", board_center, Vector3(5.1, 0.56, 0.06), depot_edges_paint("b9b19b"))
-	depot_edges_box(north, "NameBoardRail", board_center + Vector3(0, -0.33, 0), Vector3(4.9, 0.06, 0.08), dark)
-	var name_text: String = "TERMINAL LÍNEA 08 — ENCIERRO"
-	depot_edges_text(north, name_text, board_center + Vector3(0, 0, 0.04), 0.2, "27313a")
-	depot_edges_text(north, name_text, board_center + Vector3(0, 0, -0.04), 0.2, "27313a", false, 180.0)
 	# Gate lamp on a slim mast beside the east post, its arm reaching over the opening; dark until
 	# the relief pulls up.
 	var lamp_at := Vector3(GATE_A.y - 0.9, FLOOR_Y + 4.25, -FENCE_B + 0.15)
@@ -959,29 +965,31 @@ func depot_edges_build_taller_south() -> void:
 	depot_edges_box(face, "AirCon", Vector3(-6.95, 7.95, 0.2), Vector3(0.8, 0.55, 0.35), depot_edges_paint("8d8f88"))
 	depot_edges_box(face, "AirCon", Vector3(-2.6, 10.75, 0.2), Vector3(0.8, 0.55, 0.35), depot_edges_paint("8d8f88"))
 	depot_edges_cylinder(face, "Downpipe", Vector3(-0.62, 6.9, 0.12), 0.06, 13.6, depot_edges_paint("4a4f4f"), 8)
-	# The neon over the open bay: the taller's name in magenta tube on a black raceway.
-	depot_edges_neon_sign(face, "EL CHISPA", Vector3(bays[2], FLOOR_Y + 5.55, 0.0), "ff3fae")
-	depot_edges_marker(face, "TallerNeon", Vector3(bays[2], FLOOR_Y + 5.55, 0.45), Vector3(bays[2], 1.0, 5.0))
+	# The taller's name in magenta tube on a black raceway, low over the staff door at the corner and
+	# standing proud of the piers, so it is in reach of the yard rather than up in the cornice.
+	var neon_at := Vector3(bays[3], FLOOR_Y + 3.25, 0.25)
+	depot_edges_neon_sign(face, "EL CHISPA", neon_at, "ff3fae", 0.3)
+	depot_edges_marker(face, "TallerNeon", neon_at + Vector3(0, 0, 0.45), Vector3(bays[3], 0.2, 5.0))
 
 
 ## A neon sign on a dark raceway: tube lettering in the pixel font, a bolt, a tube border, and the
 ## warm-dark backing that keeps it from reading as a screen.
-func depot_edges_neon_sign(parent: Node3D, words: String, at: Vector3, hex: String) -> void:
-	var height: float = 0.42
-	var width: float = float(words.length()) * height * 6.0 / 7.0 + 1.0
-	depot_edges_box(parent, "NeonRaceway", at + Vector3(0, 0, 0.05), Vector3(width + 0.3, 0.74, 0.08), depot_edges_paint("1f2324"))
+func depot_edges_neon_sign(parent: Node3D, words: String, at: Vector3, hex: String, height: float = 0.42) -> void:
+	var k: float = height / 0.42
+	var width: float = float(words.length()) * height * 6.0 / 7.0 + 1.0 * k
+	depot_edges_box(parent, "NeonRaceway", at + Vector3(0, 0, 0.05), Vector3(width + 0.3 * k, 0.74 * k, 0.08), depot_edges_paint("1f2324"))
 	var tube: StandardMaterial3D = depot_edges_glow(hex, 3.2)
 	for sy: float in [-0.3, 0.3]:
-		depot_edges_box(parent, "NeonBorder", at + Vector3(0, sy, 0.11), Vector3(width + 0.1, 0.03, 0.03), tube)
+		depot_edges_box(parent, "NeonBorder", at + Vector3(0, sy * k, 0.11), Vector3(width + 0.1 * k, 0.03, 0.03), tube)
 	for sx: float in [-0.5, 0.5]:
-		depot_edges_box(parent, "NeonBorder", at + Vector3(sx * (width + 0.1), 0, 0.11), Vector3(0.03, 0.63, 0.03), tube)
-	var text := depot_edges_text(parent, words, at + Vector3(0.35, 0, 0.12), height, hex, true)
+		depot_edges_box(parent, "NeonBorder", at + Vector3(sx * (width + 0.1 * k), 0, 0.11), Vector3(0.03, 0.63 * k, 0.03), tube)
+	var text := depot_edges_text(parent, words, at + Vector3(0.35 * k, 0, 0.12), height, hex, true)
 	var c := Color(hex)
 	text.modulate = Color(c.r * 2.4, c.g * 2.4, c.b * 2.4)
 	# The bolt: three tube strokes left of the name.
-	var bolt_x: float = at.x - width * 0.5 + 0.38
+	var bolt_x: float = at.x - width * 0.5 + 0.38 * k
 	for stroke: Array in [[Vector3(0.06, 0.12, 0), -28.0], [Vector3(-0.02, 0.0, 0), 62.0], [Vector3(-0.08, -0.12, 0), -28.0]]:
-		depot_edges_box(parent, "NeonBolt", Vector3(bolt_x, at.y, at.z + 0.12) + stroke[0], Vector3(0.035, 0.22, 0.03), tube, false, Vector3(0, 0, stroke[1]))
+		depot_edges_box(parent, "NeonBolt", Vector3(bolt_x, at.y, at.z + 0.12) + stroke[0] * k, Vector3(0.035, 0.22 * k, 0.03), tube, false, Vector3(0, 0, stroke[1]))
 
 
 ## The open bay on the south face: the roll-up wound into its box, the shop lit white-green behind,

@@ -6,7 +6,9 @@
 ##   side on a broken plinth, cables torn short; or the guts of the substation cabinet by the fence
 ##   (its rack of busbars and fuse carriers, ripped out and dragged into the yard). Either way the
 ##   current jumping between the terminals is what says it is live, and how often it jumps says
-##   how much is left. No warning lamp: red belongs to the machines.
+##   how much is left. Live means cold: the porcelain glows blue-white, a faint blue pool lies on
+##   the paving round it, and every second or two a short arc cracks between two terminals and
+##   blinks its light. No warning lamp: red belongs to the machines, amber to the tools.
 ## - scrap: the heap the last crew left, plates, bars, a wheel rim, a seat frame, an engine cover.
 ##   The pile a routine draws from lies around it.
 ## Drawn on every peer from the replicated record; nothing here touches gameplay.
@@ -16,11 +18,12 @@ const CombatFx = preload("res://scenes/actions/combat_fx.gd")
 const IRON := Color("2a2622")
 const RUST := Color("6b3a22")
 const STENCIL := Color("7d7663")
-const PORCELAIN := Color("cfc8b8")
 const FLAME := Color("ff7a2a")
 const SPARK := Color("f4e86a")
 ## The light of a live arc between terminals: blue-white. The tool amber stays the UI's signal.
 const ARC := Color("d4e2ff")
+## The arc's light lying on wet paving: the same cold, a step bluer so it reads as a colour.
+const POOL := Color("8fb4ff")
 ## The cabinet whose guts these are (run.gd STORES current); everything else is the fallen transformer.
 const CABINET_STORE := Vector2(-7, -11)
 
@@ -33,6 +36,10 @@ var _fill: float = 1.0
 var _time: float = 0.0
 var _next_arc: float = 0.5
 var _terminals: Array[Vector3] = []
+var _arc_light: OmniLight3D
+var _pool: MeshInstance3D
+var _glass: StandardMaterial3D
+var _blink: float = 0.0
 
 func _ready() -> void:
 	# The record places this node after adding it; build once it stands where it belongs.
@@ -42,8 +49,10 @@ func _build() -> void:
 	match kind:
 		"fire": _drum()
 		"current":
+			_glass = _paint(Color("d6e4f2"), 0.0, 0.3, 0.6)
 			if Vector2(global_position.x, global_position.z).distance_to(CABINET_STORE) < 1.5: _guts()
 			else: _transformer()
+			_live()
 		"scrap": _heap()
 	set_fill(_fill)
 	set_lit(_lit)
@@ -61,14 +70,63 @@ func set_lit(value: bool) -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
-	if kind == "current" and DisplayServer.get_name() != "headless":
+	if kind == "current" and _arc_light != null:
+		_blink = maxf(_blink - delta, 0.0)
+		var flash: float = _blink / 0.14
+		_arc_light.light_energy = lerpf(0.3, 2.2, flash)
+		_glass.emission_energy_multiplier = lerpf(0.6, 2.4, flash)
+		_pool.transparency = lerpf(0.55, 0.0, flash)
+		if DisplayServer.get_name() == "headless" or _terminals.size() < 2: return
 		_next_arc -= delta
-		if _next_arc <= 0.0 and _terminals.size() >= 2:
-			_next_arc = lerpf(2.2, 0.35, _fill) * randf_range(0.6, 1.4)
-			var a: Vector3 = to_global(_terminals[randi() % _terminals.size()])
-			var b: Vector3 = to_global(_terminals[randi() % _terminals.size()])
-			if a != b: CombatFx.beam(get_parent(), a, b, ARC, 0.12, 0.03)
-			CombatFx.spark(get_parent(), a, SPARK, 4)
+		if _next_arc <= 0.0:
+			# An idle crackle every second or two; a fuller store cracks a little more often.
+			_next_arc = randf_range(1.0, 2.0) * lerpf(1.3, 0.75, _fill)
+			var i: int = randi() % _terminals.size()
+			var a: Vector3 = to_global(_terminals[i])
+			var b: Vector3 = to_global(_terminals[(i + 1 + randi() % (_terminals.size() - 1)) % _terminals.size()])
+			CombatFx.beam(get_parent(), a, b, ARC, 0.12, 0.03)
+			CombatFx.spark(get_parent(), a, ARC, 4)
+			_blink = 0.14
+
+## What makes a current store read as live at rest: a cold light over the terminals, its pool on
+## the paving, and the cold glass (built by the fixture).
+func _live() -> void:
+	var centre := Vector3.ZERO
+	for t: Vector3 in _terminals: centre += t
+	centre /= maxf(1.0, float(_terminals.size()))
+	_arc_light = OmniLight3D.new()
+	_arc_light.light_color = ARC
+	_arc_light.omni_range = 3.2
+	_arc_light.omni_attenuation = 1.6
+	_arc_light.shadow_enabled = false
+	_arc_light.light_energy = 0.3
+	add_child(_arc_light)
+	_arc_light.position = centre + Vector3.UP * 0.25
+	# The pool: a soft radial of the arc's colour lying on the paving, additive, never a disc edge.
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(POOL, 0.34))
+	gradient.set_color(1, Color(POOL, 0.0))
+	var ramp := GradientTexture2D.new()
+	ramp.gradient = gradient
+	ramp.fill = GradientTexture2D.FILL_RADIAL
+	ramp.fill_from = Vector2(0.5, 0.5)
+	ramp.fill_to = Vector2(1.0, 0.5)
+	ramp.width = 64
+	ramp.height = 64
+	var wash := StandardMaterial3D.new()
+	wash.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	wash.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	wash.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	wash.albedo_texture = ramp
+	wash.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(2.6, 2.6)
+	_pool = MeshInstance3D.new()
+	_pool.mesh = plane
+	_pool.material_override = wash
+	_pool.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_pool)
+	_pool.position = Vector3(centre.x, 0.035, centre.z)
 
 # --- Fire: the warming drum ---------------------------------------------------------------------
 
@@ -133,7 +191,7 @@ func _transformer() -> void:
 	var iron := _paint(Color("5a6462"), 0.55, 0.5)
 	var edge := _paint(Color("9aa29e"), 0.4, 0.5)
 	var concrete := _paint(Color("6f6d68"), 0.0, 0.95)
-	var porcelain := _paint(PORCELAIN, 0.0, 0.35)
+	var porcelain := _glass
 	var cable := _paint(Color("111111"), 0.0, 0.9)
 	# The broken plinth it fell from: two concrete chunks, one tipped.
 	_part(_box(Vector3(0.7, 0.14, 0.5)), concrete, Vector3(-0.75, 0.07, 0.35)).rotation_degrees = Vector3(0, 22, 4)
@@ -162,7 +220,7 @@ func _transformer() -> void:
 func _guts() -> void:
 	var steel := _paint(Color("59605d"), 0.5, 0.55)
 	var copper := _paint(Color("7a5c3a"), 0.6, 0.45)
-	var porcelain := _paint(PORCELAIN, 0.0, 0.35)
+	var porcelain := _glass
 	var rack := Node3D.new()
 	add_child(rack)
 	rack.rotation_degrees = Vector3(0, -18, 62)

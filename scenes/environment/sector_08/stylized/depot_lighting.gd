@@ -28,6 +28,8 @@ const BAY_ENERGY := 45.0
 ## Where head 1 is aimed: the apron in front of the bays (yard u 16.5, v -0.5), where the
 ## micros back out. Clear of the lane and of the water source at (14.5, -8).
 const BAY_APRON := Vector3(13.3, 0.06, -9.8)
+## Neon floor bounce (decal emission) per unit of the marker's suggested energy (depot_lighting_neon_pool).
+const NEON_POOL_GAIN := 0.5
 ## The parked micro whose cabin lights are on over the bays (DepotEdges' EastLot), and its tubes.
 const CABIN_MICRO := "ParkedMicro2"
 const CABIN_TUBE := Color("d9ecdf")
@@ -44,7 +46,8 @@ var gate_lamp: SpotLight3D
 var _tv_light: OmniLight3D
 ## The caseta TV screen's material (DepotEdges'); the TV light follows its cuts.
 var _tv_screen: StandardMaterial3D
-## Neon that buzzes: [light, base energy, phase, glass material or null] per flickering sign.
+## Neon that buzzes: [wall light, base energy, phase, glass material or null, floor pool, pool
+## base energy] per flickering sign.
 var _neon_flicker: Array[Array] = []
 
 
@@ -335,9 +338,12 @@ func depot_lighting_build_secondaries() -> void:
 
 
 ## A neon fixture DepotEdges hung (meta kind contains "neon"): a small unshadowed light in the tube's
-## own colour, just in front of the tubes so it washes the wall and floor they face. A sign whose id
-## or kind says holo/flicker buzzes; if DepotEdges publishes the sign's material (meta "glass"), the
-## light follows its emission instead of keeping a rhythm of its own.
+## own colour just in front of the tubes, washing the wall they hang on, and the tubes' bounce on the
+## wet floor below: a soft unshadowed pool aimed steeply down in front of the fixture (the floor
+## shader damps grazing light, so a sideways throw never reaches the paving). Both key off the
+## marker, so the pool follows the fixture wherever DepotEdges hangs it. A sign whose id or kind says
+## holo/flicker buzzes; if DepotEdges publishes the sign's material (meta "glass"), both lights follow
+## its emission instead of keeping a rhythm of their own.
 func depot_lighting_neon(id: String, marker: Node3D) -> void:
 	var tube := OmniLight3D.new()
 	tube.name = "Neon" + id
@@ -345,14 +351,77 @@ func depot_lighting_neon(id: String, marker: Node3D) -> void:
 	tube.global_position = marker.global_position - marker.global_basis.z * 0.25
 	tube.light_color = Color(marker.get_meta("color", FLUORESCENT))
 	tube.light_energy = minf(float(marker.get_meta("energy", 1.0)), 2.5)
-	tube.omni_range = clampf(float(marker.get_meta("range", 3.0)), 1.0, 5.0)
+	# Short enough that it never reaches the point where the fixture mirrors in the damp floor
+	# toward the camera (about 1.6x its height away at the 38 degree pitch): there the floor's hard
+	# glint turned a low LED strip into a floating oval. The floor colour comes from the pool below.
+	var mirror_reach: float = maxf(marker.global_position.y - YARD_CENTRE.y, 0.5) * 1.62 * 0.8
+	tube.omni_range = clampf(minf(float(marker.get_meta("range", 3.0)), mirror_reach), 1.0, 5.0)
 	tube.omni_attenuation = 1.3
-	tube.light_specular = 0.25
+	tube.light_specular = 0.1
 	tube.shadow_enabled = false
+	var pool := depot_lighting_neon_pool(id, marker, tube.light_color)
 	var words: String = (id + " " + str(marker.get_meta("kind", ""))).to_lower()
 	if "holo" in words or "flicker" in words:
 		var glass: Variant = marker.get_meta("glass") if marker.has_meta("glass") else null
-		_neon_flicker.append([tube, tube.light_energy, float(_neon_flicker.size()) * 1.37, glass if glass is BaseMaterial3D else null])
+		_neon_flicker.append([tube, tube.light_energy, float(_neon_flicker.size()) * 1.37, glass if glass is BaseMaterial3D else null, pool, pool.emission_energy if pool != null else 0.0])
+
+
+## The floor bounce under a neon fixture: the tubes' colour lying on the wet paving in front of it.
+## Not a spot light: the floor shader damps any light that does not arrive steeply (a low LED strip's
+## spill barely registered) and answers every local light with a hard-cored damp glint that turned a
+## coloured spot into a floating oval, and a cone also smeared the colour over the nearest prop's
+## face. So the bounce is a soft emissive decal a few decimetres deep, lying on the floor only, sized
+## by the fixture's height and placed in front of it along the marker's aim, slid along the wall
+## toward the yard (a tube sign lights a broad lobe; the side that matters is the one the fight is
+## on). It keys off the marker, so it follows the fixture wherever DepotEdges hangs it.
+func depot_lighting_neon_pool(id: String, marker: Node3D, color: Color) -> Decal:
+	var height: float = marker.global_position.y - YARD_CENTRE.y
+	if height < 0.6:
+		return null
+	var out: Vector3 = -marker.global_basis.z
+	out.y = 0.0
+	out = out.normalized() if out.length() > 0.05 else Vector3.ZERO
+	var along: Vector3 = YARD_CENTRE - marker.global_position
+	along.y = 0.0
+	along -= out * along.dot(out)
+	along = along.normalized() if along.length() > 0.05 else Vector3.ZERO
+	var radius: float = clampf(height * 0.75, 1.8, 3.2)
+	var throw: Vector3 = out * (radius * 0.75) + along * clampf(height * 0.6, 0.0, 2.2)
+	var pool := Decal.new()
+	pool.name = "NeonPool" + id
+	add_child(pool)
+	pool.global_position = Vector3(marker.global_position.x, YARD_CENTRE.y + 0.05, marker.global_position.z) + throw
+	if out != Vector3.ZERO: pool.global_basis = Basis.looking_at(out, Vector3.UP)
+	# Longer along the wall than away from it: a sign's bounce is a band, not a disc.
+	pool.size = Vector3(radius * 2.6, 0.5, radius * 1.8)
+	pool.texture_emission = depot_lighting_pool_texture()
+	pool.modulate = color
+	# A high sign spreads its colour thinner than a strip at knee height.
+	pool.emission_energy = clampf(float(marker.get_meta("energy", 1.0)), 0.5, 2.5) * NEON_POOL_GAIN * clampf(1.8 / height, 0.5, 1.0)
+	pool.albedo_mix = 0.0
+	pool.upper_fade = 0.6
+	pool.lower_fade = 0.6
+	pool.normal_fade = 0.5
+	pool.cull_mask = 0xFFFFF
+	return pool
+
+
+## One soft radial falloff shared by every neon bounce.
+func depot_lighting_pool_texture() -> Texture2D:
+	if not _materials.has("neon_pool_texture"):
+		var gradient := Gradient.new()
+		gradient.set_color(0, Color(1, 1, 1, 1))
+		gradient.set_color(1, Color(0, 0, 0, 1))
+		gradient.add_point(0.45, Color(0.42, 0.42, 0.42, 1))
+		var texture := GradientTexture2D.new()
+		texture.gradient = gradient
+		texture.fill = GradientTexture2D.FILL_RADIAL
+		texture.fill_from = Vector2(0.5, 0.5)
+		texture.fill_to = Vector2(0.5, 0.0)
+		texture.width = 64
+		texture.height = 64
+		_materials["neon_pool_texture"] = texture
+	return _materials["neon_pool_texture"]
 
 
 ## Over the bays: the night cleaner is working through the micro DepotEdges parked in the middle of
@@ -513,13 +582,17 @@ func _process(delta: float) -> void:
 	for entry: Array in _neon_flicker:
 		var tube := entry[0] as OmniLight3D
 		var glass := entry[3] as BaseMaterial3D
+		var level: float
 		if glass != null:
-			tube.light_energy = float(entry[1]) * clampf(glass.emission_energy_multiplier, 0.0, 2.0)
-			continue
-		# A cheap holo ballast: mostly on, dropping out in short glitches.
-		var t: float = _flicker_time + float(entry[2])
-		var glitch: float = 1.0 if fposmod(sin(floorf(t * 9.0) * 12.9898) * 43758.5453, 1.0) > 0.82 else 0.0
-		tube.light_energy = float(entry[1]) * (1.0 - 0.75 * glitch) * (0.9 + 0.1 * sin(t * 31.0))
+			level = clampf(glass.emission_energy_multiplier, 0.0, 2.0)
+		else:
+			# A cheap holo ballast: mostly on, dropping out in short glitches.
+			var t: float = _flicker_time + float(entry[2])
+			var glitch: float = 1.0 if fposmod(sin(floorf(t * 9.0) * 12.9898) * 43758.5453, 1.0) > 0.82 else 0.0
+			level = (1.0 - 0.75 * glitch) * (0.9 + 0.1 * sin(t * 31.0))
+		tube.light_energy = float(entry[1]) * level
+		var pool := entry[4] as Decal
+		if pool != null: pool.emission_energy = float(entry[5]) * level
 	if _tv_light != null:
 		# The TV's cuts: follow the screen DepotEdges flickers, or keep a slow rhythm of our own.
 		if _tv_screen != null: _tv_light.light_energy = 0.4 * _tv_screen.emission_energy_multiplier

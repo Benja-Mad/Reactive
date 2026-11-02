@@ -51,7 +51,9 @@ const ZINC_DARK := Color("464f52")
 const RUST := Color("6a4330")
 const RUST_DARK := Color("3f2b22")
 const IRON := Color("2e2c2a")
-const RUBBER := Color("1d1d1e")
+const RUBBER := Color("343538")
+## A tyre's worn sidewall, the lighter ring that keeps a black tyre from reading as a hole.
+const RUBBER_WALL := Color("5a5b5f")
 const OCHRE := Color("8c7a4a")
 const CREAM := Color("a8a290")
 const CARDBOARD := Color("7a6449")
@@ -308,12 +310,12 @@ func depot_yard_floor_text(text: String, u: float, v: float, pixel: float) -> vo
 	label.font_size = 12
 	label.outline_size = 0
 	label.pixel_size = pixel
-	label.modulate = PAINT_TEXT
+	# Worn paint, pre-mixed with the concrete so it can be opaque: an opaque (alpha-cut) label is
+	# drawn in the floor's pass and depth-tested, so dogs and operators stand over it, never under.
+	label.modulate = Color(PAINT_TEXT.r, PAINT_TEXT.g, PAINT_TEXT.b).lerp(Color(0.3, 0.32, 0.34), 0.72)
 	label.shaded = true
 	label.double_sided = false
-	# Worn paint: half there, so it never reads as an overlay.
-	label.alpha_cut = Label3D.ALPHA_CUT_DISABLED
-	label.render_priority = -1
+	label.alpha_cut = Label3D.ALPHA_CUT_DISCARD
 	label.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	label.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# Lying flat, reading left to right on screen, its top toward the gate; stretched along the
@@ -359,6 +361,8 @@ func depot_yard_commit(kit: Kit, title: String) -> void:
 func depot_yard_tyre(kit: Kit, where: Transform3D, standing: bool = false) -> void:
 	var tread: Basis = Basis(Vector3.RIGHT, PI * 0.5) if standing else Basis()
 	kit.torus(Transform3D(where.basis * tread, where.origin), 0.22, 0.46, RUBBER)
+	# The sidewall facing up (or out): a worn grey ring just proud of the tread.
+	kit.torus(Transform3D(where.basis * tread, where.origin + (where.basis * tread).y * 0.075), 0.25, 0.4, RUBBER_WALL)
 
 ## The sereno's warming post at the west drum (fire store (-15, 6)): a plastic chair turned to the
 ## fire, a thermos and a radio on an upturned crate, the corrugated sheet he props up against the
@@ -487,9 +491,21 @@ func depot_yard_wash_bay() -> Kit:
 	var reel_shape := BoxShape3D.new()
 	reel_shape.size = Vector3(0.75, 0.95, 0.7)
 	kit.solids.append([reel_shape, reel * Transform3D(Basis(), Vector3(0, 0.475, 0))])
-	var hose: Array[Vector3] = [reel * Vector3(0.1, 0.35, 0.3), at(source.x - 1.9, source.y - 2.2, 0.03), at(source.x - 0.6, source.y - 2.6, 0.03), at(source.x + 0.2, source.y - 1.2, 0.03), at(source.x - 0.4, source.y - 0.4, 0.03)]
-	for i: int in hose.size() - 1:
-		kit.cable(hose[i], hose[i + 1], 0.0, 0.05, Color("5d7a57"), 3)
+	# The hose: a thick, dark green rubber run that sags off the reel and lies in soft loops on the
+	# pad (a Catmull-Rom through the lay points, so it never kinks into a zig-zag).
+	var lay: Array[Vector3] = [reel * Vector3(0.1, 0.35, 0.3), at(source.x - 1.7, source.y - 2.9, 0.07), at(source.x - 0.7, source.y - 2.5, 0.07), at(source.x - 0.1, source.y - 1.5, 0.07), at(source.x - 0.4, source.y - 0.5, 0.07)]
+	var run: Array[Vector3] = []
+	for i: int in lay.size() - 1:
+		var p0: Vector3 = lay[maxi(i - 1, 0)]
+		var p3: Vector3 = lay[mini(i + 2, lay.size() - 1)]
+		for k: int in 6:
+			var t: float = k / 6.0
+			var point: Vector3 = lay[i].cubic_interpolate(lay[i + 1], p0, p3, t)
+			if i > 0: point.y = maxf(point.y, 0.07)
+			run.append(point)
+	run.append(lay[lay.size() - 1])
+	for i: int in run.size() - 1:
+		kit.cable(run[i], run[i + 1], 0.06 if i < 3 else 0.0, 0.065, Color("34502f"), 2 if i < 3 else 1)
 	return kit
 
 ## The concrete pole the gárgola snapped (current store (-2, 12)): the stub with its rebar on the
