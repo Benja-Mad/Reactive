@@ -3,6 +3,9 @@
 extends Node3D
 
 const PAINT = preload("res://scenes/environment/sector_08/stylized/painted_surface.gdshader")
+const DepotYard = preload("res://scenes/environment/sector_08/stylized/depot_yard.gd")
+const DepotEdges = preload("res://scenes/environment/sector_08/stylized/depot_edges.gd")
+const DepotLighting = preload("res://scenes/environment/sector_08/stylized/depot_lighting.gd")
 const COURT := Rect2(-20, -22, 36, 34)
 var enabled: bool = false
 var changed: Array[Dictionary] = []
@@ -151,6 +154,13 @@ func setup(arena: Node3D) -> void:
 	district_lighting.name = "DistrictLightingComposition"
 	add_child(district_lighting)
 	district_lighting.setup(arena,self)
+	# The depot: Línea 08's night lot. The yard and its edges go first so the light can see them.
+	for layer: Array in [["DepotYard", DepotYard], ["DepotEdges", DepotEdges], ["DepotLighting", DepotLighting]]:
+		var depot: Node3D = layer[1].new()
+		depot.name = layer[0]
+		add_child(depot)
+		depot.setup(arena, self)
+		replacements.append(depot)
 	# The visibility helper collected the original yard before these replacement meshes existed.
 	# Register only this new subtree, so foreground fences still fade around the operator.
 	var sightline: Node = arena.get_parent().get_node_or_null("SurvivorRun/Sightline")

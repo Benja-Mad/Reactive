@@ -1,8 +1,8 @@
-// Held water, drawn in the crew's pixel language. Lying down it is a puddle on the yard floor: an
-// uneven wet patch that darkens the ground under it, glossy streaks where the lamps reflect, a lip
-// that catches the light on the near side and shades on the far one, and the rain landing in it as
-// little rings. Raised, it gathers into a sphere with circulating bands. An explicit wall
-// command makes a curtain with climbing streams instead.
+// Held water, drawn in the crew's pixel language. Lying down it is a puddle on the yard floor: a
+// blue-grey mirror of the overcast with the element's teal in its shallows, the yard's real lights
+// smeared down into it (read from the screen above it, broken by ripples), a faint cyan lip on
+// the near side and the rain landing in it as little rings. Raised, it gathers into a sphere with
+// circulating bands. An explicit wall command makes a curtain with climbing streams instead.
 // It fades by dithering, never by going soft.
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_opaque, cull_back, shadows_disabled, fog_disabled;
@@ -19,6 +19,14 @@ uniform vec4 shallow_color : source_color = vec4(0.082, 0.353, 0.42, 1.0);
 uniform vec4 line_color : source_color = vec4(0.184, 0.663, 0.761, 1.0);
 uniform vec4 glint_color : source_color = vec4(0.576, 0.953, 1.0, 1.0);
 uniform vec4 foam_color : source_color = vec4(0.937, 0.996, 1.0, 1.0);
+// The lying puddle's own palette: the mirror, what it reflects, its lip and the rain on it.
+uniform vec4 mirror_color : source_color = vec4(0.07, 0.105, 0.135, 1.0);
+uniform vec4 sky_color : source_color = vec4(0.17, 0.23, 0.28, 1.0);
+// How far up the screen a puddle looks for what it reflects (per tap, six taps), and how strongly.
+uniform float reflect_reach = 0.022;
+uniform float reflect_gain = 0.55;
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+uniform vec4 rain_color : source_color = vec4(0.62, 0.8, 0.84, 1.0);
 // About two pixels of the yard's grid, in metres.
 uniform float line = 0.06;
 
@@ -131,27 +139,40 @@ void fragment() {
 		vec2 p = local.xz;
 		sdf = puddle_sdf(p);
 		if (sdf > 0.0) discard;
-		// The water itself: the floor seen through it, darkened and cooled.
-		alpha = 0.6;
-		// Lamps reflected as thin streaks straight down the screen, as reflections in a puddle run,
-		// broken into lengths and in two steps.
-		float column = hash13(vec3(floor(FRAGCOORD.x), seed, 3.0));
-		float length_on = step(0.5, value_noise(vec3(floor(FRAGCOORD.x) * 0.7, FRAGCOORD.y * 0.06, seed)));
-		float streak = column * length_on;
-		color = mix(color, shallow_color.rgb, step(0.86, streak));
-		color = mix(color, line_color.rgb, step(0.95, streak) * 0.7);
-		alpha = mix(alpha, 0.8, step(0.86, streak));
-		// The lip: which way the edge faces decides whether it catches the light (toward the
-		// camera) or sits in its own shade (away from it).
+		// The water itself: a blue-grey mirror over the paving, never a hole. Its far half gives back
+		// the overcast, its near half the deeper water; the element's own teal sits in the shallows
+		// inside the rim, two soft steps, so a puddle reads as water at a glance.
+		vec3 view_far = (INV_VIEW_MATRIX * vec4(0.0, 0.0, -1.0, 0.0)).xyz;
+		float far_half = clamp(dot(normalize(vec2(view_far.x, view_far.z)), (MODEL_MATRIX * vec4(p.x, 0.0, p.y, 0.0)).xz / max(extent.x, extent.z)) + 0.5, 0.0, 1.0);
+		float sky = step(0.5, far_half + (value_noise(vec3(world.xz * 0.9, seed)) - 0.5) * 0.3);
+		color = mix(mirror_color.rgb, sky_color.rgb, sky * 0.75);
+		float shallow = step(-0.34, sdf);
+		float shallower = step(-0.15, sdf);
+		color = mix(color, shallow_color.rgb * 0.75, shallow * 0.3 + shallower * 0.2);
+		alpha = 0.84 - 0.12 * shallow;
+		// Reflections are the real ones: whatever bright stands above the puddle on screen (the
+		// mast, the drums, lit windows, a sparking cable) smeared down into it and broken by the
+		// ripples into soft dithered bands. No invented streaks.
+		float wobble = (value_noise(vec3(world.x * 2.2, world.z * 6.0 + TIME * 0.7, seed)) - 0.5) * 0.008;
+		vec3 mirrored = vec3(0.0);
+		for (int i = 1; i <= 6; i++) {
+			float k = float(i);
+			vec3 above = textureLod(screen_texture, SCREEN_UV + vec2(wobble * k, -reflect_reach * k), 2.0).rgb;
+			float lum = dot(above, vec3(0.299, 0.587, 0.114));
+			mirrored = max(mirrored, above * smoothstep(0.16, 0.55, lum) * (1.0 - k * 0.1));
+		}
+		float ripples = value_noise(vec3(world.x * 1.4, world.z * 7.0 - TIME * 0.5, seed + 4.0));
+		float kept = dither(FRAGCOORD.xy, smoothstep(0.2, 0.7, ripples));
+		color += min(mirrored, vec3(1.0)) * reflect_gain * kept * (1.0 - shallower * 0.5);
+		// The lip: on the side facing the camera a faint cyan edge, about two pixels and half
+		// there; the far side simply ends against the paving.
 		float e = 0.05;
 		vec2 grad = vec2(puddle_sdf(p + vec2(e, 0.0)) - sdf, puddle_sdf(p + vec2(0.0, e)) - sdf);
 		vec3 outward = normalize((MODEL_MATRIX * vec4(grad.x, 0.0, grad.y, 0.0)).xyz + vec3(0.0001));
-		float lip = step(-line, sdf);
-		float near = step(0.25, outward.z);
-		float far = step(outward.z, -0.25);
-		color = mix(color, glint_color.rgb, lip * near);
-		color = mix(color, vec3(0.01, 0.02, 0.035), lip * far);
-		alpha = mix(alpha, 0.95, lip * max(near, far));
+		float lip = step(-line * 1.6, sdf);
+		float near = smoothstep(0.0, 0.6, outward.z);
+		color = mix(color, line_color.rgb * 0.8, lip * near * 0.42);
+		alpha = mix(alpha, 0.66, lip * (1.0 - near));
 		// Rain: each patch of floor gets a drop now and then, a ring that opens and breaks up.
 		vec2 cell = floor(world.xz / 0.7);
 		float h = hash13(vec3(cell, 7.0 + seed));
@@ -159,8 +180,7 @@ void fragment() {
 		float age = fract(TIME * 0.9 + h * 7.0);
 		float ring = band(length((world.xz - centre) * vec2(1.0, 1.25)) - age * 0.3, line * 0.9);
 		float drop = ring * step(age, 0.6) * step(sdf, -0.1) * dither(FRAGCOORD.xy, 1.0 - age * 1.2);
-		color = mix(color, glint_color.rgb, drop);
-		alpha = max(alpha, drop * 0.9);
+		color = mix(color, rain_color.rgb * 0.8, drop * 0.7);
 		// A pulse through the program sends one bright ring racing out from the middle.
 		float r = length(p / (extent.xz * 0.5));
 		color = mix(color, line_color.rgb, band(r - fract(t * 1.5), 0.05) * step(0.05, pulse));

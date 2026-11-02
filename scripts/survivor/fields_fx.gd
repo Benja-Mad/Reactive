@@ -22,6 +22,8 @@ const FLAME_CORE := Color("ffd27a")
 const COLD := Color("4fc3d6")
 const SPARK := Color("f4e86a")
 const CORE := Color("fffdf0")
+## A live store's own light: blue-white arc, not the tool amber.
+const ARC_LIGHT := Color("d4e2ff")
 const HALO := Color(0.95, 0.78, 0.25, 0.34)
 ## Running water, deep to bright, the same ramp the matter's own water is drawn in.
 const WATER_DEEP := Color("1d6f80")
@@ -489,10 +491,13 @@ func _hum() -> void:
 		var record: Dictionary = world.records[id]
 		var charge: int = int(record.get("charge", 0))
 		if charge <= 0: continue
+		# A live store (the downed cable, the cabinet's guts) lights its surroundings blue-white in a
+		# stutter, as arcs do; the tool amber is the UI's. Charged matter keeps its own hum.
+		var store: bool = record.get("source", false) and record.get("material", "") == "current"
 		if not _live.has(id):
 			if _live.size() >= 8: continue
 			var light := OmniLight3D.new()
-			light.light_color = SPARK
+			light.light_color = ARC_LIGHT if store else SPARK
 			light.omni_range = 3.5
 			light.shadow_enabled = false
 			add_child(light)
@@ -500,7 +505,14 @@ func _hum() -> void:
 		var hum: OmniLight3D = _live[id]
 		hum.global_position = record["position"] + Vector3.UP * (0.9 if record["shape"] == "wall" else 0.45)
 		_rng.seed = hash(id * 31 + int(_time / BEAT))
-		hum.light_energy = (1.0 + 0.6 * charge) * (1.0 if steady else _rng.randf_range(0.55, 1.15))
+		if store:
+			# Mostly a low glow, now and then a short blink when an arc jumps (re-rolled every
+			# 0.15 s, not every beat: a stutter, never a strobe).
+			_rng.seed = hash(id * 31 + int(_time / 0.15))
+			var burst: bool = _rng.randf() < 0.2
+			hum.light_energy = (1.0 + 0.6 * charge) * (0.8 if steady else (_rng.randf_range(1.3, 1.9) if burst else 0.25))
+		else:
+			hum.light_energy = (1.0 + 0.6 * charge) * (1.0 if steady else _rng.randf_range(0.55, 1.15))
 
 func _process(delta: float) -> void:
 	_draw_marks(delta)

@@ -106,7 +106,8 @@ func _ready() -> void:
 	_light.shadow_enabled = false
 	add_child(_light)
 	if support:
-		_light.light_color = Color(0.45, 0.9, 1.0)
+		# Water carries a cold pale tint of the night, not a saturated cyan pool on the floor.
+		_light.light_color = Color(0.70, 0.84, 0.88)
 		_light.omni_range = 5.0
 		for index: int in 4: _animas.append(_make_anima())
 		return

@@ -26,10 +26,18 @@ func audit() -> void:
 	probe.motion = frame.global_basis.z*2.8
 	assert(space.cast_motion(probe)[0] > 0.999, "Capsule cannot cross the open frame")
 	probe.motion = Vector3.ZERO
-	probe.transform.origin = frame.global_transform * Vector3(3.0,1.1,0)
-	probe.motion = -frame.global_basis.x
-	assert(space.cast_motion(probe)[0] < 1.0, "Frame post lost its solid collision")
-	probe.motion = Vector3.ZERO
+	if frame.is_visible_in_tree():
+		probe.transform.origin = frame.global_transform * Vector3(3.0,1.1,0)
+		probe.motion = -frame.global_basis.x
+		assert(space.cast_motion(probe)[0] < 1.0, "Frame post lost its solid collision")
+		probe.motion = Vector3.ZERO
+	else:
+		# The depot retired the mid-yard «C/S TRANSIT» frame (depot_yard.gd): a bus stop with no
+		# street. Retired, it must leave no solid behind where its posts stood.
+		probe.transform.origin = frame.global_transform * Vector3(2.0,1.1,0)
+		assert(space.intersect_shape(probe,1).is_empty(), "Retired frame left a solid post")
+		probe.transform.origin = frame.global_transform * Vector3(-2.0,1.1,0)
+		assert(space.intersect_shape(probe,1).is_empty(), "Retired frame left a solid post")
 	for name: String in ["Barrier_Field", "Hologram_001", "Stack_Diagnostic"]:
 		assert(yard.get_node("Obstacle_"+name).disabled, "Projection collider remains active")
 	var old_court: Node = arena.find_child("ContainmentCourt",true,false)
