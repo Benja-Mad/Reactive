@@ -121,13 +121,25 @@ func rule(kind: String, points: PackedVector3Array) -> void:
 		"sling":
 			CombatFx.ripple(get_parent(), points[0], GRAVITY, Catalog.VORTEX_RING + 1.2, 0.3)
 			get_tree().call_group("camera_shakers", "add_shake", 0.04)
+		# A drum set off: a ring of flame out to what it lights, and the camera jolts.
+		"flare":
+			CombatFx.burst(get_parent(), points[0] + Vector3.UP * 0.9, HOT)
+			CombatFx.ripple(get_parent(), points[0], HOT, 3.5, 0.4)
+			CombatFx.spark(get_parent(), points[0] + Vector3.UP * 1.2, HOT, 16)
+			get_tree().call_group("camera_shakers", "add_shake", 0.05)
+		# A heap burst by a hit: metal flying out to the edge of what it reaches.
+		"shrapnel":
+			CombatFx.burst(get_parent(), points[0] + Vector3.UP * 0.6, BRASS)
+			CombatFx.ripple(get_parent(), points[0], BRASS, 3.5, 0.3)
+			CombatFx.spark(get_parent(), points[0] + Vector3.UP * 0.7, BRASS, 18)
+			get_tree().call_group("camera_shakers", "add_shake", 0.05)
 		# Two machines meeting at speed.
 		"bowl":
 			CombatFx.burst(get_parent(), points[0] + Vector3.UP * 0.7, BURST)
 			CombatFx.spark(get_parent(), points[0] + Vector3.UP * 0.8, BRASS, 8)
 
-## A draught drawn from the yard, running low along the floor to where a routine acts: water
-## off a puddle, burning fuel off a drum, current crawling off a transformer, scrap dragged off a heap.
+## A draught running low along the floor to where a routine acts, from the operator's hands or
+## off the puddle «on wade» works.
 func stream(from: Vector3, to: Vector3, duration: float, substance: String = "water") -> void:
 	_streams.append({"from": from + Vector3.UP * 0.08, "to": to + Vector3.UP * 0.08, "left": duration + 0.22, "life": duration, "colors": STREAM.get(substance, STREAM["water"])})
 	CombatFx.ripple(get_parent(), from, STREAM.get(substance, STREAM["water"])[1], 1.3, 0.4)

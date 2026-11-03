@@ -67,7 +67,22 @@ cada rutina elige cuál vierte (clic en su nodo de origen en el editor: agua →
 | Chatarra | 2 montones de chatarra + lo que dejan los restos | pesa (masa 3), frena 35 %, conduce, guarda el calor y se rompe en metralla |
 
 Las fuentes también actúan solas: una máquina que pasa junto a un tambor se prende, una que se
-acerca a un transformador recibe la descarga (se recarga cada 5 s). Cada máquina destruida deja
+acerca a un transformador recibe la descarga (se recarga cada 5 s).
+
+**Los depósitos se disparan** (2 de noviembre de 2026; `rules._trip`). La materia que lanza el
+equipo hace estallar el depósito que toca, que después descansa 6 s antes de poder volver a
+dispararse. El depósito no desaparece:
+
+| Depósito | Lo dispara | Qué pasa |
+|---|---|---|
+| Tambor | fuego, o chatarra o corriente calientes | se aviva y prende a toda máquina a 3,5 m; después queda bajo y humeando 4 s |
+| Transformador | agua, hielo, chatarra, corriente o fuego | se sobrecarga y descarga sobre todo lo que está a 6 m (plasma si fue fuego); queda sin carga |
+| Cañería | corriente o materia cargada | la descarga recorre todo su charco y 1,5 m más |
+| Cañería | hielo | congela lo que está parado en su charco |
+| Chatarra | materia lanzada a 4 m/s o más (`push`, honda de un remolino) | revienta en metralla: hasta 8 de daño a 3,5 m, y empuja |
+
+Así el patio pesa sin ser requisito. Llevar la pelea hacia un depósito y lanzarle lo justo es una
+jugada, y las rutinas funcionan igual lejos de ellos. Cada máquina destruida deja
 medio trago de chatarra donde cayó; dos caídas juntas hacen un montón.
 
 **Los mismos pasos, otro resultado.** `heat` aviva el fuego (+4 s), pone la chatarra al rojo y

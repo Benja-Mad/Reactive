@@ -1,7 +1,7 @@
 ## Fire, current and scrap act by themselves and on each other, with no water between them: a
-## routine draws any of the four from where the yard keeps it, fire lights machines and passes
-## from one to the next, current jumps to the nearest body and is spent, scrap is what wrecks
-## leave, and matter touching matter reacts.
+## routine pours any of the four from its operator's hands, fire lights machines and passes from
+## one to the next, current jumps to the nearest body and is spent, scrap is what wrecks leave,
+## matter touching matter reacts, and the crew's matter sets off the yard's stores.
 extends "res://tests/survivor/validate.gd"
 const Catalog = preload("res://scripts/matter/materials.gd")
 const Build = preload("res://scripts/survivor/build.gd")
@@ -236,6 +236,55 @@ func test() -> void:
 	thrown.shove = Vector3(14, 0, 0)
 	await frames(12)
 	check("thrown_machine_bowls", pin.health < pin_health and run.spellwork.rules.stats["bowled"] >= 1)
+	await clear_world()
+
+	# --- The yard's stores are hazards: the crew's matter sets them off, then they rest ---------------
+	var stats: Dictionary = run.spellwork.rules.stats
+	player.global_position = Vector3(0, 1.15, 4)
+	store = run.world.add_source(Vector3(0, 0.1, 0), "fire")
+	var torch: Node3D = machine(870, Vector3(2.6, 0.05, 0))
+	await frames(2)
+	matter("fire", Vector3(1.5, 0.07, 0))
+	beat()
+	check("drum_flares_at_crew_fire", stats["flared"] == 1 and torch.temp >= 2 and float(run.world.records[store].get("quenched_left", 0.0)) > 0.0)
+	matter("fire", Vector3(-1.5, 0.07, 0))
+	beat()
+	check("store_rests_after_going_off", stats["flared"] == 1)
+	await clear_world()
+	store = run.world.add_source(Vector3(0, 0.1, 0), "current")
+	var wired: Node3D = machine(871, Vector3(5.2, 0.05, 0))
+	await frames(2)
+	var wired_health: float = wired.health
+	matter("water", Vector3(1.5, 0.07, 0))
+	beat()
+	check("transformer_overloads_on_water", stats["overloaded"] == 1 and wired.health < wired_health and int(run.world.records[store].get("charge", 0)) == 0)
+	await clear_world()
+	store = run.world.add_source(Vector3(0, 0.1, 0))
+	var wader: Node3D = machine(872, Vector3(1.8, 0.05, 0))
+	await frames(2)
+	var wader_health: float = wader.health
+	matter("current", Vector3(-1.5, 0.07, 0))
+	beat()
+	check("main_carries_current_through_its_pool", stats["electrified"] == 1 and wader.health < wader_health)
+	await clear_world()
+	store = run.world.add_source(Vector3(0, 0.1, 0))
+	var skater: Node3D = machine(873, Vector3(1.8, 0.05, 0))
+	await frames(2)
+	var ice: int = matter("water", Vector3(-1.5, 0.07, 0))
+	run.world.execute(1, "freeze", ice)
+	beat()
+	check("main_freezes_what_stands_in_it", stats["iced"] == 1 and skater.frozen > 0.0)
+	await clear_world()
+	store = run.world.add_source(Vector3(0, 0.1, 0), "scrap")
+	var target: Node3D = machine(874, Vector3(2.5, 0.05, 0))
+	await frames(2)
+	var target_health: float = target.health
+	var lump: int = matter("scrap", Vector3(-1.5, 0.07, 0))
+	beat()
+	check("heap_ignores_matter_at_rest", stats["shrapnel"] == 0)
+	run.world.records[lump]["velocity"] = Vector3(6, 0, 0)
+	beat()
+	check("thrown_matter_bursts_a_heap", stats["shrapnel"] == 1 and target.health < target_health and run.world.records.has(store))
 	await clear_world()
 
 	print("SUBSTANCE CHECKS ", JSON.stringify(checks))

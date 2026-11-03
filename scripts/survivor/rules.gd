@@ -67,7 +67,8 @@ func discharge(record: Dictionary) -> void:
 	_budget = saved
 ## Running totals, for the checks and the soak run.
 var stats: Dictionary = {"scalded": 0, "frozen": 0, "dried": 0, "melted": 0, "boiled": 0, "chilled": 0, "arcs": 0, "jumps": 0, "longest": 0, "impacts": 0, "capped": 0,
-	"ignited": 0, "spread": 0, "quenched": 0, "reddened": 0, "detonated": 0, "grounded": 0, "crushed": 0, "bowled": 0}
+	"ignited": 0, "spread": 0, "quenched": 0, "reddened": 0, "detonated": 0, "grounded": 0, "crushed": 0, "bowled": 0,
+	"flared": 0, "overloaded": 0, "electrified": 0, "iced": 0, "shrapnel": 0}
 
 func count(what: String, amount: int = 1) -> void:
 	stats[what] = int(stats.get(what, 0)) + amount
@@ -87,7 +88,7 @@ func tick(delta: float, enemies: Array[Node3D]) -> void:
 	_budget = CAP
 	for enemy: Node3D in enemies: _settle(enemy)
 	_spread(enemies)
-	_contact()
+	_contact(enemies)
 	_ring(enemies)
 	for id: int in world.records.keys():
 		if not world.records.has(id): continue
@@ -357,8 +358,9 @@ func warm(enemy: Node3D) -> void:
 
 ## Two pieces of matter touching react by what they carry, with no machine between them: water
 ## puts fire out and boils off it, fire heats scrap red, hot scrap boils water and cools, current
-## turns to plasma in fire, and anything burning sets off nanites it touches.
-func _contact() -> void:
+## turns to plasma in fire, and anything burning sets off nanites it touches. The crew's matter
+## reaching one of the yard's stores sets it off (`_trip`).
+func _contact(enemies: Array[Node3D]) -> void:
 	var ids: Array = world.records.keys()
 	for i: int in ids.size():
 		for j: int in range(i + 1, ids.size()):
@@ -367,6 +369,9 @@ func _contact() -> void:
 			var b: Dictionary = world.records[ids[j]]
 			# The yard's sources stand apart: a burst main does not put a drum out.
 			if (a.get("source", false) and b.get("source", false)) or not _touching(a, b): continue
+			if a.get("source", false): _trip(a, b, enemies)
+			elif b.get("source", false): _trip(b, a, enemies)
+			if not world.records.has(ids[i]) or not world.records.has(ids[j]): continue
 			_react(a, b)
 			if world.records.has(ids[i]) and world.records.has(ids[j]): _react(b, a)
 
@@ -413,6 +418,77 @@ func _react(hot: Dictionary, other: Dictionary) -> void:
 		return
 	if world.records.has(hot_id) and world.records.has(other_id) and int(hot.get("charge", 0)) > 0 and other["attachments"].has("nanites") and _spend():
 		_detonate(other)
+
+# --- The yard's stores, set off ----------------------------------------------------------------
+
+## The stores are hazards, not fuel: what a routine throws at one sets it off, and then it rests a
+## while before it can go again. A drum fed fire or hot metal flares, lights every machine round
+## it and burns low; a transformer fed water, metal, current or fire overloads and lets go at
+## everything near (plasma, if it was fire); a burst main carries a charge through its whole pool,
+## or freezes what stands in it when ice reaches it; a heap struck by thrown matter bursts into
+## shrapnel. The store itself stays where it was.
+const TRIP_REST := 6.0
+const FLARE_RADIUS := 3.5
+const OVERLOAD_RADIUS := 6.0
+const POOL_REACH := 1.5
+const SHRAPNEL_RADIUS := 3.5
+const SHRAPNEL_DAMAGE := 8.0
+## How fast thrown matter must be going to burst a heap, m/s.
+const THROWN := 4.0
+func _trip(store: Dictionary, matter: Dictionary, enemies: Array[Node3D]) -> void:
+	if int(matter["owner"]) == world.YARD or matter.get("source", false): return
+	if spellwork.run.elapsed < float(store.get("trip_at", -INF)): return
+	var at: Vector3 = store["position"]
+	var t: int = Catalog.temp_of(matter)
+	var kind: String = ""
+	match store["material"]:
+		"fire":
+			if float(store.get("quenched_left", 0.0)) <= 0.0 and (matter["material"] == "fire" or (matter["material"] in ["scrap", "current"] and t >= 1)): kind = "flare"
+		"current":
+			if matter["material"] in ["water", "ice", "scrap", "current", "fire"]: kind = "overload"
+		"water":
+			if int(matter.get("charge", 0)) > 0 or matter["material"] == "current": kind = "electrify"
+			elif matter["material"] == "ice": kind = "freeze"
+		"scrap":
+			if matter.get("velocity", Vector3.ZERO).length() >= THROWN: kind = "shrapnel"
+	if kind == "" or not _spend(): return
+	store["trip_at"] = spellwork.run.elapsed + TRIP_REST
+	match kind:
+		"flare":
+			count("flared")
+			spellwork.rule_fx.rpc("flare", PackedVector3Array([at]))
+			for enemy: Node3D in _around(at, FLARE_RADIUS, enemies): light(enemy)
+			# It burned through its fuel: it sits low and smoking until it catches again.
+			_act(store, "quench")
+		"overload":
+			count("overloaded")
+			shock_around(at, OVERLOAD_RADIUS, enemies, matter["material"] == "fire")
+			store["charge"] = 0
+		"electrify":
+			count("electrified")
+			shock_around(at, maxf(store["size"].x, store["size"].z) * 0.5 + POOL_REACH, enemies)
+		"freeze":
+			count("iced")
+			spellwork.rule_fx.rpc("frost", PackedVector3Array([at]))
+			for enemy: Node3D in _around(at, maxf(store["size"].x, store["size"].z) * 0.5 + POOL_REACH, enemies):
+				if not enemy.wet(): enemy.soaked = 1.0
+				chill(enemy)
+		"shrapnel":
+			count("shrapnel")
+			spellwork.rule_fx.rpc("shrapnel", PackedVector3Array([at]))
+			for enemy: Node3D in _around(at, SHRAPNEL_RADIUS, enemies):
+				var away: Vector3 = _flat(enemy.global_position - at)
+				var blow: float = SHRAPNEL_DAMAGE * (1.0 - 0.5 * away.length() / SHRAPNEL_RADIUS)
+				enemy.shove += (away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 6.0
+				spellwork.run.log_damage("shrapnel", blow)
+				enemy.take_damage(blow)
+	world._dirty = true
+
+func _around(at: Vector3, radius: float, enemies: Array[Node3D]) -> Array[Node3D]:
+	var near: Array[Node3D] = []
+	for enemy: Node3D in enemies:
+		if is_instance_valid(enemy) and not enemy.down and _flat(enemy.global_position - at).length() <= radius: near.append(enemy)
+	return near
 
 func _act(record: Dictionary, op: String) -> bool:
 	return world.records.has(record["id"]) and world.execute(record["owner"], op, record["id"], {"remote": true}).get("ok", false)
@@ -566,6 +642,14 @@ static func touch(state: Dictionary) -> Array[String]:
 	if material == "water" and temp == 0 and charge == 0:
 		out.append("apaga el fuego que toca; lo que arde la hace hervir; el frío la congela")
 	if material == "scrap" and temp == 0: out.append("conduce la carga y guarda el calor del fuego que la toca")
+	# What it sets off among the yard's stores (`_trip`), in the same order as there.
+	var stores: Array[String] = []
+	if material == "fire" or (material in ["scrap", "current"] and temp >= 1): stores.append("aviva un tambor")
+	if material in ["water", "ice", "scrap", "current", "fire"]: stores.append("sobrecarga un transformador")
+	if charge > 0 or material == "current": stores.append("electrifica el charco de una cañería")
+	elif material == "ice": stores.append("congela el charco de una cañería")
+	if state.get("moving", false) and material not in ["steam", "fire", "current"]: stores.append("revienta la chatarra en metralla")
+	if not stores.is_empty(): out.append("en el patio: " + ", ".join(stores))
 	return out
 
 static func _num(value: float) -> String:
