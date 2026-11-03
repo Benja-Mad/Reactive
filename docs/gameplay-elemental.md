@@ -13,21 +13,26 @@ Revisado el 21 de octubre de 2026, tras la prueba de juego: una esfera de agua q
 completa delante del operador no tenía explicación. La materia ahora tiene un origen visible, un
 recorrido visible y un destino visible.
 
+Revisado otra vez el 2 de noviembre de 2026: se retiró la recolección. Tomar del patio no daba
+decisiones (en el soak el 88 % del agua se absorbía sola y las reservas de fuego, corriente y
+chatarra terminaban llenas cada turno) y ataba las rutinas automáticas a dónde estaba parado el
+operador. El origen sigue siendo visible: ahora son sus manos.
+
 1. **El agua ya está en el patio.** Seis cañerías reventadas mantienen un charco lleno cada una
    (`run.SOURCES`). Un charco guarda tragos (`volume`, hasta 3); su tamaño sigue a lo que guarda.
    Las fuentes reponen un trago cada 3 s. Los charcos sueltos se secan a los 45 s, encogiéndose.
-2. **Una rutina toma agua; no la crea.** Al dispararse, saca un trago del charco más cercano al
-   punto donde actúa, entre los que están a 13 m del operador. El agua corre por el suelo hasta
-   ese punto (18 m/s) y el charco de origen encoge. Sin agua a tu alcance la rutina espera: el
-   HUD muestra una gota rosa en esa fila. El hielo del suelo y el vapor no se pueden tomar.
+2. **Una rutina sale de las manos de su operador.** Al dispararse, el trago corre por el suelo
+   desde el operador hasta el punto donde actúa (18 m/s): la lluvia del pupilo del Sereno, el
+   brazo de Brasa. Las rutinas funcionan en cualquier punto del mapa; solo esperan si no hay dónde
+   ponerlas. La excepción es `on wade`, que trabaja el charco donde está la máquina.
 3. **Cada paso se ve ocurrir.** Los pasos se aplican uno por compás (0,28 s): el charco sube en
    esfera, después escarcha, después sale lanzado. Frío, calor, nanitos, impulso y campos salen
    del operador como un haz hacia la materia; el arco, como un rayo desde sus manos. El impulso
    apunta a la máquina más cercana a la materia en el momento de lanzarla.
 4. **El agua no se pierde: vuelve al suelo.** Un salpicón, una dispersión, esquirlas que se
    derriten, una esfera que cae o caduca, un vapor que llueve: todo deja un charco donde terminó,
-   que se suma a uno cercano (2,8 m). Solo beber (la Novia) y tomar (una rutina) se llevan agua.
-   La pelea moja el patio donde ocurre, y eso alimenta las rutinas siguientes.
+   que se suma a uno cercano (2,8 m). Solo beber (la Novia) y `on wade` se llevan agua.
+   La pelea moja el patio donde ocurre, y eso arma trampas para `on wade` y la llama de Brasa.
 
 El patio es de todos (`owner` 0): cualquier jugador o regla puede trabajar su agua.
 
@@ -50,8 +55,9 @@ El patio es de todos (`owner` 0): cualquier jugador o regla puede trabajar su ag
 
 Revisado el 21 de octubre de 2026, tras la segunda prueba: solo el agua tenía trabajo; fuego,
 corriente y gravedad existían para actuar sobre ella. Ahora el patio guarda cuatro sustancias y
-cada rutina elige de cuál toma (clic en su nodo de origen en el editor: agua → fuego → corriente
-→ chatarra; `routine["from"]`, por defecto agua). Cada una actúa sola y sobre las demás.
+cada rutina elige cuál vierte (clic en su nodo de origen en el editor: agua → fuego → corriente
+→ chatarra; `routine["from"]`, por defecto agua). Cada una actúa sola y sobre las demás. Desde el
+2 de noviembre las fuentes del patio ya no son combustible: son peligros que actúan solos.
 
 | Sustancia | Dónde está (`run.STORES`) | Qué hace sola |
 |---|---|---|
@@ -62,7 +68,7 @@ cada rutina elige de cuál toma (clic en su nodo de origen en el editor: agua �
 
 Las fuentes también actúan solas: una máquina que pasa junto a un tambor se prende, una que se
 acerca a un transformador recibe la descarga (se recarga cada 5 s). Cada máquina destruida deja
-medio trago de chatarra donde cayó; dos caídas juntas hacen un montón que ya se puede tomar.
+medio trago de chatarra donde cayó; dos caídas juntas hacen un montón.
 
 **Los mismos pasos, otro resultado.** `heat` aviva el fuego (+4 s), pone la chatarra al rojo y
 convierte la corriente en plasma (que además prende). `cold` apaga el fuego (humo, no queda nada),
@@ -96,19 +102,10 @@ Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolect
 excesivo (cada rutina exigía estar al lado de un tambor), la gravedad no se entendía ni tocaba a
 las sustancias, y el ataque básico de cada agente estaba roto.
 
-**Lo que llevas encima** (`run.reserves`, `run._carry`). Cada operador lleva hasta 3 tragos de
-cada sustancia. Una rutina sigue tomando primero lo que hay en el patio a su alcance (lo que está
-en el suelo se usa donde está), y solo si no hay nada lo vierte de las manos del operador; marca
-«seco» cuando no hay en el patio ni encima. Ningún trago sale de la nada, cada uno tiene uno de
-tres orígenes:
-
-- **Tu propio elemento se repone solo**, uno cada 4 s: el brazo de Brasa arde, el pupilo del
-  Sereno llueve. Empiezas con 3 del tuyo y 1 de cada otro.
-- **Pasar junto a materia del patio la absorbe**, un trago cada 1,2 s a 4,5 m, con el chorro
-  corriendo hacia ti. El patio lo pierde: se conserva.
-- **La chatarra que deja una máquina caída**, al recogerla, es un trago de chatarra.
-
-El HUD muestra sobre el programa los cuatro glifos con una muesca por trago.
+**Lo que llevas encima** (retirado el 2 de noviembre de 2026). Hubo una reserva de hasta 3 tragos
+por sustancia que se reponía sola, absorbía la materia del patio al pasar y sumaba la chatarra de
+los restos, con cuatro glifos sobre el programa. Se quitó junto con la recolección: las rutinas
+vierten desde las manos (ver «Nada sale de la nada»).
 
 **La gravedad se ve** (22-10-2026; `materials.gd` «Gravity is a whirlpool», `world._pull_toward`,
 `world._release`, `spellwork._forces`, `spellwork._let_go`, `rules._ring`). La versión de la tercera
@@ -158,7 +155,7 @@ las ánimas solo dañan y empapan. Hasta 3 piezas DO de la misma caja se enchufa
 | `attract` | junta a las golpeadas hacia el blanco: arma grupos para «grupo» y para los remolinos | igual |
 | `repel` | aparta todo lo que toca lejos de ti | igual |
 | `raise` | alcanza lo que vuela | alcanza lo que vuela, 3 m más lejos |
-| `wall` | deja fuego en el suelo donde golpea, de lo que llevas encima | deja un charco, de lo que llevas encima |
+| `wall` | deja fuego en el suelo donde golpea, como mucho cada 2,5 s | deja un charco, como mucho cada 2,5 s |
 | `coat` | planta nanitos que estallan al caer la máquina o al arder | igual |
 | `drop` | detrás de `raise`: cada 1,6 s alza una bola de fuego sobre donde va el blanco y la deja caer; su sombra y su alcance se ven en el suelo. Golpea a 1,8 m (9 de daño al centro), prende un paso y derriba lo que vuela debajo | igual, con una esfera de agua (10): empapa a todos los que pilla y deja un charco; si el arma es granizo, cae granizo |
 

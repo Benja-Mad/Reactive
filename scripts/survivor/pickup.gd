@@ -24,5 +24,4 @@ func _physics_process(delta: float) -> void:
 		global_position = global_position.move_toward(player.global_position, delta * (5.0 + age * 0.3))
 	if distance < 0.8:
 		run.collect_pickup.rpc(str(name))
-		run.salvage(player.get_multiplayer_authority())
 		run.gain_xp(value)

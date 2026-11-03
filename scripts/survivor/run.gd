@@ -17,13 +17,10 @@ var offers: Dictionary = {}
 var clocks: Dictionary = {}
 ## Per peer, how charged each routine is (0..1). Host-computed, replicated for the HUD only.
 var charges: Dictionary = {}
-## Per peer, the draughts each operator carries on them for when the yard is out of reach
-## (see `_carry`). Host-owned, replicated for the HUD and the editor.
-var reserves: Dictionary = {}
 var collected: int = 0
 var machines_spawned: int = 0
 var automations_fired: int = 0
-## How routines fared for water: drawn, dry (nothing in reach), blocked. For the soak run.
+## How routines fared: drawn (under way) or blocked (nowhere to put it). For the soak run.
 var water_log: Dictionary = {}
 ## Damage machines took, by what dealt it: weapon, crush, bowl, nanites, and the rest. For the soak run.
 var damage_log: Dictionary = {}
@@ -102,7 +99,6 @@ func _physics_process(delta: float) -> void:
 		if not builds.has(peer):
 			builds[peer] = Build.fresh()
 			clocks[peer] = {"shot": 0.2, "heal": 3.0, "trail": player.global_position, "made": {}}
-			reserves[peer] = fresh_reserve(own_substance(player))
 		if player.eliminated: continue
 		player.move_multiplier = 1.0 + builds[peer]["tools"]["boots"] * 0.1
 		_automate(player, peer, delta)
@@ -146,7 +142,6 @@ func _automate(player: Character, peer: int, delta: float) -> void:
 	clock["shot"] -= delta
 	clock["heal"] -= delta
 	var enemies: Array[Node3D] = targets(player)
-	if reserves.has(peer): _carry(player, peer, clock, delta)
 	if clock["shot"] <= 0:
 		if player is Support: _animas(player, peer, clock, tools)
 		else: _flame(player, peer, clock, tools)
@@ -167,65 +162,9 @@ func _automate(player: Character, peer: int, delta: float) -> void:
 		var placement: Variant = _placement(player, clock, routine["when"], enemies)
 		if placement == null: continue
 		var outcome: String = spellwork.begin(peer, index, placement[0], placement[1], 0, placement[2] if placement.size() > 2 else 0)
-		# With no water in reach, or nowhere to put it, it retries soon instead of losing the cycle.
+		# With nowhere to put it, it retries soon instead of losing the cycle.
 		clock[key] = cooldown(build, index) if outcome == "" else 0.6
 		water_log[outcome if outcome != "" else "drawn"] = int(water_log.get(outcome if outcome != "" else "drawn", 0)) + 1
-		if not clock.has("dry"): clock["dry"] = {}
-		clock["dry"][index] = outcome == "dry"
-
-## What an operator carries. A routine still draws the yard first (matter in reach is used where it
-## lies), but each operator keeps a few draughts on them, so a shift is not a walk between drums:
-## - their own element refills by itself: Brasa's arm burns, the Sereno's ward rains;
-## - walking past yard matter siphons it in, a draught at a time, visibly, and the yard loses it;
-## - the salvage a machine leaves is scrap, and picking it up puts it in the bag.
-## Nothing comes from nowhere: every draught has one of those three origins.
-const RESERVE_MAX: int = 3
-const OWN_REFILL: float = 4.0
-const SIPHON_EVERY: float = 1.2
-const SIPHON_REACH: float = 4.5
-static func own_substance(player: Node) -> String:
-	return "water" if player is Support else "fire"
-static func fresh_reserve(own: String) -> Dictionary:
-	var reserve: Dictionary = {}
-	for substance: String in Catalog.SUBSTANCES: reserve[substance] = RESERVE_MAX if substance == own else 1
-	return reserve
-func _carry(player: Character, peer: int, clock: Dictionary, delta: float) -> void:
-	var reserve: Dictionary = reserves[peer]
-	var own: String = own_substance(player)
-	clock["own"] = float(clock.get("own", OWN_REFILL)) - delta
-	if clock["own"] <= 0.0:
-		clock["own"] = OWN_REFILL
-		reserve[own] = mini(int(reserve[own]) + 1, RESERVE_MAX)
-	clock["siphon"] = float(clock.get("siphon", SIPHON_EVERY)) - delta
-	if clock["siphon"] > 0.0: return
-	clock["siphon"] = SIPHON_EVERY
-	var me: Vector3 = player.global_position
-	var best: int = 0
-	var lowest: int = RESERVE_MAX
-	var nearest: float = INF
-	for record: Dictionary in world.records.values():
-		var substance: String = record["material"]
-		if not reserve.has(substance) or int(reserve[substance]) >= RESERVE_MAX: continue
-		if not Catalog.drawable(record, substance) or float(record.get("volume", 1.0)) < 0.99: continue
-		var distance: float = Vector2(record["position"].x - me.x, record["position"].z - me.z).length()
-		if distance > SIPHON_REACH + record["size"].x * 0.5: continue
-		# The emptiest pocket first, then the nearest matter.
-		if int(reserve[substance]) < lowest or (int(reserve[substance]) == lowest and distance < nearest):
-			lowest = int(reserve[substance])
-			nearest = distance
-			best = record["id"]
-	if best == 0: return
-	var substance: String = world.records[best]["material"]
-	var from: Variant = world.draw_from(best)
-	if from == null: return
-	reserve[substance] = int(reserve[substance]) + 1
-	spellwork.stream_fx.rpc(from, me, 0.35, substance)
-
-## One draught out of `peer`'s reserve, if they carry it. Returns whether they did.
-func take_reserve(peer: int, substance: String) -> bool:
-	if int(reserves.get(peer, {}).get(substance, 0)) < 1: return false
-	reserves[peer][substance] = int(reserves[peer][substance]) - 1
-	return true
 
 ## Brasa's combustion arm: a short cone of fire from the palm, many times a second. Bare, it
 ## hurts and heats a step what it licks, and flashes the puddles in its path into steam; every
@@ -304,8 +243,8 @@ func strike(peer: int, enemy: Node3D, hit: Dictionary, origin: Vector3, focus: V
 		var inward := Vector3(focus.x - enemy.global_position.x, 0, focus.z - enemy.global_position.z)
 		if inward.length() > 1.2: enemy.shove += inward.normalized() * 5.0
 	if hit["coat"] > 0: enemy.nanites = maxi(enemy.nanites, hit["coat"])
-	# Wall: the weapon leaves its matter on the floor, out of what the operator carries.
-	if hit["trail"] and elapsed >= float(clock.get("trail_at", -1.0)) and take_reserve(peer, hit["base"]):
+	# Wall: the weapon leaves its matter on the floor, poured from the operator's hands.
+	if hit["trail"] and elapsed >= float(clock.get("trail_at", -1.0)):
 		clock["trail_at"] = elapsed + 2.5
 		var spot := Vector3(enemy.global_position.x, 0.07, enemy.global_position.z)
 		if world.spill(spot, 1.0, hit["base"]) != 0: spellwork.stream_fx.rpc(Vector3(origin.x, 0.07, origin.z), spot, 0.25, hit["base"])
@@ -631,9 +570,6 @@ func collect_pickup(key: String) -> void:
 	if pickup != null:
 		pickup.set_physics_process(false)
 		pickup.queue_free()
-## Salvage is scrap: whoever picks it up carries a draught of it.
-func salvage(peer: int) -> void:
-	if reserves.has(peer): reserves[peer]["scrap"] = mini(int(reserves[peer]["scrap"]) + 1, RESERVE_MAX)
 func gain_xp(amount: int) -> void:
 	if not multiplayer.is_server(): return
 	xp += amount
@@ -731,16 +667,13 @@ func publish() -> void:
 		var row: Array = []
 		for index: int in builds[peer]["routines"].size():
 			var full: float = cooldown(builds[peer], index)
-			# -1: ready, but its operator has no water within reach.
-			if clocks.get(peer, {}).get("dry", {}).get(index, false): row.append(-1.0)
-			else: row.append(1.0 if full <= 0 else clampf(1.0 - float(clocks.get(peer, {}).get("r%d" % index, 0.0)) / full, 0, 1))
+			row.append(1.0 if full <= 0 else clampf(1.0 - float(clocks.get(peer, {}).get("r%d" % index, 0.0)) / full, 0, 1))
 		charges[peer] = row
-	sync_state.rpc(elapsed, kills, xp, level, builds, offers, charges, reserves, enemy_positions, pickup_positions)
+	sync_state.rpc(elapsed, kills, xp, level, builds, offers, charges, enemy_positions, pickup_positions)
 @rpc("authority", "call_remote", "reliable")
-func sync_state(time: float, count: int, experience: int, rank: int, loadouts: Dictionary, choices: Dictionary, charge: Dictionary, carried: Dictionary, enemy_positions: Dictionary, pickup_positions: Dictionary) -> void:
+func sync_state(time: float, count: int, experience: int, rank: int, loadouts: Dictionary, choices: Dictionary, charge: Dictionary, enemy_positions: Dictionary, pickup_positions: Dictionary) -> void:
 	elapsed = time
 	charges = charge
-	reserves = carried
 	kills = count
 	xp = experience
 	level = rank

@@ -69,10 +69,10 @@ func take_kill(me: Vector3) -> Variant:
 
 # --- Building a routine -------------------------------------------------------------------------
 
-## A routine never makes matter: it draws a draught from the yard within reach of its operator --
-## water from a puddle, fire from a drum, current from a transformer, scrap from a heap -- the
-## draught runs along the floor to where the routine acts, and there each DO step happens one
-## beat after the last, with a beam from the operator for every energy it puts in.
+## A routine pours its matter from its operator's hands -- the Sereno's ward rains it, Brasa's
+## arm burns it out -- or, for a trigger that names a puddle (`charco`), works that matter where it
+## lies. The draught runs along the floor to where the routine acts, and there each DO step happens
+## one beat after the last, with a beam from the operator for every energy it puts in.
 const DRAW_REACH := Build.DRAW_REACH
 const DRAW_SPEED := 18.0
 const STEP_BEAT := 0.28
@@ -80,39 +80,19 @@ const STEP_BEAT := 0.28
 ## `id` is 0 while the drawn water is still running to its spot.
 var _casts: Array[Dictionary] = []
 
-## The puddle (drum, transformer, heap) `peer`'s operator would draw `substance` from for a routine
-## acting at `point`: of what lies within DRAW_REACH of the operator, the one nearest the point
-## (matter already there is used in place).
-func water_for(peer: int, point: Vector3, substance: String = "water") -> int:
-	var player: Node3D = world._player(peer)
-	if player == null: return 0
-	var best: int = 0
-	var nearest: float = INF
-	for record: Dictionary in world.records.values():
-		if not Catalog.drawable(record, substance) or float(record.get("volume", 1.0)) < 0.99: continue
-		if _flat(record["position"] - player.global_position).length() > DRAW_REACH: continue
-		var distance: float = _flat(record["position"] - point).length()
-		if distance < nearest:
-			nearest = distance
-			best = record["id"]
-	return best
-
-## A routine fired in play. Returns "" when it is under way, "dry" when its operator has none of
-## its matter within reach nor on them, or "blocked" when there is nowhere to put it; either way
-## nothing is taken.
-## `source` names the puddle to draw from, for a trigger that already chose one.
+## A routine fired in play. Returns "" when it is under way, or "blocked" when there is nowhere to
+## put it; then nothing is poured.
+## `source` names a puddle to work in place, for a trigger that already chose one.
 func begin(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 0, source: int = 0) -> String:
 	var routine: Dictionary = run.builds[peer]["routines"][index]
 	var substance: String = routine.get("from", "water")
 	point.y = 0.07
 	if not world.preview(peer, "create", 0, {"point": point, "material": substance}).get("ok", false): return "blocked"
-	if source == 0 or not world.records.has(source) or not Catalog.drawable(world.records[source], substance): source = water_for(peer, point, substance)
-	var from: Variant = world.draw_from(source) if source != 0 else null
-	if from == null:
-		# Nothing of it in reach: the draught the operator carries pours from their hands instead.
-		var player: Node3D = world._player(peer)
-		if player == null or not run.take_reserve(peer, substance): return "dry"
-		from = Vector3(player.global_position.x, 0.07, player.global_position.z)
+	var player: Node3D = world._player(peer)
+	if player == null: return "blocked"
+	var from: Variant = null
+	if source != 0 and world.records.has(source) and Catalog.drawable(world.records[source], substance): from = world.draw_from(source)
+	if from == null: from = Vector3(player.global_position.x, 0.07, player.global_position.z)
 	var travel: float = maxf(0.15, _flat(point - from).length() / DRAW_SPEED)
 	stream_fx.rpc(from, point, travel, substance)
 	_casts.append({"peer": peer, "index": index, "point": point, "toward": toward, "depth": depth, "left": travel, "id": 0, "material": substance,

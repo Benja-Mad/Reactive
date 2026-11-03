@@ -11,11 +11,6 @@ func clear_world() -> void:
 	for enemy: Node in run.machines.get_children(): enemy.queue_free()
 	await frames(2)
 
-func water_total() -> float:
-	var total: float = 0.0
-	for record: Dictionary in run.world.records.values(): total += float(record.get("volume", 1.0))
-	return total
-
 func yard_puddles() -> Array:
 	return run.world.records.values().filter(func(record: Dictionary) -> bool: return record["owner"] == run.world.YARD)
 
@@ -42,8 +37,6 @@ func test() -> void:
 	await clear_world()
 	run.builds[1] = Build.fresh()
 	run.clocks[1] = {"shot": 1000.0, "heal": 3.0, "trail": player.global_position, "made": {}}
-	# Pockets empty: these checks are about the yard. The reserve has its own below.
-	run.reserves.erase(1)
 
 	# The yard's sources open where the floor allows and each keeps a full puddle.
 	run.open_sources()
@@ -52,43 +45,13 @@ func test() -> void:
 	check("sources_start_full", sources.all(func(record: Dictionary) -> bool: return is_equal_approx(float(record["volume"]), Catalog.MAX_VOLUME)))
 	await clear_world()
 
-	# Far from any water a routine waits and takes nothing.
-	player.global_position = Vector3(-3, 1.15, -2)
+	# A routine pours from its operator's hands: the yard keeps its water, and the draught lands
+	# only after its run.
+	player.global_position = Vector3(-4, 1.15, 2)
 	run.builds[1]["routines"] = [{"when": "cerca", "steps": ["raise", "cold", "push"], "then": "fragmentos", "on": "broken"}]
-	var far_puddle: int = run.world.spill(Vector3(20, 0.07, 20), 1.0)
-	check("dry_routine_waits", run.spellwork.begin(1, 0, Vector3(0, 0.07, -2), Vector3.RIGHT) == "dry" and run.world.records.size() == 1)
-	check("far_puddle_untouched", run.world.records.has(far_puddle))
-	# What the operator carries pours from their own hands instead, and only once per draught.
-	run.reserves[1] = run.fresh_reserve("fire")
-	check("reserve_starts_with_own_element", run.reserves[1]["fire"] == run.RESERVE_MAX and run.reserves[1]["water"] == 1)
-	check("carried_draught_pours", run.spellwork.begin(1, 0, Vector3(0, 0.07, -2), Vector3.RIGHT) == "" and run.reserves[1]["water"] == 0 and run.world.records.has(far_puddle))
-	play(0.6)
-	check("carried_draught_lands", run.world.records.values().any(func(record: Dictionary) -> bool: return record["owner"] == 1 and record["material"] == "water"))
-	check("empty_pocket_is_dry", run.spellwork.begin(1, 0, Vector3(0, 0.07, -2), Vector3.RIGHT) == "dry")
-	await clear_world()
-	# Own element refills by itself; the rest is siphoned from yard matter you walk past, and the
-	# yard loses it.
-	var pocket: Dictionary = {"water": 0, "fire": 0, "current": 0, "scrap": 0}
-	run.reserves[1] = pocket
-	var clock: Dictionary = {"own": 0.01, "siphon": 0.01}
-	var near_puddle: int = run.world.spill(player.global_position + Vector3(2.0, -1.08, 0), 1.0)
-	run._carry(player, 1, clock, 0.02)
-	check("own_element_refills", pocket["fire"] == 1)
-	check("siphons_the_yard", pocket["water"] == 1 and not run.world.records.has(near_puddle))
-	var far_one: int = run.world.spill(player.global_position + Vector3(9.0, -1.08, 0), 1.0)
-	clock["siphon"] = 0.01
-	run._carry(player, 1, clock, 0.02)
-	check("siphon_needs_to_walk_by", pocket["water"] == 1 and run.world.records.has(far_one))
-	run.salvage(1)
-	check("salvage_is_scrap", pocket["scrap"] == 1)
-	run.reserves.erase(1)
-	await clear_world()
-
-	# Near a source: the draught leaves the puddle at once, but lands only after its run.
 	var source: int = run.world.add_source(Vector3(-3, 0.1, 2))
-	var before: float = water_total()
-	check("draws_from_reach", run.spellwork.begin(1, 0, Vector3(1, 0.07, -2), Vector3.RIGHT) == "")
-	check("source_gives_a_draught", is_equal_approx(float(run.world.records[source]["volume"]), Catalog.MAX_VOLUME - 1.0))
+	check("pours_from_hands", run.spellwork.begin(1, 0, Vector3(1, 0.07, -2), Vector3.RIGHT) == "")
+	check("yard_keeps_its_water", is_equal_approx(float(run.world.records[source]["volume"]), Catalog.MAX_VOLUME))
 	check("water_runs_before_it_lands", run.world.records.size() == 1)
 	play(0.4)
 	var made: Array = run.world.records.values().filter(func(record: Dictionary) -> bool: return record["owner"] == 1)
@@ -100,10 +63,12 @@ func test() -> void:
 	check("first_step_alone", run.world.records.has(id) and run.world.records[id]["shape"] == "orb" and run.world.records[id]["material"] == "water")
 	play(run.spellwork.STEP_BEAT)
 	check("second_step_a_beat_later", run.world.records.has(id) and run.world.records[id]["material"] == "ice" and not run.world.records[id].has("reaction"))
-	run.world.records[source]["refill"] = 1000.0
-	check("water_is_conserved_in_flight", is_equal_approx(water_total(), before))
 	play(run.spellwork.STEP_BEAT * 2.0)
 	check("armed_after_last_step", run.world.records.has(id) and run.world.records[id].has("reaction") and not run.world.records[id].get("forming", false))
+	await clear_world()
+	# «On wade» works the puddle a machine stands in, where it lies.
+	var wade: int = run.world.add_source(Vector3(-3, 0.1, 2))
+	check("on_wade_works_the_puddle", run.spellwork.begin(1, 0, Vector3(1, 0.07, -2), Vector3.RIGHT, 0, wade) == "" and is_equal_approx(float(run.world.records[wade]["volume"]), Catalog.MAX_VOLUME - 1.0))
 	await clear_world()
 
 	# Spent matter lands as a puddle: a water orb released in a splash, ice shards that melt.

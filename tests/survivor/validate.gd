@@ -314,14 +314,8 @@ func test() -> void:
 	# Triggers fire on their own: a machine walking up arms the "cerca" routine with no input.
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	run.clocks[1]["r0"] = 0
-	# Empty pockets: this is about the yard (the reserve is checked in water.gd).
-	run.reserves.erase(1)
 	run.spawn_machine(992, player.global_position + Vector3(0, -1.1, -6), 0, 1)
 	await frames(3)
-	run._automate(player, 1, 0.1)
-	check("trigger_waits_without_water", run.world.records.is_empty() and run.clocks[1]["dry"][0])
-	run.world.add_source(player.global_position + Vector3(2, -1.05, 0))
-	run.clocks[1]["r0"] = 0
 	run._automate(player, 1, 0.1)
 	check("trigger_draws_without_input", run.spellwork.casting(1))
 	for beat: int in 8: run.spellwork.tick(0.5)

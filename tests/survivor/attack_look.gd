@@ -1,7 +1,6 @@
 ## Frames of the third pass, for judging by eye: the workshop with the attack row on top and its
 ## preview; Brasa's flame programmed with push and coat on a pack; a scrap well dragging a pack in
-## and pressing it; the reserve over the program, and a draught siphoned off a drum as she walks
-## past. Run windowed:
+## and pressing it. Run windowed:
 ## godot --path . tests/survivor/attack_look.tscn
 extends "res://tests/survivor/capture.gd"
 const Build = preload("res://scripts/survivor/build.gd")
@@ -68,14 +67,5 @@ func capture() -> void:
 	await shot("06_scrap_well_presses")
 	for enemy: Node in run.machines.get_children(): enemy.queue_free()
 	run.world.execute(1, "remove", well)
-	# The reserve: walking past a drum siphons a draught of fire into the pocket.
-	run.reserves[1] = {"water": 1, "fire": 0, "current": 0, "scrap": 2}
-	run.clocks[1]["own"] = 1000.0
-	run.clocks[1]["siphon"] = 0.05
-	player.global_position = Vector3(10.5, 1.15, 5.0)
-	await frames(4)
-	await shot("07_siphon_drum")
-	await frames(40)
-	await shot("08_reserve_filled")
-	print("ATTACK LOOK reserve ", run.reserves[1], " crushed ", run.spellwork.rules.stats.get("crushed", 0))
+	print("ATTACK LOOK crushed ", run.spellwork.rules.stats.get("crushed", 0))
 	get_tree().quit()

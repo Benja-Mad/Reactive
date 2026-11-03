@@ -91,7 +91,7 @@ func _physics_process(_delta: float) -> void:
 		Input.action_release("move_up")
 		Input.action_release("move_down")
 		print("SURVIVOR SOAK ", JSON.stringify({"phase":run.phase,"time":run.elapsed,"kills":run.kills,"level":run.level,"upgrades":chosen,"peak_enemies":peak_enemies,"peak_matter":peak_matter,"peak_pickups":peak_pickups,"automations":run.automations_fired,"water":run.water_log,"kinds_seen":kinds_seen,"durability":invulnerable,
-			"rules":run.spellwork.rules.enabled,"rule_stats":run.spellwork.rules.stats,"peak_snapshot_bytes":peak_snapshot,"peak_machine_sync_bytes":peak_machine_sync,"routines":run.builds[1]["routines"],"attack":Build.attack_steps(run.builds[1]),"damage":run.damage_log,"reserve":run.reserves.get(1, {})}))
+			"rules":run.spellwork.rules.enabled,"rule_stats":run.spellwork.rules.stats,"peak_snapshot_bytes":peak_snapshot,"peak_machine_sync_bytes":peak_machine_sync,"routines":run.builds[1]["routines"],"attack":Build.attack_steps(run.builds[1]),"damage":run.damage_log}))
 		Engine.time_scale = 1
 		get_tree().paused = false
 		get_tree().quit(0 if run.elapsed > 20 else 1)

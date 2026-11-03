@@ -190,30 +190,23 @@ func _program_rect() -> Rect2:
 	var routines: Array = my_build()["routines"]
 	var widest: int = 1 + Build.attack_steps(my_build()).size()
 	for routine: Dictionary in routines: widest = maxi(widest, 2 + routine["steps"].size() + (1 if routine["then"] != "" else 0))
-	var top_h: float = 18 * PX if not run.reserves.get(multiplayer.get_unique_id(), {}).is_empty() else 0.0
-	var w: float = maxf(10 * PX + widest * STEP + 8 * PX, 4 * 30 * PX + 6 * PX)
-	var h: float = top_h + (routines.size() + 1) * LINE_H + 5 * PX
+	var w: float = 10 * PX + maxi(widest, 3) * STEP + 8 * PX
+	var h: float = (routines.size() + 1) * LINE_H + 5 * PX
 	return Rect2(Vector2(8 * PX, size.y - 8 * PX - h), Vector2(w, h))
 
-## The program in the corner, on one dark plate: what you carry, then the weapon and its pieces
-## (row A, as the workshop names it), then one row of glyphs per numbered routine. A trigger
-## recharging shows grey with its colour rising from below and a track under it filling; ready, it
-## sits in a lit socket. A routine waiting for its matter shows that source's glyph in rose; one the
-## workshop marks as wrong ends on the same rose × the workshop draws beside it.
+## The program in the corner, on one dark plate: the weapon and its pieces (row A, as the workshop
+## names it), then one row of glyphs per numbered routine. A trigger recharging shows grey with its
+## colour rising from below and a track under it filling; ready, it sits in a lit socket. A routine
+## the workshop marks as wrong ends on the same rose × the workshop draws beside it.
 func _draw_program() -> void:
 	var routines: Array = my_build()["routines"]
 	var attack: Array = Build.attack_steps(my_build())
 	var charge: Array = run.charges.get(multiplayer.get_unique_id(), [])
-	var reserve: Dictionary = run.reserves.get(multiplayer.get_unique_id(), {})
 	var box := _program_rect()
-	var top_h: float = 18 * PX if not reserve.is_empty() else 0.0
 	draw_rect(box, Color(Kit.BOARD, 0.82))
 	draw_rect(Rect2(box.position, Vector2(box.size.x, PX)), Kit.LINE)
-	if not reserve.is_empty():
-		_draw_reserve(box.position + Vector2(4, 3) * PX, reserve)
-		draw_rect(Rect2(box.position.x + 4 * PX, box.position.y + top_h, box.size.x - 8 * PX, PX), Kit.LINE)
 	var left: float = box.position.x + 4 * PX
-	var first: float = box.position.y + top_h + 4 * PX
+	var first: float = box.position.y + 4 * PX
 	# The weapon, with what is plugged into it.
 	var support: bool = run.local_player() is Support
 	Kit.text(self, Vector2(left, first - PX), "A", Kit.FAINT)
@@ -231,8 +224,6 @@ func _draw_program() -> void:
 			for i: int in 3: Kit.dashed(self, Rect2(at + Vector2(i * STEP - PX, -PX), Vector2(14, 14) * PX), Kit.LINE_HI)
 			continue
 		var ready: float = float(charge[index]) if index < charge.size() else 0.0
-		var dry: bool = ready < 0.0
-		if dry: ready = 0.0
 		var broken: bool = Build.problem(routine, routines, index) != ""
 		var pieces: Array = [routine["when"]] + routine["steps"]
 		if routine["then"] != "": pieces.append(routine["then"])
@@ -256,9 +247,6 @@ func _draw_program() -> void:
 			else:
 				draw_texture_rect(Kit.icon(key), spot, false)
 			x += STEP
-		if dry:
-			draw_texture_rect(Kit.icon(SOURCE_GLYPH[routine.get("from", "water")], "danger"), Rect2(Vector2(x, at.y), Vector2(12, 12) * PX), false)
-			x += STEP
 		if broken: _cross(Vector2(x - 2 * PX, at.y + 3 * PX))
 
 ## The rose × the workshop puts by a routine that will not work as built; grey on the parte, where
@@ -271,20 +259,6 @@ func _cross(at: Vector2, color: Color = Kit.RAMPS["danger"][1]) -> void:
 ## The short wire into the glyph at `x`, in the colour of the piece it feeds.
 func _wire(x: float, y: float, accent: String) -> void:
 	draw_rect(Rect2(x - 4 * PX, y + 6 * PX, 3 * PX, PX), Kit.ramp(accent)[0])
-
-## What you carry, at the top of the program: each substance's glyph and a pip per draught. A full
-## pocket lights all three; an empty one is a grey glyph, so a routine marked dry says why at a glance.
-func _draw_reserve(at: Vector2, reserve: Dictionary) -> void:
-	var x: float = at.x
-	for substance: String in ["water", "fire", "current", "scrap"]:
-		var held: int = int(reserve.get(substance, 0))
-		var accent: String = SOURCE_ACCENT[substance]
-		draw_texture_rect(Kit.icon(SOURCE_GLYPH[substance], accent if held > 0 else "mute"), Rect2(Vector2(x, at.y), Vector2(12, 12) * PX), false)
-		for pip: int in run.RESERVE_MAX:
-			var spot := Rect2(Vector2(x + (14 + pip * 4) * PX, at.y + 2 * PX), Vector2(3, 8) * PX)
-			draw_rect(spot, Kit.INK)
-			if pip < held: draw_rect(spot, Kit.ramp(accent)[2 if substance == "scrap" else 1])
-		x += 30 * PX
 
 ## The keys line, on its own layer so it can fade once the player has walked.
 func _draw_hints() -> void:

@@ -71,7 +71,7 @@ static func profile(steps: Array, base: String) -> Dictionary:
 				if hit["trail"]: idle = true
 				else:
 					hit["trail"] = true
-					text = "deja %s donde golpea, de lo que llevas encima" % ("fuego en el suelo" if base == "fire" else "un charco")
+					text = "deja %s donde golpea" % ("fuego en el suelo" if base == "fire" else "un charco")
 			"coat":
 				if hit["coat"] >= 2: idle = true
 				else:

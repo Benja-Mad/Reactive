@@ -15,12 +15,10 @@ const SLOTS := ["when", "step", "then"]
 ## Spanish. `name` is the identifier on the node, `text` the explanation, and `cooldown` the seconds between firings.
 const SLOT_NAMES := {"when": "WHEN", "step": "DO", "then": "THEN", "tool": "TOOL"}
 const MAX_ROUTINES := 4
-## How far from its operator a routine finds water (spellwork.DRAW_REACH says the same).
+## How far from its operator «on wade» notices a machine in a puddle (spellwork.DRAW_REACH says the same).
 const DRAW_REACH := 13.0
 const MAX_STEPS := 4
-## Where each substance is found in the yard, for the DO line.
-const WHERE := {"water": "un charco", "fire": "un tambor ardiendo", "current": "un transformador", "scrap": "un montón de chatarra"}
-## Clicking the source node cycles a routine through what it draws.
+## Clicking the source node cycles a routine through what its operator pours.
 static func next_source(from: String) -> String:
 	var all: Array = Recipe.Catalog.SUBSTANCES
 	return all[(all.find(from) + 1) % all.size()]
@@ -286,7 +284,7 @@ static func explain(build: Dictionary, index: int) -> Array:
 		lines.append(["WHEN " + when["name"], "%s · recarga %s s" % [when["text"].trim_suffix(".").to_lower(), Recipe._num(snappedf(cooldown(build, index), 0.1))]])
 	var from: String = routine.get("from", "water")
 	var result: Dictionary = Recipe.simulate(routine["steps"], from)
-	var drawn: String = "%s de %s a %d m de ti (o de lo que llevas encima), que corre hasta allí" % [Recipe.FROM[from], WHERE[from], roundi(DRAW_REACH)]
+	var drawn: String = "%s desde tus manos, que corre hasta allí" % Recipe.FROM[from]
 	if routine["when"] == "charco" and from == "water": drawn = "agua del charco donde está la máquina"
 	var chain: Array[String] = [drawn]
 	for entry: Dictionary in result["trace"]: chain.append("%s: %s" % [PIECES[entry["key"]]["name"], entry["text"]])

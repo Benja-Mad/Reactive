@@ -42,7 +42,6 @@ func test() -> void:
 	await clear_world()
 	run.builds[1] = Build.fresh()
 	run.clocks[1] = {"shot": 1000.0, "heal": 1000.0, "trail": player.global_position, "made": {}}
-	run.reserves[1] = run.fresh_reserve("fire")
 
 	# --- The profile, read the same by host and editor ------------------------------------------
 	check("bare_fire_heats", Attack.profile([], "fire")["temp"] == 1 and Attack.profile([], "water")["temp"] == 0)
@@ -107,15 +106,13 @@ func test() -> void:
 	await clear_world()
 	var trod: Node3D = machine(907, Vector3(0, 0, -3))
 	await frames(2)
-	var carried: int = run.reserves[1]["fire"]
 	flame(["wall"])
-	check("wall_leaves_fire_from_the_reserve", run.reserves[1]["fire"] == carried - 1 and run.world.records.values().any(func(record: Dictionary) -> bool: return record["material"] == "fire"))
+	check("wall_leaves_fire_on_the_floor", run.world.records.values().any(func(record: Dictionary) -> bool: return record["material"] == "fire"))
 	await clear_world()
-	run.reserves[1]["fire"] = 0
-	var dry: Node3D = machine(908, Vector3(0, 0, -3))
+	var again: Node3D = machine(908, Vector3(0, 0, -3))
 	await frames(2)
 	flame(["wall"])
-	check("wall_needs_something_carried", run.world.records.is_empty())
+	check("wall_waits_between_drops", run.world.records.is_empty())
 	await clear_world()
 	var kite: Node3D = machine(909, Vector3(0, 0, -3), 4)
 	await frames(2)

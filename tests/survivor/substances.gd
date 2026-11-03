@@ -52,7 +52,6 @@ func test() -> void:
 	await clear_world()
 	run.builds[1] = Build.fresh()
 	run.clocks[1] = {"shot": 1000.0, "heal": 3.0, "trail": player.global_position, "made": {}}
-	run.reserves.erase(1)
 
 	# --- The recipe table speaks each substance ---------------------------------------------------
 	check("recipe_fire_ball", Recipe.matter_text(Recipe.simulate(["raise"], "fire")["state"]) == "bola de fuego suspendida")
@@ -69,7 +68,7 @@ func test() -> void:
 				if Recipe.effect(state, then) == "": every_then = false
 	check("every_then_on_every_substance", every_then)
 	var fire_build: Dictionary = {"routines": [{"when": "cerca", "steps": ["raise", "push"], "then": "estallar", "on": "contact", "from": "fire"}], "box": [], "tools": {"pressure": 0}}
-	check("editor_says_where_fire_comes_from", Build.explain(fire_build, 0)[1][1].begins_with("fuego de un tambor ardiendo"))
+	check("editor_says_where_fire_comes_from", Build.explain(fire_build, 0)[1][1].begins_with("fuego desde tus manos"))
 	check("build_accepts_a_source", Build.well_formed(fire_build, 1))
 	fire_build["routines"][0]["from"] = "lava"
 	check("build_rejects_unknown_source", not Build.well_formed(fire_build, 1))
@@ -84,14 +83,14 @@ func test() -> void:
 	check("yard_keeps_every_substance", stores.get("water", 0) == run.SOURCES.size() and stores.get("fire", 0) == 2 and stores.get("current", 0) == 2 and stores.get("scrap", 0) == 2)
 	await clear_world()
 
-	# --- A routine draws fire from a drum, and only a drum ------------------------------------------
+	# --- A fire routine pours fire from the hands and leaves the yard alone ---------------------------
 	run.world.residue = true
 	player.global_position = Vector3(-3, 1.15, -2)
 	run.builds[1]["routines"] = [{"when": "cerca", "steps": ["raise"], "then": "", "on": "contact", "from": "fire"}]
 	var puddle: int = run.world.add_source(Vector3(-3, 0.1, 2))
-	check("fire_routine_ignores_water", run.spellwork.begin(1, 0, Vector3(1, 0.07, -2), Vector3.RIGHT) == "dry" and is_equal_approx(float(run.world.records[puddle]["volume"]), Catalog.MAX_VOLUME))
 	var drum: int = run.world.add_source(Vector3(-6, 0.1, -4), "fire")
-	check("fire_routine_draws_the_drum", run.spellwork.begin(1, 0, Vector3(1, 0.07, -2), Vector3.RIGHT) == "" and is_equal_approx(float(run.world.records[drum]["volume"]), Catalog.MAX_VOLUME - 1.0))
+	check("fire_routine_pours_from_hands", run.spellwork.begin(1, 0, Vector3(1, 0.07, -2), Vector3.RIGHT) == "")
+	check("fire_routine_ignores_the_yard", is_equal_approx(float(run.world.records[puddle]["volume"]), Catalog.MAX_VOLUME) and is_equal_approx(float(run.world.records[drum]["volume"]), Catalog.MAX_VOLUME))
 	play(1.2)
 	var ball: Array = run.world.records.values().filter(func(record: Dictionary) -> bool: return record["owner"] == 1)
 	check("drawn_fire_lands_and_rises", ball.size() == 1 and ball[0]["material"] == "fire" and ball[0]["shape"] == "orb")

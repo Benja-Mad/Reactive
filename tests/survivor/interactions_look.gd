@@ -85,7 +85,6 @@ func weapon() -> void:
 	var Build = preload("res://scripts/survivor/build.gd")
 	run.builds[1] = Build.fresh()
 	run.builds[1]["attack"]["steps"] = ["push", "wall", "arc"]
-	run.reserves[1] = {"water": 0, "fire": 0, "current": 0, "scrap": 0}
 	machine(player.global_position + Vector3(3.4, -1.1, -0.8), 1)
 	machine(player.global_position + Vector3(4.4, -1.1, 0.4), 1)
 	await frames(3)

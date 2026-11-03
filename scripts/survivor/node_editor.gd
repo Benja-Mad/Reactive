@@ -38,7 +38,6 @@ const NEON := {"water": Color("36c8e0"), "ice": Color("93f3ff"), "steam": Color(
 ## The source node: the glyph and the word under it for where a routine draws from.
 const SOURCE_ICON := {"water": "agua", "fire": "fuego", "current": "arco", "scrap": "chatarra"}
 const SOURCE_ACCENT := {"water": "", "fire": "when", "current": "tool", "scrap": "mute"}
-const SOURCE_TAG := {"water": "charco", "fire": "tambor", "current": "trafo", "scrap": "montón"}
 const MACHINE := Color("ff3b6b")
 const OPERATOR := Color("ffad4a")
 const GRAVITY := Color("7a66e8")
@@ -437,7 +436,7 @@ func _draw() -> void:
 			var tag: String = ""
 			if node["slot"] == "water":
 				after = Recipe.source(routine.get("from", "water"))
-				tag = SOURCE_TAG[routine.get("from", "water")]
+				tag = "manos"
 			elif is_step:
 				after = result["trace"][step_index]["state"]
 				tag = result["trace"][step_index]["tag"]

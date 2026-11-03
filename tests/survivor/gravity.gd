@@ -22,7 +22,6 @@ func test() -> void:
 	run.set_physics_process(false)
 	run.world.set_physics_process(false)
 	await clear_world()
-	run.reserves.erase(1)
 
 	# --- A well draws loose matter round onto its ring, whatever it is --------------------------
 	for kind: String in Catalog.SUBSTANCES:

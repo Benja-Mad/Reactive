@@ -38,7 +38,6 @@ func capture() -> void:
 	run.builds[1]["attack"]["steps"] = ["push", "coat"]
 	run.builds[2] = Build.fresh()
 	run.builds[2]["attack"]["steps"] = ["cold"]
-	run.reserves[2] = run.fresh_reserve("water")
 	await frames(30)
 	# A pack coming in from the right and the back of the yard, the kinds mixed.
 	var kinds: Array[int] = [0, 1, 0, 2, 1, 0, 3, 5, 0, 1, 4, 0]
