@@ -191,25 +191,13 @@ static func _flat(fill: Color, lip: Color) -> StyleBoxFlat:
 	box.content_margin_bottom = 3 * Kit.PX
 	return box
 
-## "[Esc] volver": the keycap the in-game hints use, then the verb as a text button, dim until the
-## mouse is on it. Keyboard users have Esc, so it never takes focus.
+## "volver": the verb as a text button, dim until the mouse is on it. Keyboard users have Esc, so it
+## never takes focus and no keycap names it.
 static func back_row(row: HBoxContainer, back: Button) -> void:
 	row.add_theme_constant_override("separation", int(4 * Kit.PX))
-	row.add_child(keycap("Esc"))
-	row.move_child(row.get_child(row.get_child_count() - 1), back.get_index())
 	link(back, Kit.DIM)
 	back.focus_mode = Control.FOCUS_NONE
 	back.text = "volver"
 
-static func keycap(label: String) -> Label:
-	var key := Label.new()
-	key.name = "Key" + label
-	key.text = label
-	key.add_theme_stylebox_override("normal", Kit.keycap_box())
-	key.add_theme_color_override("font_color", Kit.DIM)
-	key.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	key.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return key
-
-## Where "[Esc] volver" sits on every lobby screen: bottom left, on the column's edge.
+## Where "volver" sits on every lobby screen: bottom left, on the column's edge.
 const BACK_SPOT := Vector2(56, -64)

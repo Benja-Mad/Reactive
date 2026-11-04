@@ -30,7 +30,6 @@ var _cards: Dictionary = {}
 var _ready_button: Button
 var _back: Button
 var _status: Label
-var _undo_hint: Array = []
 var _choosing: HBoxContainer
 var _layer: Control
 
@@ -79,8 +78,8 @@ func _build() -> void:
 	_ready_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_ready_button.pressed.connect(_toggle_ready)
 	Frontend.primary(_ready_button)
-	# One row on the left baseline: the decision, then the key hints, each keycap followed by its
-	# verb in plain text and kept clear of the button.
+	# One row on the left baseline: the decision, then "volver" clear of it. The arrows and Enter
+	# still work; nothing on screen spells them out.
 	_back = %BackButton
 	var back_row: HBoxContainer = $BackRow
 	Frontend.back_row(back_row, _back)
@@ -90,11 +89,6 @@ func _build() -> void:
 	back_row.move_child(_ready_button, 0)
 	back_row.add_child(_gap(32))
 	back_row.move_child(back_row.get_child(back_row.get_child_count() - 1), 1)
-	back_row.add_child(_gap(20))
-	for key: String in ["←", "→"]: back_row.add_child(Frontend.keycap(key))
-	back_row.add_child(_hint("cambiar"))
-	_undo_hint = [_gap(20), Frontend.keycap("Enter"), _hint("deshacer")]
-	for node: Control in _undo_hint: back_row.add_child(node)
 	# Whoever has not picked yet stands between the two, on a dark plate.
 	_choosing = HBoxContainer.new()
 	_choosing.add_theme_constant_override("separation", 8)
@@ -107,13 +101,6 @@ func _gap(width: float) -> Control:
 	gap.custom_minimum_size.x = width
 	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return gap
-
-func _hint(text: String) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.theme_type_variation = &"Muted"
-	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	return label
 
 func _layout() -> void:
 	if _layer == null: return
@@ -174,7 +161,6 @@ func _refresh() -> void:
 	# Once ready, the button stays live so the ready can be taken back.
 	_ready_button.disabled = not _can_start_game() and not me.vote
 	_ready_button.text = ("Empezar turno" if Game.instance.solo else "Listo") if not me.vote else "Listo ✓"
-	for node: Control in _undo_hint: node.visible = me.vote
 	for child: Node in _choosing.get_children(): child.queue_free()
 	for player: Statics.PlayerData in Game.instance.players:
 		if player.role != Statics.Role.NONE: continue

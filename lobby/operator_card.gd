@@ -194,10 +194,11 @@ func _draw() -> void:
 			if flip: draw_set_transform(Vector2(2.0 * cx, 0.0), 0.0, Vector2(-1.0, 1.0))
 			draw_texture_rect_region(atlas.atlas, dest, src, shade)
 			draw_set_transform(Vector2.ZERO)
-	# Over the head, on plates: you in the operator's colour, the others dark.
+	# Over the head, on plates: you in the operator's colour, the others dark. Alone, the spotlight
+	# already says which one is yours, so no plate.
 	var y: float = fy - (FIGURE.size.y - HEAD) * ZOOM - 8 * px
 	var tags: Array = []
-	if selected and me_name != "": tags.append([me_name + (" (tú)" if crew else "") + (" ✓" if is_ready else ""), true])
+	if selected and me_name != "" and crew: tags.append([me_name + " (tú)" + (" ✓" if is_ready else ""), true])
 	for who: String in picks: tags.append([who, false])
 	for i: int in tags.size():
 		var tag: Array = tags[i]

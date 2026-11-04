@@ -23,15 +23,10 @@ const HEALTH := Color("e8e4d8")
 var run: Node
 var _key: String = ""
 var _controls: Control
-var _hints: Control
-var _hint_alpha: float = 1.0
-var _moved: bool = false
 var _choices: Array = []
 ## Level-up: the piece chosen from the offers, waiting for a destination.
 var _picking: String = ""
 var _hotkeys: Array[Callable] = []
-## Keycaps drawn beside the sheet's secondary actions: [position, label].
-var _keys: Array = []
 ## What Enter does on this sheet, if anything.
 var _enter: Callable
 var _editor: Control
@@ -45,11 +40,6 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	theme = Kit.theme()
-	_hints = Control.new()
-	_hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hints.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_hints.draw.connect(_draw_hints)
-	add_child(_hints)
 	_controls = Control.new()
 	_controls.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_controls)
@@ -60,21 +50,12 @@ func my_build() -> Dictionary:
 func _process(delta: float) -> void:
 	size = get_viewport_rect().size
 	_controls.size = size
-	_hints.size = size
 	_choices = run.offers.get(multiplayer.get_unique_id(), [])
 	if run.phase != "upgrade" or _picking not in _choices: _picking = ""
 	var key: String = "%s|%s|%s|%s|%s" % [run.phase, _choices, my_build(), _picking, size]
 	if key != _key:
 		_key = key
 		_rebuild()
-	# The keys line goes once the player has walked, or after twenty seconds of shift.
-	var player: Character = run.local_player()
-	if player != null and Vector2(player.velocity.x, player.velocity.z).length() > 0.5: _moved = true
-	var wanted: bool = not _moved and run.elapsed < 20.0
-	_hint_alpha = move_toward(_hint_alpha, 1.0 if wanted else 0.0, delta * 2.0)
-	_hints.visible = run.phase == "running" and _hint_alpha > 0.0
-	_hints.modulate.a = _hint_alpha
-	_hints.queue_redraw()
 	queue_redraw()
 
 ## A routine written in one line of shorthand: «near › raise · cold › relay».
@@ -111,14 +92,14 @@ func _draw() -> void:
 	var accent: String = "do" if support else "when"
 	var health: float = player.health if player != null else 100.0
 	var hurt: bool = health <= 25
-	# A shade along the top so the clock and counts read over any part of the yard.
-	draw_texture_rect(_top_shade(), Rect2(0, 0, size.x, 48 * PX), false)
+	# A shade along the top so the clock reads over any part of the yard.
+	draw_texture_rect(_top_shade(), Rect2(0, 0, size.x, 34 * PX), false)
 	# Experience along the top edge: a thin rule that fills, ticked every twentieth.
 	var fill: float = clampf(float(run.xp) / Build.threshold(run.level), 0, 1)
 	draw_rect(Rect2(0, 0, size.x, 3 * PX), Color(Kit.INK, 0.85))
 	draw_rect(Rect2(0, 0, roundf(size.x * fill / PX) * PX, 2 * PX), Kit.RAMPS["tool"][1])
 	for i: int in range(1, 20): draw_rect(Rect2(roundf(size.x * i / 20.0 / PX) * PX, 0, PX, 2 * PX), Kit.INK)
-	# You: the face on its own small plate, your health beside it, the level in words under it.
+	# You: the face on its own small plate, your health beside it, the level on its corner.
 	var face_box := Rect2(Vector2(8, 8) * PX, Vector2(24, 24) * PX)
 	draw_rect(face_box, Kit.INK)
 	draw_rect(face_box.grow(-PX), Kit.BOARD)
@@ -126,10 +107,12 @@ func _draw() -> void:
 	# The bust at the yard's own grain: one texel a canvas unit.
 	var face := _face(support) as AtlasTexture
 	draw_texture_rect_region(face.atlas, Rect2(face_box.position + Vector2(PX, PX), Vector2(44, 42)), Rect2(face.region.position + Vector2(2, 0), Vector2(44, 42)))
-	var label_at := face_box.position + Vector2(28, 1) * PX
-	Kit.text(self, label_at, "vida", Kit.RAMPS["danger"][2] if hurt else Kit.DIM, 1, HORIZONTAL_ALIGNMENT_LEFT, true)
-	_health_bar(label_at + Vector2(Kit.width("vida") + 5 * PX, 3 * PX), health, 5, hurt)
-	Kit.text(self, face_box.position + Vector2(28, 12) * PX, "nivel %d" % run.level, Kit.RAMPS["tool"][2], 1, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_health_bar(face_box.position + Vector2(29, 9) * PX, health, 5, hurt)
+	# The level rides the portrait's corner on a small ink tab, the way a rank sits on a badge.
+	var rank: String = "%d" % run.level
+	var tab := Rect2(face_box.end - Vector2(Kit.width(rank) / PX + 4, 10) * PX + Vector2(3, 3) * PX, Vector2(Kit.width(rank) / PX + 4, 10) * PX)
+	draw_rect(tab, Kit.INK)
+	Kit.text(self, tab.position + Vector2(2, 0) * PX, rank, Kit.RAMPS["tool"][2])
 	# The rest of the crew: their colour is their name, their bar the same bone health.
 	var y: float = face_box.end.y + 6 * PX
 	for other: Node in run.players():
@@ -138,14 +121,11 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2(9 * PX, y - PX), Vector2(3, 6) * PX), Kit.ramp("do" if mate is Support else "when")[1])
 		_health_bar(Vector2(16 * PX, y), mate.health if not mate.eliminated else 0.0, 4, mate.health <= 25, 4)
 		y += 9 * PX
-	# The clock dominates: time left to the relief crew, in big numerals; what has fallen under it.
+	# The clock alone: time left to the relief crew, in big numerals, rose in the last half minute.
 	var remaining: float = maxf(0.0, ceilf(run.DURATION - run.elapsed))
 	var cx: float = roundf(size.x * 0.5 / PX) * PX
 	var late: bool = remaining <= 30
 	Kit.text(self, Vector2(cx, 6 * PX), clock_text(remaining), Kit.RAMPS["danger"][2] if late else Kit.TEXT, 2, HORIZONTAL_ALIGNMENT_CENTER, true)
-	Kit.text(self, Vector2(cx, 27 * PX), "para el relevo", Kit.RAMPS["danger"][1] if late else Kit.DIM, 1, HORIZONTAL_ALIGNMENT_CENTER, true)
-	var downed: String = "%d %s" % [run.kills, "máquina derribada" if run.kills == 1 else "máquinas derribadas"]
-	Kit.text(self, Vector2(cx, 38 * PX), downed, Kit.DIM, 1, HORIZONTAL_ALIGNMENT_CENTER, true)
 	_draw_program()
 	if player != null and player.eliminated and run.phase == "running":
 		Kit.text(self, Vector2(cx, size.y * 0.38), "Fuera de servicio", Kit.RAMPS["danger"][2], 2, HORIZONTAL_ALIGNMENT_CENTER, true)
@@ -176,7 +156,7 @@ func _top_shade() -> Texture2D:
 		texture.fill_from = Vector2(0, 0)
 		texture.fill_to = Vector2(0, 1)
 		texture.width = 4
-		texture.height = 48
+		texture.height = 34
 		_shade = texture
 	return _shade
 
@@ -260,18 +240,6 @@ func _cross(at: Vector2, color: Color = Kit.RAMPS["danger"][1]) -> void:
 func _wire(x: float, y: float, accent: String) -> void:
 	draw_rect(Rect2(x - 4 * PX, y + 6 * PX, 3 * PX, PX), Kit.ramp(accent)[0])
 
-## The keys line, on its own layer so it can fade once the player has walked.
-func _draw_hints() -> void:
-	var pairs: Array = [["WASD", "mover"], ["Esc", "pausa y taller"]]
-	var total: float = 0.0
-	for pair: Array in pairs: total += maxf(9.0 * PX, Kit.width(pair[0]) + 6 * PX) + 4 * PX + Kit.width(pair[1]) + 10 * PX
-	var x: float = roundf((size.x - total) * 0.5 / PX) * PX
-	var y: float = size.y - 20 * PX
-	for pair: Array in pairs:
-		x += Kit.keycap(_hints, Vector2(x, y), pair[0]) + 4 * PX
-		Kit.text(_hints, Vector2(x, y - 2 * PX), pair[1], Kit.TEXT, 1, HORIZONTAL_ALIGNMENT_LEFT, true)
-		x += Kit.width(pair[1]) + 10 * PX
-
 # --- Sheets: level-up, workshop, end of shift ----------------------------------------------------
 
 ## A plain scrim that darkens the yard, deeper toward the edges, so the sheet reads over it.
@@ -309,15 +277,9 @@ func _draw_sheet() -> void:
 	elif run.phase == "paused" or _picking != "":
 		_draw_scrim(0.82)
 		var area := _workshop_rect()
-		var line := Vector2(area.position.x, area.end.y - 15 * PX)
-		if _picking != "":
-			draw_texture_rect(Kit.icon(_picking), Rect2(line + Vector2(0, PX), Vector2(12, 12) * PX), false)
-			var piece_name: String = name_of(_picking)
-			Kit.text(self, line + Vector2(15 * PX, 0), piece_name, Kit.ramp(Kit.accent_of(_picking))[2])
-			Kit.text(self, line + Vector2(15 * PX + Kit.width(piece_name) + 6 * PX, 0), "pieza nueva del nivel %d" % run.level, Kit.DIM)
-		else:
-			Kit.text(self, line, "Turno en pausa" if multiplayer.is_server() else "El anfitrión pausó el turno", Kit.DIM)
-	for cap: Array in _keys: Kit.keycap(self, cap[0], cap[1])
+		# A guest is told why the yard stopped; the host paused it and knows.
+		if _picking == "" and not multiplayer.is_server():
+			Kit.text(self, Vector2(area.position.x, area.end.y - 15 * PX), "El anfitrión pausó el turno", Kit.DIM)
 
 # --- The parte de turno -------------------------------------------------------------------------
 
@@ -362,7 +324,7 @@ func _draw_report() -> void:
 			Kit.text(self, at, CREW_NAME[support], Kit.ramp("do" if support else "when")[2])
 			Kit.text(self, at + Vector2(0, 12 * PX), "fuera de servicio" if mate.eliminated else "en pie", Kit.DIM if mate.eliminated else Kit.TEXT)
 			_glyph_rows(at + Vector2(0, 30 * PX), run.builds.get(mate.get_multiplayer_authority(), Build.fresh()), support)
-	if not multiplayer.is_server(): Kit.text(self, Vector2(x + keyed_width("Enter", "Menú") + 12 * PX, _report_buttons_y() + PX), "esperando al anfitrión", Kit.DIM)
+	if not multiplayer.is_server(): Kit.text(self, Vector2(x + primary_width("Menú") + 12 * PX, _report_buttons_y() + PX), "esperando al anfitrión", Kit.DIM)
 
 ## A build as chip rows: A for the weapon and its pieces, then each numbered routine as WHEN, where
 ## it draws from, its DO steps and its THEN, wired in order.
@@ -461,7 +423,6 @@ func _row_width() -> float:
 
 func _rebuild() -> void:
 	_hotkeys.clear()
-	_keys.clear()
 	_enter = Callable()
 	_editor = null
 	for child: Node in _controls.get_children():
@@ -477,24 +438,25 @@ func _rebuild() -> void:
 		"won", "lost":
 			var at := Vector2(REPORT_LEFT, _report_buttons_y())
 			if multiplayer.is_server():
-				var again := _keyed_primary(at, "Enter", "Otro turno")
+				var again := _primary(at, "Otro turno")
 				_enter = func() -> void: run.restart.rpc_id(1)
 				again.pressed.connect(_enter)
-				_link(Vector2(at.x + keyed_width("Enter", "Otro turno") + 24 * PX, at.y), "menú").pressed.connect(_to_menu)
+				_link(Vector2(at.x + primary_width("Otro turno") + 24 * PX, at.y), "menú").pressed.connect(_to_menu)
 				again.grab_focus()
 			else:
-				var leave := _keyed_primary(at, "Enter", "Menú")
+				var leave := _primary(at, "Menú")
 				_enter = _to_menu
 				leave.pressed.connect(_to_menu)
 				leave.grab_focus()
 
 ## The one decisive action of a sheet: amber paint, ink letters, a darker lip; focus goes lighter.
+## Enter presses it; no keycap says so.
 func _primary(at: Vector2, label: String) -> Button:
 	var tool: Array = Kit.RAMPS["tool"]
 	var button := Button.new()
 	button.text = label
 	button.position = at
-	button.size = Vector2(Kit.width(label) + 17 * PX, 15 * PX)
+	button.size = Vector2(primary_width(label), 15 * PX)
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	for state: Array in [["normal", tool[1], tool[0]], ["hover", tool[2], tool[1]], ["focus", tool[2], tool[1]], ["pressed", tool[0], tool[0]], ["hover_pressed", tool[0], tool[0]]]:
 		var box := StyleBoxFlat.new()
@@ -513,25 +475,14 @@ func _primary(at: Vector2, label: String) -> Button:
 	_controls.add_child(button)
 	return button
 
-## The primary with its key on a keycap before it, apart from the plate.
-func _keyed_primary(at: Vector2, key: String, label: String) -> Button:
-	var key_w: float = maxf(9.0 * PX, Kit.width(key) + 6 * PX)
-	_keys.append([Vector2(at.x, at.y + 3 * PX), key])
-	return _primary(Vector2(at.x + key_w + 5 * PX, at.y), label)
+static func primary_width(label: String) -> float:
+	return Kit.width(label) + 17 * PX
 
-static func keyed_width(key: String, label: String) -> float:
-	return maxf(9.0 * PX, Kit.width(key) + 6 * PX) + 5 * PX + Kit.width(label) + 17 * PX
-
-## A secondary action: a lowercase verb in plain dim text, amber on hover or focus, with its key on
-## a keycap before it when it has one.
-func _link(at: Vector2, label: String, key: String = "") -> Button:
-	var x: float = at.x
-	if key != "":
-		_keys.append([Vector2(x, at.y + 3 * PX), key])
-		x += maxf(9.0 * PX, Kit.width(key) + 6 * PX) + 3 * PX
+## A secondary action: a lowercase verb in plain dim text, amber on hover or focus.
+func _link(at: Vector2, label: String) -> Button:
 	var button := Button.new()
 	button.text = label
-	button.position = Vector2(x, at.y + PX)
+	button.position = Vector2(at.x, at.y + PX)
 	button.size = Vector2(Kit.width(label) + 4 * PX, 15 * PX)
 	for state: String in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
 		var empty := StyleBoxEmpty.new()
@@ -547,9 +498,8 @@ func _link(at: Vector2, label: String, key: String = "") -> Button:
 	_controls.add_child(button)
 	return button
 
-## Width a secondary action takes, keycap included.
-static func link_width(label: String, key: String = "") -> float:
-	return Kit.width(label) + 4 * PX + (maxf(9.0 * PX, Kit.width(key) + 6 * PX) + 3 * PX if key != "" else 0.0)
+static func link_width(label: String) -> float:
+	return Kit.width(label) + 4 * PX
 
 func _to_menu() -> void:
 	get_tree().paused = false
@@ -561,7 +511,6 @@ func _build_offers() -> void:
 		var key: String = _choices[i]
 		var row := OfferRow.new()
 		row.key = key
-		row.number = i + 1
 		row.level = int(my_build()["tools"].get(key, 0)) if Build.is_tool_key(key) else 0
 		row.position = list.position + Vector2(0, i * (ROW.y + ROW_GAP))
 		row.size = Vector2(_row_width(), ROW.y)
@@ -584,25 +533,25 @@ func _open_editor(new_piece: String = "") -> Control:
 	_editor = editor
 	return editor
 
-## The workshop band's controls, right-aligned: the secondary action, a clear gap, then the keyed
+## The workshop band's controls, right-aligned: the secondary action, a clear gap, then the
 ## primary at the edge.
-func _band(key: String, primary: String, secondary: String, secondary_key: String, gap: float) -> Array:
+func _band(primary: String, secondary: String, gap: float) -> Array:
 	var area := _workshop_rect()
 	var y: float = area.end.y - 16 * PX
 	var right: float = area.end.x
 	var main: Button = null
 	if primary != "":
-		right -= keyed_width(key, primary)
-		main = _keyed_primary(Vector2(right, y), key, primary)
+		right -= primary_width(primary)
+		main = _primary(Vector2(right, y), primary)
 		right -= gap
-	var other := _link(Vector2(right - link_width(secondary, secondary_key), y), secondary, secondary_key)
+	var other := _link(Vector2(right - link_width(secondary), y), secondary)
 	return [main, other]
 
 ## Level-up: the chosen piece arrives in the box; the player may rearrange anything around it.
 ## Nothing reaches the host until «listo» (Enter); Esc, or «elegir otra», goes back to the offers.
 func _build_placement() -> void:
 	var editor: Control = _open_editor(_picking)
-	var buttons: Array = _band("Enter", "Listo", "elegir otra", "Esc", 16 * PX)
+	var buttons: Array = _band("Listo", "elegir otra", 24 * PX)
 	_enter = func() -> void: run.choose_upgrade.rpc_id(1, _picking, -1, editor.draft)
 	buttons[0].pressed.connect(_enter)
 	buttons[1].pressed.connect(func() -> void: _picking = "")
@@ -614,12 +563,12 @@ func _build_workshop() -> void:
 	var editor: Control = _open_editor()
 	editor.changed.connect(func(build: Dictionary) -> void: run.submit_build.rpc_id(1, build))
 	if multiplayer.is_server():
-		var buttons: Array = _band("Esc", "Reanudar", "menú", "", 28 * PX)
+		var buttons: Array = _band("Reanudar", "menú", 28 * PX)
 		buttons[0].pressed.connect(func() -> void: run.toggle_pause.rpc_id(1))
 		buttons[1].pressed.connect(_to_menu)
 		buttons[0].grab_focus()
 	else:
-		_band("", "", "menú", "", 0.0)[1].pressed.connect(_to_menu)
+		_band("", "menú", 0.0)[1].pressed.connect(_to_menu)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo: return
@@ -636,13 +585,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if index < _hotkeys.size(): _hotkeys[index].call()
 		get_viewport().set_input_as_handled()
 
-## A level-up offer as one line of a parts list: its number, its glyph, its name and what it does;
+## A level-up offer as one line of a parts list: its glyph, its name and what it does (1–9 still
+## pick it, unlabelled);
 ## on the right, where it goes, drawn as a routine's three sockets with its own lit (WHEN opens a
 ## routine, DO is a step in the middle, THEN closes it), or for a tool the level it brings. The
-## focused row is the lighter one, with the amber marker and number.
+## focused row is the lighter one, with the amber marker.
 class OfferRow extends Button:
 	var key: String = ""
-	var number: int = 1
 	var level: int = 0
 	func _ready() -> void:
 		flat = true
@@ -665,12 +614,11 @@ class OfferRow extends Button:
 			draw_rect(Rect2(Vector2.ZERO, size), Kit.FILL_HI)
 			var tip := Vector2(4, 12) * px
 			draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(3, 3) * px, tip + Vector2(0, 6) * px]), amber[1])
-		Kit.text(self, Vector2(10 * px, 9 * px), "%d" % number, amber[2] if hot else Kit.DIM)
-		draw_texture_rect(Kit.icon(key, accent), Rect2(Vector2(20, 3) * px, Vector2(24, 24) * px), false)
+		draw_texture_rect(Kit.icon(key, accent), Rect2(Vector2(13, 3) * px, Vector2(24, 24) * px), false)
 		var label: String = String(Build.info(key)["name"]).to_lower()
-		Kit.text(self, Vector2(51 * px, 3 * px), label, r[2])
-		Kit.text(self, Vector2(51 * px, 15 * px), Build.SHORT.get(key, ""), Kit.TEXT if hot else Kit.DIM)
-		var left: float = 51 * px + Kit.width(label) + 8 * px
+		Kit.text(self, Vector2(44 * px, 3 * px), label, r[2])
+		Kit.text(self, Vector2(44 * px, 15 * px), Build.SHORT.get(key, ""), Kit.TEXT if hot else Kit.DIM)
+		var left: float = 44 * px + Kit.width(label) + 8 * px
 		if Build.is_tool_key(key):
 			var most: int = int(Build.TOOLS[key]["max"])
 			for pip: int in most:
