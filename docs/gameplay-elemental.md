@@ -137,6 +137,12 @@ enciende si dijo que sí y, si dijo que no, ella y el DO saltado se apagan con b
 en el arma, no suman recarga y una condición al final de la fila es un error («no tiene un DO
 detrás que decidir»).
 
+**Lo que cambias se prueba solo** (`run._note_changes`, `run._run_trials`). Al cerrar el taller
+o elegir pieza, cada rutina que cambió corre una vez al reanudarse (una cada 0,45 s), donde su
+WHEN la pondría o, si no puede decirlo, sobre la máquina más cercana o unos pasos delante. Va por
+cuenta de la casa: no gasta la recarga. El taller sigue siendo una pausa real: la cámara lenta se
+descartó porque en multijugador el host pausa para todos y Esc tiene que seguir parando.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

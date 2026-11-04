@@ -17,6 +17,11 @@ var offers: Dictionary = {}
 var clocks: Dictionary = {}
 ## Per peer, how charged each routine is (0..1). Host-computed, replicated for the HUD only.
 var charges: Dictionary = {}
+## Routines a player just changed, run once on the house as play resumes so the change shows in
+## the yard at once: peer -> [routine index]. `_trial_in` paces them.
+var trials: Dictionary = {}
+var _trial_in: float = 0.0
+const TRIAL_GAP := 0.45
 var collected: int = 0
 var machines_spawned: int = 0
 var automations_fired: int = 0
@@ -131,6 +136,7 @@ func _physics_process(delta: float) -> void:
 		if player.eliminated: continue
 		player.move_multiplier = 1.0 + builds[peer]["tools"]["boots"] * 0.1
 		_automate(player, peer, delta)
+	_run_trials(delta)
 	_land_animas(delta)
 	_land_falls(delta)
 	if nearest_player(Vector3.ZERO) == null:
@@ -648,6 +654,7 @@ func choose_upgrade(key: String, routine_index: int = -1, proposed: Dictionary =
 		else:
 			var placed: Dictionary = Build.place(build, key, routine_index)
 			builds[peer] = placed if not placed.is_empty() else boxed
+		_note_changes(peer, build["routines"], builds[peer]["routines"])
 	offers.erase(peer)
 	publish()
 	if offers.is_empty():
@@ -668,7 +675,46 @@ func submit_build(proposed: Dictionary) -> void:
 	next["attack"] = proposed.get("attack", {"steps": []}).duplicate(true)
 	next["box"] = proposed["box"].duplicate()
 	builds[peer] = next
+	_note_changes(peer, current["routines"], next["routines"])
 	publish()
+
+## Every routine that came out of an edit different and able to fire is queued to run once.
+func _note_changes(peer: int, before: Array, after: Array) -> void:
+	var queued: Array = trials.get(peer, [])
+	for index: int in after.size():
+		var was: Variant = before[index] if index < before.size() else null
+		if after[index]["when"] == "" or after[index] == was or index in queued: continue
+		queued.append(index)
+	if not queued.is_empty():
+		trials[peer] = queued
+		_trial_in = TRIAL_GAP
+
+## One queued trial every beat once play has resumed: where its WHEN would put it if it can say,
+## otherwise on the nearest machine in sight, otherwise a few steps ahead. Cooldowns are untouched.
+func _run_trials(delta: float) -> void:
+	if trials.is_empty(): return
+	_trial_in -= delta
+	if _trial_in > 0.0: return
+	_trial_in = TRIAL_GAP
+	var peer: int = trials.keys()[0]
+	var index: int = trials[peer].pop_front()
+	if trials[peer].is_empty(): trials.erase(peer)
+	var player: Character = world._player(peer) as Character
+	if player == null or player.eliminated or not builds.has(peer) or index >= builds[peer]["routines"].size(): return
+	var routine: Dictionary = builds[peer]["routines"][index]
+	if routine["when"] == "": return
+	var enemies: Array[Node3D] = targets(player)
+	var clock: Dictionary = clocks[peer].duplicate()
+	var placement: Variant = _placement(player, clock, routine["when"], enemies) if routine["when"] not in ["eco", "mano", "rastro", "herido", "derribo"] else null
+	if placement == null:
+		var me: Vector3 = player.global_position
+		var ahead: Vector3 = Vector3(player.velocity.x, 0, player.velocity.z).normalized()
+		if ahead.is_zero_approx(): ahead = Vector3.FORWARD
+		if not enemies.is_empty() and enemies[0].global_position.distance_to(me) < Build.DRAW_REACH:
+			ahead = Vector3(enemies[0].global_position.x - me.x, 0, enemies[0].global_position.z - me.z).normalized()
+			placement = [enemies[0].global_position, ahead]
+		else: placement = [me + ahead * 4.0, ahead]
+	spellwork.begin(peer, index, placement[0], placement[1], 0, placement[2] if placement.size() > 2 else 0)
 
 @rpc("authority", "call_local", "reliable")
 func set_phase(value: String) -> void:

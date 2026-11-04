@@ -111,6 +111,17 @@ func systemic_checks(Build: GDScript) -> void:
 	var far_cue: Variant = run._placement(player, run.clocks[1], "mano", nobody)
 	run.clocks[1].erase("cue")
 	check("on_cue_fires_where_clicked", idle_cue == null and near_cue != null and Vector2(near_cue[0].x - me.x, near_cue[0].z - me.z).is_equal_approx(Vector2(5, 2)) and far_cue != null and absf(Vector2(far_cue[0].x - me.x, far_cue[0].z - me.z).length() - Build.DRAW_REACH) < 0.01)
+	# An edited routine runs once as play resumes, on the house: no cooldown spent.
+	var before_edit: Array = run.builds[1]["routines"].duplicate(true)
+	var after_edit: Array = before_edit.duplicate(true)
+	after_edit[0]["steps"] = ["cold"]
+	run.trials.clear()
+	run._note_changes(1, before_edit, after_edit)
+	var queued_ok: bool = run.trials.get(1, []) == [0]
+	var clock_before: float = float(run.clocks[1].get("r0", 0.0))
+	run._run_trials(1.0)
+	check("edited_routine_runs_once", queued_ok and run.trials.is_empty() and run.spellwork.casting(1) and is_equal_approx(float(run.clocks[1].get("r0", 0.0)), clock_before))
+	run.spellwork._casts.clear()
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	await rule_checks(Build, me)
 	for i: int in 4: run.clocks[1]["r%d" % i] = 0.0
