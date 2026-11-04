@@ -519,7 +519,9 @@ func _draw_cables(rows: Array) -> void:
 func _draw_tooltip() -> void:
 	if _reaction_button.has_point(_mouse):
 		var at: Vector2 = _reaction_button.position - Vector2(0, 17 * PX)
-		var message: String = "Clic: contacto / rotura / 2 s / pulso"
+		# What «cambiar» turns it into, the one thing the hover can add.
+		var on: String = draft["routines"][focus].get("on", "contact") if focus >= 0 and focus < draft["routines"].size() else "contact"
+		var message: String = "→ " + Recipe.ON_NAMES[Recipe.ON[(Recipe.ON.find(on) + 1) % Recipe.ON.size()]]
 		at.x = minf(at.x, size.x - Kit.width(message) - 10 * PX)
 		Kit.notched(self, Rect2(at, Vector2(Kit.width(message) + 10 * PX, 14 * PX)), Kit.FILL_HI, Kit.ramp("then")[1])
 		Kit.text(self, at + Vector2(5 * PX, 0), message, Kit.TEXT)
