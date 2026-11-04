@@ -50,6 +50,7 @@ var _falls: Array[Dictionary] = []
 var _aims: Array[Dictionary] = []
 const AIM_READY := Color("f0a04a")
 const AIM_IDLE := Color("6a6f7a")
+const AIM_GHOST := Color("7a5630")
 var world: Node
 var machines: Node3D
 var _fields: Dictionary = {}
@@ -189,7 +190,8 @@ func combo(at: Vector3) -> void:
 	CombatFx.ripple(get_parent(), Vector3(at.x, at.y + 0.1, at.z), AIM_READY, 2.2, 0.45)
 
 func aim(at: Vector3, ready: bool) -> void:
-	_aims.append({"at": at, "left": 0.6 if ready else 0.3, "life": 0.6 if ready else 0.3, "ready": ready})
+	# Short: the click is an instant, so it never lingers beside a mark's standing corners.
+	_aims.append({"at": at, "left": 0.32 if ready else 0.22, "life": 0.32 if ready else 0.22, "ready": ready})
 
 ## Sparks thrown from a fire let go, out to `radius`.
 func sparks(at: Vector3, radius: float) -> void:
@@ -358,11 +360,12 @@ func _draw_marks(delta: float) -> void:
 	if mark != null and (not is_instance_valid(mark) or mark.down): mark = null
 	if hover_machine != null and (not is_instance_valid(hover_machine) or hover_machine.down): hover_machine = null
 	for spot: Array in click_spots: _corners(spot[0], spot[1], 0.22, 2.0 * texel, AIM_HOVER)
-	if hover_machine != null: _corners(hover_machine.global_position, 1.15, 0.3, 3.0 * texel, AIM_HOVER)
-	if mark != null: _corners(mark.global_position, 1.15 + 0.06 * sin(_time * 5.0), 0.3, 3.0 * texel, AIM_READY)
+	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
+	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)
+	if mark != null: _corners(mark.global_position, 1.0, 0.42, 4.0 * texel, AIM_READY)
 	for aim_mark: Dictionary in _aims:
 		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]
-		_corners(aim_mark["at"], lerpf(1.6, 0.9, minf(1.0, t * 4.0)), 0.5, 4.0 * texel, AIM_READY if aim_mark["ready"] else AIM_IDLE)
+		_corners(aim_mark["at"], lerpf(1.6, 0.7, minf(1.0, t * 2.5)), 0.3, 3.0 * texel, AIM_READY if aim_mark["ready"] else AIM_IDLE)
 	# A struck machine still crackles: two short sparks crawling over it.
 	if machines != null:
 		for enemy: Node3D in machines.get_children():

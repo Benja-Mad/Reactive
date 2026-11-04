@@ -15,6 +15,8 @@ const WORLD_UNIT := 55.0
 const VOICES := 8
 ## The same sound no closer than this, so a crowd of routines thickens instead of buzzing.
 const GAP := 0.045
+## Sounds that come in floods get a longer gap of their own: steam rises off every soak.
+const GAPS: Dictionary = {"hiss": 0.6, "crunch": 0.09, "zap": 0.08}
 const VOLUME_DB := -6.0
 ## A major pentatonic, so any run of DO steps makes a phrase and never a clash.
 const SCALE: Array[float] = [1.0, 1.125, 1.25, 1.5, 1.6667, 2.0, 2.25]
@@ -27,6 +29,8 @@ var _next: int = 0
 var _last: Dictionary = {}
 var _world: Array[AudioStreamPlayer3D] = []
 var _world_next: int = 0
+## How many times each sound has played, for tuning the mix from a soak.
+var played: Dictionary = {}
 
 ## The one Sfx under the tree's root, made on first use.
 ## Kept here too, so calls in the frame before it joins the tree reach the same one.
@@ -85,6 +89,7 @@ func play(sound: String, pitch: float = 1.0, gain_db: float = 0.0) -> void:
 	var now: float = Time.get_ticks_msec() / 1000.0
 	if now - float(_last.get(sound, -1.0)) < GAP: return
 	_last[sound] = now
+	played[sound] = int(played.get(sound, 0)) + 1
 	var player: AudioStreamPlayer = _players[_next]
 	_next = (_next + 1) % _players.size()
 	player.stream = _streams[sound]
@@ -96,8 +101,9 @@ func play(sound: String, pitch: float = 1.0, gain_db: float = 0.0) -> void:
 func at(sound: String, where: Vector3, gain_db: float = 0.0, pitch: float = 0.0) -> void:
 	if _world.is_empty() or not _streams.has(sound): return
 	var now: float = Time.get_ticks_msec() / 1000.0
-	if now - float(_last.get(sound, -1.0)) < GAP * 1.5: return
+	if now - float(_last.get(sound, -1.0)) < float(GAPS.get(sound, GAP * 1.5)): return
 	_last[sound] = now
+	played[sound] = int(played.get(sound, 0)) + 1
 	var voice: AudioStreamPlayer3D = _world[_world_next]
 	_world_next = (_world_next + 1) % _world.size()
 	voice.stream = _streams[sound]

@@ -120,7 +120,7 @@ func _process(_delta: float) -> void:
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
 			click_armed[int(record["reaction"].get("routine", -1))] = true
 			var size: Vector3 = record.get("size", Vector3.ONE)
-			spots.append([record["position"], clampf(maxf(size.x, size.z) * 0.5 + 0.15, 0.5, 2.0)])
+			spots.append([record["position"], clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)])
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.click_spots = spots
 	var live: bool = phase == "running" and not get_tree().paused
