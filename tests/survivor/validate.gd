@@ -138,8 +138,15 @@ func systemic_checks(Build: GDScript) -> void:
 	run._note_changes(1, before_edit, after_edit)
 	var queued_ok: bool = run.trials.get(1, []) == [0]
 	var clock_before: float = float(run.clocks[1].get("r0", 0.0))
+	var heard_before: Dictionary = Sfx.of(run).played.duplicate()
 	run._run_trials(1.0)
 	check("edited_routine_runs_once", queued_ok and run.trials.is_empty() and run.spellwork.casting(1) and is_equal_approx(float(run.clocks[1].get("r0", 0.0)), clock_before))
+	# The program is heard: the trial's WHEN and its DO play where the HUD lights them.
+	for i: int in 90:
+		await get_tree().physics_frame
+		if not run.spellwork.casting(1): break
+	var heard: Dictionary = Sfx.of(run).played
+	check("program_is_heard", int(heard.get("draw", 0)) > int(heard_before.get("draw", 0)) and int(heard.get("step", 0)) + int(heard.get("idle", 0)) > int(heard_before.get("step", 0)) + int(heard_before.get("idle", 0)))
 	run.spellwork._casts.clear()
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	await rule_checks(Build, me)
