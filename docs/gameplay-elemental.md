@@ -150,6 +150,10 @@ carga que cruza materia de otra rutina o revienta sus nanitos), el programa une 
 ámbar los números de esas dos filas durante 0,9 s. A lo sumo una vez por segundo por pareja. Soak:
 de 3 a 18 por turno según la build.
 
+La máquina también cuenta como puente: el agua de una rutina deja su marca en lo que moja
+(`spellwork.wet_by`), y si otra rutina la electrocuta o la congela mientras sigue mojada
+(`spellwork.wet_and`), el combo une esas dos filas. El rayo de un arma no acredita a nadie.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

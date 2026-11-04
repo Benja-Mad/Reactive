@@ -120,12 +120,18 @@ func cue_ready() -> bool:
 		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: return true
 	return false
 
-## Where the pointer meets the floor.
+## Where the pointer meets the floor, brought within reach the way the host will bring it, so
+## the corners stand where the matter will land.
 func cue_spot() -> Variant:
 	if local_player() == null or arena == null: return null
 	var camera: Camera3D = arena.gameplay_camera
 	var mouse: Vector2 = get_viewport().get_mouse_position()
-	return Plane(Vector3.UP, 0.07).intersects_ray(camera.project_ray_origin(mouse), camera.project_ray_normal(mouse))
+	var spot: Variant = Plane(Vector3.UP, 0.07).intersects_ray(camera.project_ray_origin(mouse), camera.project_ray_normal(mouse))
+	if spot == null: return null
+	var me: Vector3 = local_player().global_position
+	var reach := Vector3(spot.x - me.x, 0, spot.z - me.z)
+	if reach.length() > Build.DRAW_REACH: spot = Vector3(me.x, 0.07, me.z) + reach.normalized() * Build.DRAW_REACH
+	return spot
 
 @rpc("any_peer", "call_local", "reliable")
 func cue(point: Vector3) -> void:
