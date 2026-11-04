@@ -115,6 +115,7 @@ func _process(_delta: float) -> void:
 	# pointer.
 	click_armed.clear()
 	var spots: Array = []
+	var reach_now: Dictionary = {}
 	if world != null:
 		for record: Dictionary in world.records.values():
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
@@ -124,6 +125,10 @@ func _process(_delta: float) -> void:
 			# A machine within its reach now: the moment to let it go.
 			var near: bool = machine_at(record["position"], half + 1.4) != null
 			spots.append([record["position"], half, near])
+			# Heard once as it comes into reach, so the moment can be caught without looking.
+			if near and not _in_reach.has(record["id"]): Sfx.of(self).play("armed", 1.5, 2.0)
+			if near: reach_now[record["id"]] = true
+	_in_reach = reach_now
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.click_spots = spots
 	var live: bool = phase == "running" and not get_tree().paused
@@ -190,6 +195,7 @@ var my_mark: String = ""
 
 ## Routine indices of yours with matter armed «on click» this frame (see _process).
 var click_armed: Dictionary = {}
+var _in_reach: Dictionary = {}
 
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
