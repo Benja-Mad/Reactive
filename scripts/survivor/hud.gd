@@ -236,7 +236,12 @@ const LINE_H: float = 16 * Kit.PX
 func _program_rect() -> Rect2:
 	var routines: Array = my_build()["routines"]
 	var widest: int = 1 + Build.attack_steps(my_build()).size()
-	for routine: Dictionary in routines: widest = maxi(widest, 2 + routine["steps"].size() + (1 if routine["then"] != "" else 0))
+	# The HUD draws WHEN, the DO steps and THEN (the source is not a glyph here); a broken row's
+	# cross takes one more place.
+	for index: int in routines.size():
+		var routine: Dictionary = routines[index]
+		var broken: bool = routine["when"] != "" and Build.problem(routine, routines, index) != ""
+		widest = maxi(widest, 1 + routine["steps"].size() + (1 if routine["then"] != "" else 0) + (1 if broken else 0))
 	var w: float = 10 * PX + maxi(widest, 3) * STEP + 8 * PX
 	var h: float = (routines.size() + 1) * LINE_H + 5 * PX
 	return Rect2(Vector2(8 * PX, size.y - 8 * PX - h), Vector2(w, h))
