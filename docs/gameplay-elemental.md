@@ -133,8 +133,18 @@ segundo.
 de 2,2 m de una máquina, queda marcada para quien hizo clic: va primera en la lista de la que
 eligen todas sus rutinas (*every*, el arma, las pruebas, la dirección de los pasos) mientras siga
 a la vista. *on near* sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana.
-Cuatro esquinas ámbar la siguen en el suelo hasta que cae o marcas otra. Funciona aunque no haya
-ninguna rutina *on cue* lista.
+Cuatro esquinas ámbar la siguen en el suelo hasta que cae, marcas otra o queda a más de 16 m
+(`MARK_KEEP`). Funciona aunque no haya ninguna rutina *on cue* lista.
+
+**Un clic, leído por prioridad** (revisión de diseño del 4 de noviembre). Primero suelta lo armado
+al clic cerca; si soltó algo, no marca: saltar una trampa justo cuando una máquina la pisa no debe
+redirigir todo el programa a esa máquina. Si no soltó nada y cae sobre una máquina, la marca. Las
+rutinas *on cue* salen siempre en el punto. Un clic que no hace nada (nada listo, nada que soltar,
+ninguna marca nueva) suma medio segundo a la recarga de las rutinas *on cue* (`IDLE_CLICK`): hacer
+clic sin parar no paga. Lo armado al clic espera como mucho 10 s (`Recipe.CLICK_STALE`); después
+salta al contacto como cualquier THEN, así no se acumulan trampas por todo el patio. Se probó que
+volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina una y otra
+vez sobre la misma máquina la marcaba y desmarcaba (en el soak, de 269 a 154 s).
 
 **El THEN también puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto
 momento del THEN, *al hacer clic*: la materia se queda armada (en el programa, su THEN con el

@@ -363,6 +363,7 @@ func _moment(record: Dictionary) -> bool:
 		"contact": return _touched(record)
 		"broken": return record["shape"] == "fragments"
 		"timer": return float(record["reaction"].get("after", 1.0)) <= 0.0
+		"mano": return float(record["reaction"].get("after", 0.0)) <= Recipe.REACTION_DELAY - Recipe.CLICK_STALE and _touched(record)
 	return false # A relay explicitly delivers the pulse.
 
 func _touched(record: Dictionary) -> bool:

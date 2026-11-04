@@ -283,6 +283,9 @@ const ON_NAMES := {"contact": "al contacto", "broken": "al romperse", "timer": "
 ## How long matter armed «on click» must stand before a click lets it go, so the click that
 ## made it does not also spend it.
 const CLICK_ARMING := 0.3
+## How long matter armed «on click» waits for it; after that it springs on contact like any THEN,
+## so traps cannot be stockpiled across the yard.
+const CLICK_STALE := 10.0
 const REACTION_DELAY := 2.0
 ## Whether `record` is `peer`'s matter armed «on click» and ready for the click.
 ## `settled` asks for the arming margin too; only the host can, since `after` counts down there

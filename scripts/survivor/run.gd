@@ -175,14 +175,28 @@ func cue(point: Vector3) -> void:
 	var body: Character = world._player(peer) as Character
 	if body == null or body.eliminated: return
 	clocks[peer]["cue"] = point
-	# A click on a machine also marks it: your routines take it first while it stands in sight.
+	# One click, read by priority. First it lets go their THENs armed «on click» near where it
+	# landed; a click that does that marks nothing, so springing a trap as a machine walks into
+	# it never retargets the whole program onto that machine.
+	var freed: int = spellwork.release(peer, point)
 	var picked: Node3D = machine_at(point)
-	if clocks[peer].has("mark") and not is_instance_valid(clocks[peer]["mark"]): clocks[peer].erase("mark")
-	if picked != null and clocks[peer].get("mark") != picked:
-		clocks[peer]["mark"] = picked
+	var clock: Dictionary = clocks[peer]
+	if clock.has("mark") and not is_instance_valid(clock["mark"]): clock.erase("mark")
+	var marking: bool = freed == 0 and picked != null
+	if marking and clock.get("mark") != picked:
+		# Otherwise a click on a machine marks it: your routines take it first while in reach.
+		clock["mark"] = picked
 		marked.rpc_id(peer, str(picked.name))
-	# And it lets go their THENs armed «on click» near where it landed.
-	spellwork.release(peer, point)
+	# On cue always fires at the point. A click that does nothing at all costs a little: every
+	# routine on cue still recharging waits half a second more, so spamming does not pay.
+	var routines: Array = builds.get(peer, {}).get("routines", [])
+	var any_ready: bool = false
+	for index: int in routines.size():
+		if routines[index]["when"] == "mano" and float(clock.get("r%d" % index, 0.0)) <= 0.0: any_ready = true
+	if freed == 0 and not marking and not any_ready:
+		for index: int in routines.size():
+			var key: String = "r%d" % index
+			if routines[index]["when"] == "mano" and float(clock.get(key, 0.0)) > 0.0: clock[key] = float(clock[key]) + IDLE_CLICK
 
 ## The standing machine nearest `point` within a click's reach of it, or null.
 func machine_at(point: Vector3, radius: float = MARK_RADIUS) -> Node3D:
@@ -205,6 +219,11 @@ var _in_reach: Dictionary = {}
 ## This frame's armed spots: [position, half, machine in reach].
 var _armed_spots: Array = []
 
+## What a click that does nothing adds to the recharge of your routines on cue.
+const IDLE_CLICK := 0.5
+## How far a mark may be before it is let go: the reach routines pick their machines from.
+const MARK_KEEP := 16.0
+
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
 
@@ -212,7 +231,8 @@ const MARK_RADIUS := 2.2
 @rpc("authority", "call_local", "reliable")
 func marked(key: String) -> void:
 	my_mark = key
-	var enemy: Node3D = machines.get_node_or_null(key) if machines != null else null
+	if key == "" and spellwork != null and spellwork._fx != null: spellwork._fx.mark = null
+	var enemy: Node3D = machines.get_node_or_null(key) if machines != null and key != "" else null
 	if enemy != null and spellwork != null and spellwork._fx != null:
 		spellwork._fx.mark = enemy
 		Sfx.of(self).play("armed", 0.75, 4.0)
@@ -274,6 +294,10 @@ func _automate(player: Character, peer: int, delta: float) -> void:
 	var clock: Dictionary = clocks[peer]
 	clock["shot"] -= delta
 	clock["heal"] -= delta
+	# A mark left far behind is let go: out past the reach routines pick from, it only misleads.
+	if clock.has("mark") and (not is_instance_valid(clock["mark"]) or player.global_position.distance_to(clock["mark"].global_position) > MARK_KEEP):
+		clock.erase("mark")
+		marked.rpc_id(peer, "")
 	var enemies: Array[Node3D] = targets(player)
 	if clock["shot"] <= 0:
 		if player is Support: _animas(player, peer, clock, tools)

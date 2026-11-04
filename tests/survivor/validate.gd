@@ -124,12 +124,26 @@ func systemic_checks(Build: GDScript) -> void:
 	var near_on_mark: Variant = run._placement(player, run.clocks[1], "cerca", run.targets(player))
 	marked.global_position = me + Vector3(0, -1.1, 12)
 	var near_falls_back: Variant = run._placement(player, run.clocks[1], "cerca", run.targets(player))
+	# A mark out past the routines' reach is let go; a click that springs a trap marks nothing.
+	marked.global_position = me + Vector3(0, -1.1, 20)
+	run._automate(player, 1, 0.0)
+	var unmarked: bool = not run.clocks[1].has("mark")
+	marked.global_position = me + Vector3(0, -1.1, 12)
+	var kept_routine: Dictionary = run.builds[1]["routines"][0].duplicate(true)
+	run.builds[1]["routines"][0] = {"when": "cerca", "steps": [], "then": "estallar", "on": "mano"}
+	var trap: int = run.spellwork.cast(1, 0, marked.global_position + Vector3(1.5, 0, 0), Vector3.RIGHT)
+	if run.world.records.has(trap): run.world.records[trap]["reaction"]["after"] = 0.0
+	run.cue(marked.global_position)
+	var sprung_unmarked: bool = trap > 0 and not run.clocks[1].has("mark") and not (run.world.records.has(trap) and run.world.records[trap].has("reaction"))
+	run.clocks[1].erase("cue")
+	run.builds[1]["routines"][0] = kept_routine
+	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	marked.queue_free()
 	await frames(2)
 	var after_gone: bool = run.targets(player)[0] == close
 	close.queue_free()
 	run.clocks[1].erase("mark")
-	check("click_marks_a_machine", plain_first and mark_first and near_on_mark != null and near_on_mark[1].z > 0.9 and near_falls_back != null and near_falls_back[1].x < -0.9 and after_gone)
+	check("click_marks_a_machine", plain_first and mark_first and near_on_mark != null and near_on_mark[1].z > 0.9 and near_falls_back != null and near_falls_back[1].x < -0.9 and after_gone and unmarked and sprung_unmarked)
 	# An edited routine runs once as play resumes, on the house: no cooldown spent.
 	var before_edit: Array = run.builds[1]["routines"].duplicate(true)
 	var after_edit: Array = before_edit.duplicate(true)
