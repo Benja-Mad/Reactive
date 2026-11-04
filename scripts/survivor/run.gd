@@ -140,7 +140,27 @@ func cue(point: Vector3) -> void:
 	if not multiplayer.is_server() or phase != "running": return
 	var peer: int = multiplayer.get_remote_sender_id()
 	if peer == 0: peer = multiplayer.get_unique_id()
-	if clocks.has(peer): clocks[peer]["cue"] = point
+	if not clocks.has(peer): return
+	clocks[peer]["cue"] = point
+	# A click on a machine also marks it: your routines take it first while it stands in sight.
+	var picked: Node3D = null
+	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
+		if enemy.down: continue
+		var gap: float = Vector2(enemy.global_position.x - point.x, enemy.global_position.z - point.z).length()
+		if gap < MARK_RADIUS and (picked == null or gap < Vector2(picked.global_position.x - point.x, picked.global_position.z - point.z).length()): picked = enemy
+	if clocks[peer].has("mark") and not is_instance_valid(clocks[peer]["mark"]): clocks[peer].erase("mark")
+	if picked != null and clocks[peer].get("mark") != picked:
+		clocks[peer]["mark"] = picked
+		marked.rpc_id(peer, str(picked.name))
+
+## How near a click must land to a machine to mark it.
+const MARK_RADIUS := 2.2
+
+## The host's word to the one who clicked: this machine is now your mark.
+@rpc("authority", "call_local", "reliable")
+func marked(key: String) -> void:
+	var enemy: Node3D = machines.get_node_or_null(key) if machines != null else null
+	if enemy != null and spellwork != null and spellwork._fx != null: spellwork._fx.mark = enemy
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or phase != "running" or get_tree().paused: return
 	if players().is_empty(): return
@@ -186,6 +206,12 @@ func targets(player: Character, reach: float = 16.0) -> Array[Node3D]:
 		var hit: Dictionary = arena.get_world_3d().direct_space_state.intersect_ray(query)
 		if hit.is_empty(): result.append(enemy)
 	result.sort_custom(func(a: Node3D, b: Node3D) -> bool: return player.global_position.distance_squared_to(a.global_position) < player.global_position.distance_squared_to(b.global_position))
+	# The player's mark goes first while it is in sight, so every routine that picks a machine
+	# picks that one.
+	var mark: Variant = clocks.get(player.get_multiplayer_authority(), {}).get("mark")
+	if mark != null and is_instance_valid(mark) and mark in result:
+		result.erase(mark)
+		result.push_front(mark)
 	return result
 func _automate(player: Character, peer: int, delta: float) -> void:
 	var build: Dictionary = builds[peer]
@@ -447,10 +473,13 @@ func _placement(player: Character, clock: Dictionary, when: String, enemies: Arr
 		toward = toward.normalized()
 	match when:
 		"cerca":
-			if enemies.is_empty(): return null
-			var gap: Vector3 = enemies[0].global_position - me
-			if Vector2(gap.x, gap.z).length() > 9.0: return null
-			return [me + toward * 3.1, toward]
+			# Near you: the mark if it is near, otherwise the nearest machine.
+			for enemy: Node3D in enemies:
+				var gap: Vector3 = enemy.global_position - me
+				gap.y = 0
+				if gap.length() > 9.0: continue
+				return [me + gap.normalized() * 3.1, gap.normalized()]
+			return null
 		"cada":
 			if enemies.is_empty(): return null
 			return [enemies[0].global_position, toward]

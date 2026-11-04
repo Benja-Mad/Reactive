@@ -111,6 +111,25 @@ func systemic_checks(Build: GDScript) -> void:
 	var far_cue: Variant = run._placement(player, run.clocks[1], "mano", nobody)
 	run.clocks[1].erase("cue")
 	check("on_cue_fires_where_clicked", idle_cue == null and near_cue != null and Vector2(near_cue[0].x - me.x, near_cue[0].z - me.z).is_equal_approx(Vector2(5, 2)) and far_cue != null and absf(Vector2(far_cue[0].x - me.x, far_cue[0].z - me.z).length() - Build.DRAW_REACH) < 0.01)
+	# A click on a machine marks it: it leads the list every routine picks from. «on near» still
+	# answers the nearest when the mark is out of its reach.
+	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
+	var close: Node = still.call(995, Vector3(-3, 0, 0))
+	var marked: Node = still.call(996, Vector3(0, 0, 7))
+	await frames(2)
+	var plain_first: bool = run.targets(player)[0] == close
+	run.cue(marked.global_position + Vector3(1, 0, 0))
+	run.clocks[1].erase("cue")
+	var mark_first: bool = run.targets(player)[0] == marked
+	var near_on_mark: Variant = run._placement(player, run.clocks[1], "cerca", run.targets(player))
+	marked.global_position = me + Vector3(0, -1.1, 12)
+	var near_falls_back: Variant = run._placement(player, run.clocks[1], "cerca", run.targets(player))
+	marked.queue_free()
+	await frames(2)
+	var after_gone: bool = run.targets(player)[0] == close
+	close.queue_free()
+	run.clocks[1].erase("mark")
+	check("click_marks_a_machine", plain_first and mark_first and near_on_mark != null and near_on_mark[1].z > 0.9 and near_falls_back != null and near_falls_back[1].x < -0.9 and after_gone)
 	# An edited routine runs once as play resumes, on the house: no cooldown spent.
 	var before_edit: Array = run.builds[1]["routines"].duplicate(true)
 	var after_edit: Array = before_edit.duplicate(true)

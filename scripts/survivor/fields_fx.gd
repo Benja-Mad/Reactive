@@ -163,6 +163,8 @@ func stream(from: Vector3, to: Vector3, duration: float, substance: String = "wa
 ## Where the pointer is on the floor while a routine on cue is ready, or null: small dim corners
 ## that follow it, so the click is offered without a word.
 var hover: Variant = null
+## The machine this player marked with a click (run.marked): amber corners that ride it.
+var mark: Node3D = null
 const AIM_HOVER := Color("c98a3e")
 const AIM_INK := Color("0d0f14")
 
@@ -344,6 +346,8 @@ func _draw_marks(delta: float) -> void:
 	# The click's corners, on ribbons so they hold up over a busy floor: wide when it lands,
 	# snapping in to the spot.
 	if hover != null and _aims.is_empty(): _corners(hover, 0.75, 0.35, 3.0 * texel, AIM_HOVER)
+	if mark != null and (not is_instance_valid(mark) or mark.down): mark = null
+	if mark != null: _corners(mark.global_position, 1.15 + 0.06 * sin(_time * 5.0), 0.3, 3.0 * texel, AIM_READY)
 	for aim_mark: Dictionary in _aims:
 		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]
 		_corners(aim_mark["at"], lerpf(1.6, 0.9, minf(1.0, t * 4.0)), 0.5, 4.0 * texel, AIM_READY if aim_mark["ready"] else AIM_IDLE)

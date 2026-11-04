@@ -129,6 +129,13 @@ punto: ámbar si respondió una rutina, gris si no. El programa inicial trae una
 charco cargado donde apuntas. El piloto del soak hace clic sobre la máquina más cercana cada
 segundo.
 
+**El clic marca una máquina** (`run.cue`, `run.marked`, `run.targets`). Si el clic cae a menos
+de 2,2 m de una máquina, queda marcada para quien hizo clic: va primera en la lista de la que
+eligen todas sus rutinas (*every*, el arma, las pruebas, la dirección de los pasos) mientras siga
+a la vista. *on near* sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana.
+Cuatro esquinas ámbar la siguen en el suelo hasta que cae o marcas otra. Funciona aunque no haya
+ninguna rutina *on cue* lista.
+
 **Condiciones: if wet, if hot** (`Recipe.GATES`, `spellwork.gate`). Son DO que no tocan la
 materia: cuando les toca, preguntan por la máquina más cercana a ella (4 m). Si está mojada (o
 caliente), el DO siguiente corre; si no, se salta. *on crowd › agua › if wet › arc* moja al grupo
