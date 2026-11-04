@@ -165,6 +165,8 @@ func stream(from: Vector3, to: Vector3, duration: float, substance: String = "wa
 var hover: Variant = null
 ## The machine this player marked with a click (run.marked): amber corners that ride it.
 var mark: Node3D = null
+## The machine under the pointer, when it is not the mark already: dim corners that fit it.
+var hover_machine: Node3D = null
 const AIM_HOVER := Color("c98a3e")
 const AIM_INK := Color("0d0f14")
 
@@ -352,6 +354,8 @@ func _draw_marks(delta: float) -> void:
 	# snapping in to the spot.
 	if hover != null and _aims.is_empty(): _corners(hover, 0.75, 0.35, 3.0 * texel, AIM_HOVER)
 	if mark != null and (not is_instance_valid(mark) or mark.down): mark = null
+	if hover_machine != null and (not is_instance_valid(hover_machine) or hover_machine.down): hover_machine = null
+	if hover_machine != null: _corners(hover_machine.global_position, 1.15, 0.3, 3.0 * texel, AIM_HOVER)
 	if mark != null: _corners(mark.global_position, 1.15 + 0.06 * sin(_time * 5.0), 0.3, 3.0 * texel, AIM_READY)
 	for aim_mark: Dictionary in _aims:
 		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]

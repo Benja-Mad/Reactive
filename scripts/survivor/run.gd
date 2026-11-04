@@ -112,7 +112,12 @@ func _unhandled_input(event: InputEvent) -> void:
 ## shows it can be clicked.
 func _process(_delta: float) -> void:
 	if spellwork == null or spellwork._fx == null: return
-	spellwork._fx.hover = cue_spot() if phase == "running" and not get_tree().paused and cue_ready() else null
+	var live: bool = phase == "running" and not get_tree().paused
+	var spot: Variant = cue_spot() if live else null
+	# Over a machine, the corners close on it instead: a click there marks it.
+	var over: Node3D = machine_at(spot) if spot != null else null
+	spellwork._fx.hover_machine = over if over != spellwork._fx.mark else null
+	spellwork._fx.hover = spot if spot != null and over == null and cue_ready() else null
 
 ## Whether a click of yours would do something now: a routine on cue charged, or matter of
 ## yours armed «on click».
@@ -146,17 +151,25 @@ func cue(point: Vector3) -> void:
 	if not clocks.has(peer): return
 	clocks[peer]["cue"] = point
 	# A click on a machine also marks it: your routines take it first while it stands in sight.
-	var picked: Node3D = null
-	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
-		if enemy.down: continue
-		var gap: float = Vector2(enemy.global_position.x - point.x, enemy.global_position.z - point.z).length()
-		if gap < MARK_RADIUS and (picked == null or gap < Vector2(picked.global_position.x - point.x, picked.global_position.z - point.z).length()): picked = enemy
+	var picked: Node3D = machine_at(point)
 	if clocks[peer].has("mark") and not is_instance_valid(clocks[peer]["mark"]): clocks[peer].erase("mark")
 	if picked != null and clocks[peer].get("mark") != picked:
 		clocks[peer]["mark"] = picked
 		marked.rpc_id(peer, str(picked.name))
 	# And it lets go every THEN of theirs armed «on click».
 	spellwork.release(peer)
+
+## The standing machine nearest `point` within a click's reach of it, or null.
+func machine_at(point: Vector3) -> Node3D:
+	var picked: Node3D = null
+	var best: float = MARK_RADIUS
+	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
+		if enemy.down: continue
+		var gap: float = Vector2(enemy.global_position.x - point.x, enemy.global_position.z - point.z).length()
+		if gap < best:
+			best = gap
+			picked = enemy
+	return picked
 
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
