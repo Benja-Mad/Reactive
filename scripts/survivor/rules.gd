@@ -284,7 +284,7 @@ func light(enemy: Node3D) -> void:
 ## Current let go all at once from `at`: every machine within `radius` takes a discharge, drawn
 ## as one arc fanning out.
 func shock_around(at: Vector3, radius: float, enemies: Array[Node3D], plasma: bool = false) -> void:
-	_acting = {}
+	_acting = {} # Only _conduct and _heat name the acting matter; every other shock credits nobody.
 	var path := PackedVector3Array([at + Vector3.UP * 0.4])
 	var seen: Dictionary = {}
 	var hits: int = 0

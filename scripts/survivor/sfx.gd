@@ -42,16 +42,20 @@ static func of(node: Node) -> Sfx:
 const SETTINGS := "user://settings.cfg"
 
 ## Whether the player turned the sound off; kept between runs.
+static var _muted: Variant = null
+
 static func muted() -> bool:
-	var config := ConfigFile.new()
-	if config.load(SETTINGS) != OK: return false
-	return bool(config.get_value("audio", "muted", false))
+	if _muted == null:
+		var config := ConfigFile.new()
+		_muted = config.load(SETTINGS) == OK and bool(config.get_value("audio", "muted", false))
+	return _muted
 
 static func set_muted(value: bool) -> void:
 	var config := ConfigFile.new()
 	config.load(SETTINGS)
 	config.set_value("audio", "muted", value)
 	config.save(SETTINGS)
+	_muted = value
 	AudioServer.set_bus_mute(0, value)
 
 func _ready() -> void:

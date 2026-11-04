@@ -127,7 +127,7 @@ func cue_ready() -> bool:
 	for index: int in routines.size():
 		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: return true
 	if world != null:
-		for record: Dictionary in world.records.values(): if Build.Recipe.click_ready(record, multiplayer.get_unique_id()): return true
+		for record: Dictionary in world.records.values(): if Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): return true
 	return false
 
 ## Where the pointer meets the floor, brought within reach the way the host will bring it, so
@@ -149,6 +149,8 @@ func cue(point: Vector3) -> void:
 	var peer: int = multiplayer.get_remote_sender_id()
 	if peer == 0: peer = multiplayer.get_unique_id()
 	if not clocks.has(peer): return
+	var body: Character = world._player(peer) as Character
+	if body == null or body.eliminated: return
 	clocks[peer]["cue"] = point
 	# A click on a machine also marks it: your routines take it first while it stands in sight.
 	var picked: Node3D = machine_at(point)

@@ -107,7 +107,7 @@ func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> 
 ## Whether matter of routine `index` stands armed «on click».
 func _clicked_armed(index: int) -> bool:
 	for record: Dictionary in run.world.records.values():
-		if int(record.get("reaction", {}).get("routine", -1)) == index and Build.Recipe.click_ready(record, multiplayer.get_unique_id()): return true
+		if int(record.get("reaction", {}).get("routine", -1)) == index and Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): return true
 	return false
 
 func _on_combo(peer: int, a: int, b: int) -> void:

@@ -285,9 +285,12 @@ const ON_NAMES := {"contact": "al contacto", "broken": "al romperse", "timer": "
 const CLICK_ARMING := 0.3
 const REACTION_DELAY := 2.0
 ## Whether `record` is `peer`'s matter armed «on click» and ready for the click.
-static func click_ready(record: Dictionary, peer: int) -> bool:
+## `settled` asks for the arming margin too; only the host can, since `after` counts down there
+## without a snapshot, so peers drawing it ask without.
+static func click_ready(record: Dictionary, peer: int, settled: bool = true) -> bool:
 	var reaction: Dictionary = record.get("reaction", {})
-	return int(record.get("owner", 0)) == peer and reaction.get("trigger", "") == "survivor" and reaction.get("on", "") == "mano" and float(reaction.get("after", REACTION_DELAY)) <= REACTION_DELAY - CLICK_ARMING
+	if int(record.get("owner", 0)) != peer or reaction.get("trigger", "") != "survivor" or reaction.get("on", "") != "mano": return false
+	return not settled or float(reaction.get("after", REACTION_DELAY)) <= REACTION_DELAY - CLICK_ARMING
 
 static func moment(state: Dictionary, _then: String, on: String = "contact") -> String:
 	if state["shape"] == "gone": return "nunca: no queda materia"
