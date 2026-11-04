@@ -183,7 +183,15 @@ func cue(point: Vector3) -> void:
 	var picked: Node3D = machine_at(point)
 	var clock: Dictionary = clocks[peer]
 	if clock.has("mark") and not is_instance_valid(clock["mark"]): clock.erase("mark")
-	var marking: bool = freed == 0 and picked != null
+	# A trap of theirs right there that is still settling (the client already shows it ready):
+	# the click was meant for it, so it marks nothing either.
+	var settling: bool = false
+	if freed == 0 and picked != null:
+		for record: Dictionary in world.records.values():
+			if Build.Recipe.click_ready(record, peer, false) and Vector2(record["position"].x - point.x, record["position"].z - point.z).length() <= spellwork.RELEASE_RADIUS:
+				settling = true
+				break
+	var marking: bool = freed == 0 and picked != null and not settling
 	if marking and clock.get("mark") != picked:
 		# Otherwise a click on a machine marks it: your routines take it first while in reach.
 		clock["mark"] = picked
@@ -256,7 +264,12 @@ func _physics_process(delta: float) -> void:
 		if not builds.has(peer):
 			builds[peer] = Build.fresh()
 			clocks[peer] = {"shot": 0.2, "heal": 3.0, "trail": player.global_position, "made": {}}
-		if player.eliminated: continue
+		if player.eliminated:
+			# Out of service, their mark goes with them: if marked no longer answers to it.
+			if clocks[peer].has("mark"):
+				clocks[peer].erase("mark")
+				marked.rpc(peer, "")
+			continue
 		player.move_multiplier = 1.0 + builds[peer]["tools"]["boots"] * 0.1
 		_automate(player, peer, delta)
 	_run_trials(delta)
@@ -704,6 +717,7 @@ func spawn_machine(id: int, point: Vector3, kind: int, strength: float) -> void:
 @rpc("authority", "call_local", "reliable")
 func despawn_machine(key: String) -> void:
 	if key == my_mark: my_mark = ""
+	for peer: int in crew_marks.keys(): if crew_marks[peer] == key: crew_marks.erase(peer)
 	var enemy := machines.get_node_or_null(key)
 	if enemy != null:
 		enemy.down = true

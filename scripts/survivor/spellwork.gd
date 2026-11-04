@@ -160,7 +160,7 @@ func _advance(delta: float) -> void:
 				_casts.erase(cast)
 				continue
 			cast["id"] = made["id"]
-			world.records[cast["id"]]["ttl"] = 12.0
+			world.records[cast["id"]]["ttl"] = MATTER_TTL
 			world.records[cast["id"]]["routine"] = cast["index"]
 			world.records[cast["id"]]["forming"] = true
 			cast["left"] = STEP_BEAT * 0.6
@@ -173,7 +173,8 @@ func _advance(delta: float) -> void:
 			var key: String = cast["steps"].pop_front()
 			var stage: String = "idle"
 			if cast.get("skip", false):
-				cast.erase("skip")
+				# A no skips the DO it guards, and any conditions stacked before that DO with it.
+				if not Recipe.GATES.has(key): cast.erase("skip")
 				stage = "skip"
 			elif Recipe.GATES.has(key):
 				stage = "step" if gate(key, id) else "no"
@@ -258,12 +259,12 @@ func cast(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 0
 	var created: Dictionary = world.execute(peer, "create", 0, {"point": point, "material": routine.get("from", "water")})
 	if not created.get("ok", false): return 0
 	var id: int = created["id"]
-	world.records[id]["ttl"] = 12.0
+	world.records[id]["ttl"] = MATTER_TTL
 	world.records[id]["routine"] = index
 	var skip: bool = false
 	for key: String in routine["steps"]:
 		if not world.records.has(id): break
-		if skip: skip = false
+		if skip: skip = Recipe.GATES.has(key)
 		elif Recipe.GATES.has(key): skip = not gate(key, id)
 		else: _apply_step(peer, id, key, toward)
 	run.automations_fired += 1
@@ -348,6 +349,8 @@ func tick(delta: float) -> void:
 
 ## How near the click armed matter must stand for that click to let it go.
 const RELEASE_RADIUS := 5.0
+## How long a routine's matter lives on the floor unless something else keeps it.
+const MATTER_TTL := 12.0
 
 ## The THENs of `peer`'s matter armed «on click» and standing long enough, let go at once
 ## (run.cue): those within RELEASE_RADIUS of `at`, or all of them when `at` is null.

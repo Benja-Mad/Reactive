@@ -309,6 +309,12 @@ func rule_checks(Build: GDScript, me: Vector3) -> void:
 	var plain: int = run.spellwork.cast(1, 0, asked.global_position + Vector3(1.2, 0, 0), Vector3.FORWARD)
 	var plain_left: String = world.records[plain]["material"] if world.records.has(plain) else ""
 	if world.records.has(plain): world.execute(1, "remove", plain)
+	# Two conditions stacked add up: the first one's no skips the second and the DO they guard.
+	run.builds[1]["routines"][0] = {"when": "cerca", "steps": ["si_arde", "si_mojada", "cold"], "then": "", "on": "contact"}
+	var stacked: int = run.spellwork.cast(1, 0, asked.global_position + Vector3(1.2, 0, 0), Vector3.FORWARD)
+	var stacked_left: String = world.records[stacked]["material"] if world.records.has(stacked) else ""
+	if world.records.has(stacked): world.execute(1, "remove", stacked)
+	check("stacked_gates_add_up", stacked_left == "water")
 	run.builds[1]["routines"][0] = kept
 	asked.queue_free()
 	check("do_gate_skips_the_next_do", passed_left == "ice" and plain_left == "water" and Build.problem({"when": "cerca", "steps": ["cold", "si_mojada"], "then": ""}) != "" and Build.put(Build.fresh(), "si_mojada", {"routine": Build.ATTACK, "index": 0}).is_empty())

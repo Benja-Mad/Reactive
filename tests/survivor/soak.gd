@@ -125,7 +125,7 @@ func _physics_process(_delta: float) -> void:
 		# mark a new machine), not blindly; `spamclick` clicks every second regardless.
 		var seen: Array[Node3D] = run.targets(pilot)
 		var fresh_mark: bool = not seen.is_empty() and run.clocks[1].get("mark") != seen[0]
-		if not seen.is_empty() and (run.cue_ready() or fresh_mark or "spamclick" in OS.get_cmdline_user_args()): run.cue(seen[0].global_position)
+		if not seen.is_empty() and (run.cue_ready(seen[0].global_position) or fresh_mark or "spamclick" in OS.get_cmdline_user_args()): run.cue(seen[0].global_position)
 	peak_enemies = maxi(peak_enemies, run.machines.get_child_count())
 	for enemy: Node in run.machines.get_children(): kinds_seen[str(enemy.kind)] = true
 	peak_matter = maxi(peak_matter, run.world.records.size())

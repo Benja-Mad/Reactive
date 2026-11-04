@@ -157,8 +157,9 @@ materia queda armada: en el programa, su THEN con borde ámbar; en el suelo, una
 pequeñas a su medida, tenues mientras espera y ámbar plenas (con un brillo que se oye) cuando una
 máquina entra en su alcance, que es cuando conviene soltarla. Con el puntero cerca, las que
 soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (0,3 s de margen) y
-espera como mucho 10 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
-no se acumulan trampas por todo el patio. Soak (`clickthen`, todos los THEN al clic): soltando a
+espera como mucho 6 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
+no se acumulan trampas por todo el patio (la materia vive 12 s, así que al contacto le quedan unos
+cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina. Soak (`clickthen`, todos los THEN al clic): soltando a
 ciegas cada segundo, la semilla 2 aguanta 131 s; soltando cuando las esquinas se encienden, 202 s.
 Elegir el momento paga.
 
@@ -166,7 +167,9 @@ Elegir el momento paga.
 
 `Recipe.GATES`, `spellwork.gate`. Son DO que no tocan la materia: cuando les toca, preguntan por
 las máquinas a 4 m de ella. Si alguna está mojada (*if wet*), caliente (*if hot*) o marcada por ti
-o por un compañero vivo (*if marked*), el DO siguiente corre; si no, se salta.
+o por un compañero vivo (*if marked*), el DO siguiente corre; si no, se salta. Dos condiciones
+seguidas se suman: *if marked › if wet › arc* solo electrocuta lo marcado y mojado, porque un «no»
+se salta también las condiciones que quedan antes de su DO.
 
 - *on crowd › agua › if wet › arc* moja al grupo la primera vez y lo electrocuta cuando vuelve
   mojado.
