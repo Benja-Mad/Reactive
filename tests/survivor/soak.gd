@@ -114,7 +114,13 @@ func _physics_process(_delta: float) -> void:
 	# `clickthen`: every THEN the pilot owns waits for its click instead of a machine.
 	if "clickthen" in OS.get_cmdline_user_args():
 		for routine: Dictionary in run.builds[1]["routines"]: if routine["then"] != "": routine["on"] = "mano"
-	if run.phase == "running" and frames_run % 60 == 0:
+		# And it lets them go when a machine is in their reach, the way the corners say.
+		if run.phase == "running":
+			for record: Dictionary in run.world.records.values():
+				if Build.Recipe.click_ready(record, 1) and run.machine_at(record["position"], 2.6) != null:
+					run.cue(record["position"])
+					break
+	if run.phase == "running" and frames_run % 60 == 0 and not "clickthen" in OS.get_cmdline_user_args():
 		var seen: Array[Node3D] = run.targets(pilot)
 		if not seen.is_empty(): run.cue(seen[0].global_position)
 	peak_enemies = maxi(peak_enemies, run.machines.get_child_count())

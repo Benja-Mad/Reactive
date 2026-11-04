@@ -141,7 +141,10 @@ momento del THEN, *al hacer clic*: la materia se queda armada (en el programa, s
 borde tenue todo el rato que ella siga en pie) y un clic suelta a la vez todos los THEN tuyos así
 armados, estén donde estén. Cada una lleva en el suelo unas esquinas pequeñas a su medida, la
 misma marca del clic, solo para su dueño: tenues mientras espera y ámbar plenas cuando una
-máquina entra en su alcance, que es cuando conviene soltarla. Una rutina automática prepara la trampa; tú decides cuándo salta. Un
+máquina entra en su alcance, que es cuando conviene soltarla. Soak (`clickthen`, todos los THEN al clic):
+soltando a ciegas cada segundo, la semilla 2 aguanta 131 s; soltando cuando las esquinas se
+encienden, 202 s. La semilla 4, 199 s frente a 172 s con los THEN automáticos. Elegir el momento
+paga. Una rutina automática prepara la trampa; tú decides cuándo salta. Un
 clic justo al hacerla no la gasta (0,3 s de margen), y con algo armado las esquinas siguen al
 puntero aunque no haya rutina *on cue*. El clic es el único verbo del jugador: dispara las
 rutinas *on cue*, marca la máquina que pisa y suelta lo armado al clic.
