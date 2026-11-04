@@ -167,6 +167,8 @@ var hover: Variant = null
 var mark: Node3D = null
 ## The machine under the pointer, when it is not the mark already: dim corners that fit it.
 var hover_machine: Node3D = null
+## Where this player's matter stands armed «on click»: small corners, the click's own mark.
+var click_spots: Array = []
 const AIM_HOVER := Color("c98a3e")
 const AIM_INK := Color("0d0f14")
 
@@ -355,6 +357,7 @@ func _draw_marks(delta: float) -> void:
 	if hover != null and _aims.is_empty(): _corners(hover, 0.75, 0.35, 3.0 * texel, AIM_HOVER)
 	if mark != null and (not is_instance_valid(mark) or mark.down): mark = null
 	if hover_machine != null and (not is_instance_valid(hover_machine) or hover_machine.down): hover_machine = null
+	for spot: Array in click_spots: _corners(spot[0], spot[1], 0.22, 2.0 * texel, AIM_HOVER)
 	if hover_machine != null: _corners(hover_machine.global_position, 1.15, 0.3, 3.0 * texel, AIM_HOVER)
 	if mark != null: _corners(mark.global_position, 1.15 + 0.06 * sin(_time * 5.0), 0.3, 3.0 * texel, AIM_READY)
 	for aim_mark: Dictionary in _aims:

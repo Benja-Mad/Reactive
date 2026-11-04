@@ -114,10 +114,15 @@ func _process(_delta: float) -> void:
 	# Which of your routines have matter armed «on click», read once a frame for the HUD and the
 	# pointer.
 	click_armed.clear()
+	var spots: Array = []
 	if world != null:
 		for record: Dictionary in world.records.values():
-			if Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): click_armed[int(record["reaction"].get("routine", -1))] = true
+			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
+			click_armed[int(record["reaction"].get("routine", -1))] = true
+			var size: Vector3 = record.get("size", Vector3.ONE)
+			spots.append([record["position"], clampf(maxf(size.x, size.z) * 0.5 + 0.15, 0.5, 2.0)])
 	if spellwork == null or spellwork._fx == null: return
+	spellwork._fx.click_spots = spots
 	var live: bool = phase == "running" and not get_tree().paused
 	var spot: Variant = cue_spot() if live else null
 	# Over a machine, the corners close on it instead: a click there marks it.
