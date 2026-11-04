@@ -253,6 +253,40 @@ def clatter():
     return out
 
 
+def crunch():
+    """A machine coming apart: a metal crash over a low body hit, pieces ringing out."""
+    x = t(0.6)
+    rng = np.random.default_rng(30)
+    crash = band(noise(len(x), 31), 700, 6000) * env(x, 0.001, 0.07)
+    body = np.sin(2 * np.pi * np.cumsum(80 * np.exp(-x / 0.08) + 50) / RATE) * env(x, 0.001, 0.1)
+    ring = sum(np.sin(2 * np.pi * f * x) * env(x, 0.001, rng.uniform(0.08, 0.2)) for f in rng.uniform(600, 2400, 5)) * 0.12
+    return crash + body * 0.9 + ring
+
+
+def pick():
+    """Scrap gathered: a tiny glassy blip; the game raises it through a quick run of pickups."""
+    x = t(0.08)
+    return np.sin(2 * np.pi * 1568 * x) * env(x, 0.001, 0.018) + 0.3 * np.sin(2 * np.pi * 3136 * x) * env(x, 0.001, 0.008)
+
+
+def hurt():
+    """You were hit: a dull low knock with a grit of noise, felt more than heard."""
+    x = t(0.25)
+    body = np.tanh(3 * np.sin(2 * np.pi * np.cumsum(140 * np.exp(-x / 0.05) + 60) / RATE)) * env(x, 0.001, 0.06)
+    grit = band(noise(len(x), 32), 300, 1800) * env(x, 0.001, 0.03)
+    return body + 0.6 * grit
+
+
+def level():
+    """A level reached: three notes rising, the program about to grow."""
+    x = t(0.6)
+    out = np.zeros_like(x)
+    for start, f in ((0.0, 523.25), (0.07, 659.25), (0.14, 783.99)):
+        y = np.clip(x - start, 0, None)
+        out += (x >= start) * (np.sin(2 * np.pi * f * y) + 0.3 * np.sin(2 * np.pi * f * 2 * y)) * env(y, 0.002, 0.16)
+    return out
+
+
 if __name__ == "__main__":
     write("step", step(), -9)
     write("draw", draw(), -7)
@@ -262,6 +296,7 @@ if __name__ == "__main__":
     write("combo", combo(), -7)
     write("cue", cue(), -9)
     write("cue_idle", cue_idle(), -14)
-    for name, fn, peak in (("zap", zap, -6), ("hiss", hiss, -12), ("sizzle", sizzle, -6), ("ignite", ignite, -7), ("frost", frost, -9), ("nanites", nanites, -8), ("grind", grind, -12), ("thud", thud, -6), ("whoosh", whoosh, -8), ("boom", boom, -4), ("clatter", clatter, -9)):
+    for name, fn, peak in (("zap", zap, -6), ("hiss", hiss, -12), ("sizzle", sizzle, -6), ("ignite", ignite, -7), ("frost", frost, -9), ("nanites", nanites, -8), ("grind", grind, -12), ("thud", thud, -6), ("whoosh", whoosh, -8), ("boom", boom, -4), ("clatter", clatter, -9),
+                             ("crunch", crunch, -5), ("pick", pick, -14), ("hurt", hurt, -6), ("level", level, -8)):
         write(name, fn(), peak)
     print("wrote", sorted(os.listdir(OUT)))

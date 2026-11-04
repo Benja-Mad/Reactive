@@ -5,7 +5,8 @@ class_name Sfx
 extends Node
 
 const SOUNDS: Array[String] = ["step", "draw", "idle", "armed", "fire", "combo", "cue", "cue_idle",
-	"zap", "hiss", "sizzle", "ignite", "frost", "nanites", "grind", "thud", "whoosh", "boom", "clatter"]
+	"zap", "hiss", "sizzle", "ignite", "frost", "nanites", "grind", "thud", "whoosh", "boom", "clatter",
+	"crunch", "pick", "hurt", "level"]
 ## The yard's voices, placed where the reaction happens and heard by everyone.
 const WORLD_VOICES := 10
 const WORLD_DB := -4.0
@@ -68,7 +69,7 @@ func play(sound: String, pitch: float = 1.0, gain_db: float = 0.0) -> void:
 	player.play()
 
 ## A reaction's sound at `where` in the yard, a little detuned each time so repeats don't drill.
-func at(sound: String, where: Vector3, gain_db: float = 0.0) -> void:
+func at(sound: String, where: Vector3, gain_db: float = 0.0, pitch: float = 0.0) -> void:
 	if _world.is_empty() or not _streams.has(sound): return
 	var now: float = Time.get_ticks_msec() / 1000.0
 	if now - float(_last.get(sound, -1.0)) < GAP * 1.5: return
@@ -77,7 +78,7 @@ func at(sound: String, where: Vector3, gain_db: float = 0.0) -> void:
 	_world_next = (_world_next + 1) % _world.size()
 	voice.stream = _streams[sound]
 	voice.global_position = where
-	voice.pitch_scale = randf_range(0.93, 1.07)
+	voice.pitch_scale = pitch if pitch > 0.0 else randf_range(0.93, 1.07)
 	voice.volume_db = WORLD_DB + gain_db
 	voice.play()
 

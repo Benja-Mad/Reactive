@@ -129,6 +129,8 @@ func receive_health(amount: float) -> void:
 	var applied: float = clampf(health + amount, 0.0, 100.0) - health
 	if not is_zero_approx(applied):
 		var color := Color(0.1, 1, 0.85) if applied > 0 else Color(1, 0.25, 0.18)
+		# Only your own body's hits are heard: the knock says it was you.
+		if applied < 0 and is_multiplayer_authority(): Sfx.of(self).play("hurt")
 		preload("res://scenes/actions/combat_fx.gd").number(get_tree().current_scene, global_position + Vector3.UP * 1.8, ("+" if applied > 0 else "") + str(int(applied)), color)
 	health = clampf(health + amount, 0.0, 100.0)
 	if health <= 0.0:

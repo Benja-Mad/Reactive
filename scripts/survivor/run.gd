@@ -613,6 +613,7 @@ func machine_killed(point: Vector3, kind: int) -> void:
 func machine_down_fx(point: Vector3, kind: int) -> void:
 	# A machine coming apart is the payoff of an automatic build: it has to read at a glance.
 	var debris: Color = Enemy.STATS[kind][3]
+	Sfx.of(self).at("crunch", point, 3.0 if kind in [Enemy.HAULER, Enemy.DRINKER] else 0.0)
 	preload("res://scenes/actions/combat_fx.gd").burst(get_parent(), point + Vector3.UP * 0.7, debris)
 	if kind in [Enemy.HAULER, Enemy.DRINKER]: get_tree().call_group("camera_shakers", "add_shake", 0.12)
 @rpc("authority", "call_local", "reliable")
@@ -625,10 +626,17 @@ func spawn_pickup(id: int, point: Vector3, value: int) -> void:
 	pickup.value = value
 	pickup.position = point
 	pickups.add_child(pickup)
+var _pick_run: int = 0
+var _pick_at: float = -1.0
 @rpc("authority", "call_local", "reliable")
 func collect_pickup(key: String) -> void:
 	var pickup := pickups.get_node_or_null(key)
 	if pickup != null:
+		# A quick run of pickups climbs the scale; a pause starts it over.
+		var now: float = Time.get_ticks_msec() / 1000.0
+		_pick_run = _pick_run + 1 if now - _pick_at < 0.35 else 0
+		_pick_at = now
+		Sfx.of(self).at("pick", pickup.global_position, 0.0, Sfx.note(0, _pick_run % Sfx.SCALE.size()))
 		pickup.set_physics_process(false)
 		pickup.queue_free()
 func gain_xp(amount: int) -> void:
@@ -735,6 +743,7 @@ func _run_trials(delta: float) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func set_phase(value: String) -> void:
+	if value == "upgrade" and phase == "running": Sfx.of(self).play("level")
 	phase = value
 	get_tree().paused = value != "running"
 @rpc("any_peer", "call_local", "reliable")

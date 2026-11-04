@@ -169,7 +169,10 @@ corriente, siseo de vapor, fuego ahogado que chisporrotea, el golpe sordo de una
 prende, el crujido de vidrio al helarse, los nanitos como un racimo de campanitas, el raspado de
 lo que muele en un remolino, el soplo cuando suelta, el estruendo de un bidón y el traqueteo de la
 metralla. Oye el ojo de la vista en píxeles (`pixel_view`), con el paneo ensanchado porque desde
-55 m todo lo que se ve cabe en pocos grados. Cada repetición va un poco desafinada para no taladrar.
+55 m todo lo que se ve cabe en pocos grados. Cada repetición va un poco desafinada para no taladrar. Además: un
+crujido metálico cuando cae una máquina (más fuerte las grandes), una nota por chatarra recogida
+que sube por la escala si las recoges seguidas, un golpe sordo solo cuando te pegan a ti y tres
+notas al subir de nivel.
 
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
