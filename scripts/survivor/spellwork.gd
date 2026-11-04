@@ -134,7 +134,13 @@ func _advance(delta: float) -> void:
 			_casts.erase(cast)
 			continue
 		if not cast["steps"].is_empty():
-			var acted: bool = _apply_step(peer, id, cast["steps"].pop_front(), cast["toward"], true)
+			var key: String = cast["steps"].pop_front()
+			var acted: bool = false
+			if cast.get("skip", false): cast.erase("skip")
+			elif Recipe.GATES.has(key):
+				acted = gate(key, id)
+				if not acted: cast["skip"] = true
+			else: acted = _apply_step(peer, id, key, cast["toward"], true)
 			beat_fx.rpc(peer, cast["index"], "step" if acted else "idle", cast["k"], STEP_BEAT)
 			cast["k"] += 1
 			cast["left"] = STEP_BEAT
@@ -169,6 +175,16 @@ func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool =
 	_after_step(plan["op"], before, id)
 	return true
 
+## A DO gate's answer, now: whether a machine within reach of the matter is as it asks.
+const GATE_REACH := 4.0
+func gate(key: String, id: int) -> bool:
+	if not world.records.has(id): return false
+	for enemy: Node3D in _enemies_near(world.records[id]["position"], GATE_REACH, true):
+		match key:
+			"si_mojada": if enemy.wet(): return true
+			"si_arde": if enemy.temp >= 1: return true
+	return false
+
 ## Steps that put the operator's own energy into the matter, drawn as a beam from them to it.
 const TETHERED := ["cold", "fire", "arc", "coat", "push", "well", "repel"]
 
@@ -197,9 +213,12 @@ func cast(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 0
 	if not created.get("ok", false): return 0
 	var id: int = created["id"]
 	world.records[id]["ttl"] = 12.0
+	var skip: bool = false
 	for key: String in routine["steps"]:
 		if not world.records.has(id): break
-		_apply_step(peer, id, key, toward)
+		if skip: skip = false
+		elif Recipe.GATES.has(key): skip = not gate(key, id)
+		else: _apply_step(peer, id, key, toward)
 	run.automations_fired += 1
 	_arm(peer, index, id, routine["then"], routine.get("on", "contact"), toward)
 	# An echo below fires right after, a little further along.

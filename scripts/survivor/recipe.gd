@@ -51,7 +51,13 @@ static func state_of(record: Dictionary) -> Dictionary:
 
 ## One DO step on `state`: {"op": world operation or "", "text": what happens, "tag": the change
 ## in a word for under the node, "next": the state after}. An empty op is a step with nothing to act on.
+## DO pieces that change no matter: they ask about the machine nearest it when they run, and
+## when the answer is no, the DO after them is skipped. Key -> what the machine must be.
+const GATES := {"si_mojada": "mojada", "si_arde": "ardiendo"}
+
 static func step(state: Dictionary, key: String) -> Dictionary:
+	if GATES.has(key):
+		return {"op": "gate", "text": "si la máquina más cercana está %s sigue; si no, salta el DO siguiente" % GATES[key], "tag": "¿%s?" % GATES[key], "next": state.duplicate()}
 	var result: Dictionary = _step(state, key)
 	_derive(result["next"])
 	return result

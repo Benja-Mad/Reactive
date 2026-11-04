@@ -754,6 +754,31 @@ ICONS = {
         "3222222223",
         "1111111111",
     ],
+    # DO gates: a decision diamond round what it asks of the machine, a drop or a flame.
+    "si_mojada": [
+        "....33....",
+        "...3..3...",
+        "..3.44.3..",
+        ".3..44..3.",
+        "3..4444..3",
+        "3..4224..3",
+        ".3..44..3.",
+        "..3....3..",
+        "...3..3...",
+        "....33....",
+    ],
+    "si_arde": [
+        "....33....",
+        "...3..3...",
+        "..3.4..3..",
+        ".3..44..3.",
+        "3..4.44..3",
+        "3..4424..3",
+        ".3..44..3.",
+        "..3....3..",
+        "...3..3...",
+        "....33....",
+    ],
     # WHEN on cue: the aim the player puts down, four corners round a lit point.
     "mano": [
         "333....333",
@@ -776,7 +801,7 @@ CATEGORY = {
     "pozo": "do", "repeler": "do", "cubrir": "do",
     "fragmentos": "then", "detonar": "then", "estallar": "then", "cadena": "then", "colapso": "then",
     "valvula": "tool", "doble": "tool", "bocas": "tool", "botas": "tool", "parche": "tool", "manometro": "tool",
-    "otra": "tool", "charco": "when", "chatarra": "do", "mano": "when",
+    "otra": "tool", "charco": "when", "chatarra": "do", "mano": "when", "si_mojada": "do", "si_arde": "do",
 }
 for _name, _rows in ICONS.items():
     assert len(_rows) == 10 and all(len(r) == 10 for r in _rows), _name

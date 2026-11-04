@@ -51,7 +51,7 @@ func start() -> void:
 	var build: Dictionary = run.builds[1]
 	build["routines"] = [
 		{"when": "cerca", "steps": ["raise", "cold"], "then": "cadena"},
-		{"when": "grupo", "steps": ["arc", "arc"], "then": ""},
+		{"when": "grupo", "steps": ["si_mojada", "arc"], "then": ""},
 		{"when": "eco", "steps": ["fire", "fire"], "then": "fragmentos"},
 		{"when": "mano", "steps": ["well", "arc"], "then": ""},
 	]

@@ -29,7 +29,7 @@ const RAMPS := {
 	"mute": [Color("1a2130"), Color("3a4660"), Color("8a90a0"), Color("e8e4d8")],
 }
 const ACCENTS: Array[String] = ["when", "do", "then", "tool", "danger", "mute"]
-const ICONS: Array[String] = ["cerca", "cada", "rastro", "grupo", "herido", "eco", "derribo", "agua", "fuego", "frio", "arco", "alzar", "empujar", "soltar", "pozo", "repeler", "cubrir", "fragmentos", "detonar", "estallar", "cadena", "colapso", "valvula", "doble", "bocas", "botas", "parche", "manometro", "otra", "charco", "chatarra", "mano"]
+const ICONS: Array[String] = ["cerca", "cada", "rastro", "grupo", "herido", "eco", "derribo", "agua", "fuego", "frio", "arco", "alzar", "empujar", "soltar", "pozo", "repeler", "cubrir", "fragmentos", "detonar", "estallar", "cadena", "colapso", "valvula", "doble", "bocas", "botas", "parche", "manometro", "otra", "charco", "chatarra", "si_mojada", "si_arde", "mano"]
 const PROPS: Array[String] = ["caliente", "frio", "mojado", "carga", "pozo", "repele", "vapor", "masa"]
 ## Build keys whose glyph goes by another name.
 const GLYPH_OF := {

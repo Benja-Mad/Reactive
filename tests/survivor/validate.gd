@@ -230,6 +230,33 @@ func rule_checks(Build: GDScript, me: Vector3) -> void:
 	var cold_lines: Array = Build.explain({"routines": [{"when": "cerca", "steps": ["cold"], "then": ""}], "box": [], "tools": {"pressure": 0}}, 0)
 	var said := func(lines: Array, word: String) -> bool: return lines.any(func(line: Array) -> bool: return line[0] == "TOUCH" and word in line[1])
 	check("editor_touch_line_from_rules", said.call(arc_lines, "3 saltos") and said.call(cold_lines, "congela") and Recipe.simulate(["arc", "arc", "arc"])["idle"] == [2])
+	# DO gates ask the machine nearest the matter. A dry, cold one: «if wet» and «if hot» say no,
+	# and the DO after the gate is skipped. Soaked, then hot: they say yes and it runs.
+	var asked: Node = make.call(0, 993, Vector3(6, 0, -6))
+	await frames(2)
+	asked.soaked = 0.0
+	asked.temp = 0
+	var spot: int = lay.call(asked.global_position + Vector3(1.2, 0, 0))
+	var dry_no: bool = not run.spellwork.gate("si_mojada", spot) and not run.spellwork.gate("si_arde", spot)
+	asked.soak(Vector3.ZERO)
+	var wet_yes: bool = run.spellwork.gate("si_mojada", spot)
+	asked.soaked = 0.0
+	asked.temp = 1
+	var hot_yes: bool = run.spellwork.gate("si_arde", spot)
+	world.execute(1, "remove", spot)
+	check("do_gate_asks_the_nearest_machine", dry_no and wet_yes and hot_yes)
+	var kept: Dictionary = run.builds[1]["routines"][0].duplicate(true)
+	run.builds[1]["routines"][0] = {"when": "cerca", "steps": ["si_arde", "cold"], "then": "", "on": "contact"}
+	var passed: int = run.spellwork.cast(1, 0, asked.global_position + Vector3(1.2, 0, 0), Vector3.FORWARD)
+	var passed_left: String = world.records[passed]["material"] if world.records.has(passed) else ""
+	if world.records.has(passed): world.execute(1, "remove", passed)
+	asked.temp = 0
+	var plain: int = run.spellwork.cast(1, 0, asked.global_position + Vector3(1.2, 0, 0), Vector3.FORWARD)
+	var plain_left: String = world.records[plain]["material"] if world.records.has(plain) else ""
+	if world.records.has(plain): world.execute(1, "remove", plain)
+	run.builds[1]["routines"][0] = kept
+	asked.queue_free()
+	check("do_gate_skips_the_next_do", passed_left == "ice" and plain_left == "water" and Build.problem({"when": "cerca", "steps": ["cold", "si_mojada"], "then": ""}) != "" and Build.put(Build.fresh(), "si_mojada", {"routine": Build.ATTACK, "index": 0}).is_empty())
 
 func test() -> void:
 	Game.instance.multiplayer_test = false

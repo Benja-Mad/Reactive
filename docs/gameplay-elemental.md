@@ -129,6 +129,14 @@ punto: ámbar si respondió una rutina, gris si no. El programa inicial trae una
 charco cargado donde apuntas. El piloto del soak hace clic sobre la máquina más cercana cada
 segundo.
 
+**Condiciones: if wet, if hot** (`Recipe.GATES`, `spellwork.gate`). Son DO que no tocan la
+materia: cuando les toca, preguntan por la máquina más cercana a ella (4 m). Si está mojada (o
+caliente), el DO siguiente corre; si no, se salta. *on crowd › agua › if wet › arc* moja al grupo
+la primera vez y lo electrocuta cuando vuelve mojado. En el programa de la esquina la condición se
+enciende si dijo que sí y, si dijo que no, ella y el DO saltado se apagan con borde rosa. No van
+en el arma, no suman recarga y una condición al final de la fila es un error («no tiene un DO
+detrás que decidir»).
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

@@ -42,6 +42,8 @@ const PIECES := {
 	"well": {"slot": "step", "name": "vortex", "text": "Remolino de 5 s: la materia gira en un anillo y arrastra a él lo que hay a 6 m. Lo que gira toca esa materia (el agua empapa, el fuego prende, la chatarra muele); al terminar, todo sale despedido y la materia estalla.", "max": 2},
 	"repel": {"slot": "step", "name": "repel", "text": "Onda: lanza lejos todo lo que hay a 6 m, y lo lanzado choca con lo que pille. Luego, 4 s de burbuja donde no entra ninguna máquina.", "max": 2},
 	"drop": {"slot": "step", "name": "drop", "text": "Suelta materia elevada: el hielo cae y se rompe, la chatarra aplasta, el agua salpica, el fuego prende el suelo, el vapor condensa en lluvia. En el suelo no hace nada. En el arma, detrás de raise: una bola de su materia cae sobre el blanco.", "max": 2},
+	"si_mojada": {"slot": "step", "name": "if wet", "text": "Pregunta por la máquina más cercana a la materia: si está mojada, sigue con el DO siguiente; si no, lo salta. No cambia la materia.", "max": 2, "gate": true},
+	"si_arde": {"slot": "step", "name": "if hot", "text": "Pregunta por la máquina más cercana a la materia: si está caliente o ardiendo, sigue con el DO siguiente; si no, lo salta. No cambia la materia.", "max": 2, "gate": true},
 	"fragmentos": {"slot": "then", "name": "release", "text": "En el momento elegido libera la materia: hielo o metralla hacia una máquina, agua en salpicón, vapor en ráfaga, fuego en chispas, corriente en cadena.", "max": 2},
 	"detonar": {"slot": "then", "name": "detonate", "text": "En el momento elegido detona el recubrimiento de nanitos. Sin nanitos no hay explosión.", "max": 2},
 	"estallar": {"slot": "then", "name": "scatter", "text": "En el momento elegido dispersa la materia alrededor: agua moja, hielo y chatarra golpean, vapor empuja, fuego prende, corriente descarga.", "max": 2},
@@ -54,7 +56,7 @@ const SHORT := {
 	"herido": "cuando te golpean", "eco": "justo tras la rutina anterior", "derribo": "donde cae una máquina", "charco": "máquina pisa un charco", "mano": "cuando haces clic, donde apuntas",
 	"raise": "la eleva y la sostiene", "wall": "la para como muro", "cold": "agua a hielo, fuego apagado", "fire": "hielo a agua, agua a vapor", "arc": "electrifica, salta por lo mojado",
 	"coat": "la cubre de nanitos", "push": "la lanza contra la máquina", "well": "remolino que arrastra a 6 m", "repel": "onda que aparta a 6 m",
-	"drop": "deja caer lo elevado", "fragmentos": "la dispara a una máquina", "detonar": "revienta los nanitos",
+	"drop": "deja caer lo elevado", "si_mojada": "el DO siguiente, solo si está mojada", "si_arde": "el DO siguiente, solo si arde", "fragmentos": "la dispara a una máquina", "detonar": "revienta los nanitos",
 	"estallar": "la esparce alrededor", "cadena": "avisa a la rutina siguiente", "colapso": "remolino de 1 s y estalla",
 	"cadence": "disparas 18 % más seguido", "power": "más daño por disparo", "split": "llegas a más máquinas", "boots": "caminas 10 % más rápido",
 	"repair": "recuperas 35 de vida", "pressure": "rutinas listas 15 % antes", "slot": "una rutina más",
@@ -82,6 +84,10 @@ static func attack_steps(build: Dictionary) -> Array:
 
 static func empty_routine() -> Dictionary:
 	return {"when": "", "steps": [], "then": "", "on": "contact"}
+
+## A DO that asks instead of acting: it decides whether the DO after it runs. Not on the weapon.
+static func is_gate(key: String) -> bool:
+	return PIECES.has(key) and PIECES[key].get("gate", false)
 
 static func is_tool_key(key: String) -> bool:
 	return TOOLS.has(key)
@@ -126,7 +132,7 @@ static func threshold(level: int) -> int:
 ## Index -1 is the box. Slot pieces replace what was there (it drops into the box).
 static func place(build: Dictionary, key: String, routine_index: int) -> Dictionary:
 	var next: Dictionary = build.duplicate(true)
-	if routine_index == ATTACK and PIECES.has(key) and PIECES[key]["slot"] == "step":
+	if routine_index == ATTACK and PIECES.has(key) and PIECES[key]["slot"] == "step" and not is_gate(key):
 		var placed: Dictionary = put(next, key, {"routine": ATTACK, "index": attack_steps(next).size()})
 		if not placed.is_empty(): return placed
 	if routine_index < 0 or routine_index >= next["routines"].size():
@@ -185,7 +191,7 @@ static func put(build: Dictionary, key: String, where: Dictionary) -> Dictionary
 	var next: Dictionary = build.duplicate(true)
 	var ri: int = int(where["routine"])
 	if ri == ATTACK:
-		if PIECES[key]["slot"] != "step" or not next.has("attack") or next["attack"]["steps"].size() >= Attack.MAX_STEPS: return {}
+		if PIECES[key]["slot"] != "step" or is_gate(key) or not next.has("attack") or next["attack"]["steps"].size() >= Attack.MAX_STEPS: return {}
 		next["attack"]["steps"].insert(clampi(int(where.get("index", 0)), 0, next["attack"]["steps"].size()), key)
 		return next
 	if ri < 0:
@@ -209,7 +215,8 @@ static func matter_text(state: Dictionary) -> String:
 static func cooldown(build: Dictionary, index: int) -> float:
 	var routine: Dictionary = build["routines"][index]
 	if routine["when"] == "": return 0.0
-	return (float(PIECES[routine["when"]]["cooldown"]) + routine["steps"].size() * 0.6) * pow(0.85, build["tools"]["pressure"])
+	var acting: int = routine["steps"].filter(func(key: String) -> bool: return not is_gate(key)).size()
+	return (float(PIECES[routine["when"]]["cooldown"]) + acting * 0.6) * pow(0.85, build["tools"]["pressure"])
 
 ## The routine a relay in routine `index` sends its pulse to: the next one that can fire.
 static func relay_target(routines: Array, index: int) -> int:
@@ -230,7 +237,7 @@ static func well_formed(build: Dictionary, routine_count: int) -> bool:
 	if not build.get("attack", {}) is Dictionary or not build.get("attack", {}).get("steps", []) is Array: return false
 	if attack_steps(build).size() > Attack.MAX_STEPS: return false
 	for step: Variant in attack_steps(build):
-		if not step is String or not PIECES.has(step) or PIECES[step]["slot"] != "step": return false
+		if not step is String or not PIECES.has(step) or PIECES[step]["slot"] != "step" or is_gate(step): return false
 	for routine: Variant in build["routines"]:
 		if not routine is Dictionary or not routine.get("steps") is Array: return false
 		if routine["steps"].size() > MAX_STEPS: return false
@@ -261,6 +268,7 @@ static func problem(routine: Dictionary, routines: Array = [], index: int = -1) 
 		var at: int = result["idle"][0]
 		var why: String = str(result["trace"][at]["text"]).trim_prefix("no hace nada").trim_prefix(", ")
 		return ("%s no hace nada, %s" % [PIECES[routine["steps"][at]]["name"], why]) if why != "" else "%s no hace nada aquí" % PIECES[routine["steps"][at]]["name"]
+	if not routine["steps"].is_empty() and is_gate(routine["steps"][-1]): return "%s no tiene un DO detrás que decidir" % PIECES[routine["steps"][-1]]["name"]
 	if routine["then"] != "" and result["state"]["shape"] == "gone": return "al THEN ya no le queda materia"
 	if routine["then"] == "detonar" and result["state"]["coat"] == 0: return "detonate no revienta nada sin coat antes"
 	if routine["then"] != "" and routine.get("on", "contact") == "broken" and result["state"]["material"] not in ["ice", "scrap"]: return "solo el hielo y la chatarra se rompen"
