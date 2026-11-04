@@ -179,6 +179,11 @@ func _corners(at: Vector3, half: float, arm: float, width: float, colour: Color)
 				var l := PackedVector3Array([tip - Vector3(sx * arm, 0, 0), tip, tip - Vector3(0, 0, sz * arm)])
 				_ribbon(_lines, l, width + (2.0 * CombatFx._texel(self) if pass_ink else 0.0), AIM_INK if pass_ink else colour)
 
+## Two of this player's routines meeting here (spellwork.combo_fx): the amber of the program's
+## combo bracket, rung out once on the floor so the eye finds where the HUD's join came from.
+func combo(at: Vector3) -> void:
+	CombatFx.ripple(get_parent(), Vector3(at.x, at.y + 0.1, at.z), AIM_READY, 2.2, 0.45)
+
 func aim(at: Vector3, ready: bool) -> void:
 	_aims.append({"at": at, "left": 0.6 if ready else 0.3, "life": 0.6 if ready else 0.3, "ready": ready})
 

@@ -91,8 +91,10 @@ signal combo(peer: int, a: int, b: int)
 var _combo_at: Dictionary = {}
 
 @rpc("authority", "call_local", "unreliable")
-func combo_fx(peer: int, a: int, b: int) -> void:
+func combo_fx(peer: int, a: int, b: int, at: Vector3 = Vector3.INF) -> void:
 	combo.emit(peer, a, b)
+	# Where it happened, for the one whose routines met: an amber ring off the spot.
+	if _fx != null and peer == multiplayer.get_unique_id() and at != Vector3.INF: _fx.combo(at)
 
 ## A machine wet by a routine's matter remembers whose, so a later shock or freeze from another
 ## routine of the same player counts as a combo between the two.
@@ -102,11 +104,11 @@ func wet_by(enemy: Node3D, record: Dictionary) -> void:
 ## The wet machine `enemy` was shocked or frozen by `record`: a combo if another routine wet it.
 func wet_and(enemy: Node3D, record: Dictionary) -> void:
 	if record.is_empty() or not is_instance_valid(enemy) or not enemy.wet() or not enemy.has_meta("wet_by"): return
-	linked(enemy.get_meta("wet_by"), record)
+	linked(enemy.get_meta("wet_by"), record, enemy.global_position)
 
 ## Called by the rules when `one` and `other` reacted: if they came from two different routines of
 ## the same player, that player's program shows it (once a second per pair at most).
-func linked(one: Dictionary, other: Dictionary) -> void:
+func linked(one: Dictionary, other: Dictionary, at: Variant = null) -> void:
 	if not one.has("routine") or not other.has("routine") or one["owner"] != other["owner"]: return
 	var a: int = int(one["routine"])
 	var b: int = int(other["routine"])
@@ -115,7 +117,8 @@ func linked(one: Dictionary, other: Dictionary) -> void:
 	if run.elapsed < float(_combo_at.get(key, -INF)): return
 	_combo_at[key] = run.elapsed + 1.0
 	rules.count("combos")
-	combo_fx.rpc(int(one["owner"]), mini(a, b), maxi(a, b))
+	if at == null: at = other.get("position", one.get("position", Vector3.ZERO))
+	combo_fx.rpc(int(one["owner"]), mini(a, b), maxi(a, b), at)
 
 ## Routines under way: {"peer", "index", "point", "toward", "depth", "left", "id", "steps", "then", "on"}.
 ## `id` is 0 while the drawn water is still running to its spot.

@@ -154,7 +154,8 @@ descartó porque en multijugador el host pausa para todos y Esc tiene que seguir
 hizo (`record["routine"]`). Cuando la de dos rutinas distintas de un mismo jugador reacciona entre
 sí (fuego apagado en agua, hielo derretido, metal al rojo que hierve agua, vapor que ahoga fuego,
 carga que cruza materia de otra rutina o revienta sus nanitos), el programa une con un trazo
-ámbar los números de esas dos filas durante 0,9 s. A lo sumo una vez por segundo por pareja. Soak:
+ámbar los números de esas dos filas durante 0,9 s, y en el suelo, donde se juntaron, sale un aro
+del mismo ámbar (solo para ese jugador). A lo sumo una vez por segundo por pareja. Soak:
 de 3 a 18 por turno según la build.
 
 La máquina también cuenta como puente: el agua de una rutina deja su marca en lo que moja
