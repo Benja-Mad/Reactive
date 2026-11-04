@@ -221,6 +221,9 @@ que se ve cabe en pocos grados. Cada repetición va un poco desafinada para no t
 y un limitador en el bus maestro la corta en −1 dB. «silenciar», en el taller junto a «menú», se
 recuerda entre partidas.
 
+En el turno no flotan números de vida: el daño ya lo dicen la barra de huesos del HUD, ese golpe
+sordo y la sacudida de cámara.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

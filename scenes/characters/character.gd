@@ -131,7 +131,9 @@ func receive_health(amount: float) -> void:
 		var color := Color(0.1, 1, 0.85) if applied > 0 else Color(1, 0.25, 0.18)
 		# Only your own body's hits are heard: the knock says it was you.
 		if applied < 0 and is_multiplayer_authority(): Sfx.of(self).play("hurt")
-		preload("res://scenes/actions/combat_fx.gd").number(get_tree().current_scene, global_position + Vector3.UP * 1.8, ("+" if applied > 0 else "") + str(int(applied)), color)
+		# The shift shows health on the HUD bar and hits by knock and shake: no floating numbers.
+		if get_tree().get_first_node_in_group("survivor_run") == null:
+			preload("res://scenes/actions/combat_fx.gd").number(get_tree().current_scene, global_position + Vector3.UP * 1.8, ("+" if applied > 0 else "") + str(int(applied)), color)
 	health = clampf(health + amount, 0.0, 100.0)
 	if health <= 0.0:
 		preload("res://scenes/actions/combat_fx.gd").burst(get_tree().current_scene, global_position, Color(0.15, 0.85, 1.0))
