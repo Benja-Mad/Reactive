@@ -29,14 +29,15 @@ var _world: Array[AudioStreamPlayer3D] = []
 var _world_next: int = 0
 
 ## The one Sfx under the tree's root, made on first use.
+## Kept here too, so calls in the frame before it joins the tree reach the same one.
+static var _one: Sfx = null
+
 static func of(node: Node) -> Sfx:
-	var root: Window = node.get_tree().root
-	var found: Node = root.get_node_or_null("Sfx")
-	if found is Sfx: return found
-	var made := Sfx.new()
-	made.name = "Sfx"
-	root.add_child.call_deferred(made)
-	return made
+	if is_instance_valid(_one): return _one
+	_one = Sfx.new()
+	_one.name = "Sfx"
+	node.get_tree().root.add_child.call_deferred(_one)
+	return _one
 
 const SETTINGS := "user://settings.cfg"
 

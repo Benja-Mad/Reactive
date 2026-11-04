@@ -160,7 +160,9 @@ const MARK_RADIUS := 2.2
 @rpc("authority", "call_local", "reliable")
 func marked(key: String) -> void:
 	var enemy: Node3D = machines.get_node_or_null(key) if machines != null else null
-	if enemy != null and spellwork != null and spellwork._fx != null: spellwork._fx.mark = enemy
+	if enemy != null and spellwork != null and spellwork._fx != null:
+		spellwork._fx.mark = enemy
+		Sfx.of(self).play("armed", 0.75, 4.0)
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or phase != "running" or get_tree().paused: return
 	if players().is_empty(): return
