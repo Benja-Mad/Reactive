@@ -668,6 +668,7 @@ func spawn_machine(id: int, point: Vector3, kind: int, strength: float) -> void:
 	machines.add_child(enemy)
 @rpc("authority", "call_local", "reliable")
 func despawn_machine(key: String) -> void:
+	if key == my_mark: my_mark = ""
 	var enemy := machines.get_node_or_null(key)
 	if enemy != null:
 		enemy.down = true
