@@ -213,6 +213,10 @@ func _dry(enemy: Node3D) -> void:
 ## Matter and a machine in contact: each moves the other one step toward itself.
 func _heat(record: Dictionary, enemy: Node3D) -> void:
 	_acting = record
+	_heat_body(record, enemy)
+	_acting = {}
+
+func _heat_body(record: Dictionary, enemy: Node3D) -> void:
 	var t: int = Catalog.temp_of(record)
 	var id: int = record["id"]
 	# Fire, and metal or plasma hot enough, light a dry machine; a wet one hisses dry instead and
@@ -527,6 +531,10 @@ func _touching(a: Dictionary, b: Dictionary) -> bool:
 func _conduct(record: Dictionary, enemies: Array[Node3D]) -> void:
 	if _budget <= 0: return
 	_acting = record
+	_conduct_body(record, enemies)
+	_acting = {}
+
+func _conduct_body(record: Dictionary, enemies: Array[Node3D]) -> void:
 	var seeking: bool = record["material"] == "current"
 	var plasma: bool = seeking and Catalog.temp_of(record) >= 1
 	var limit: int = 3 if seeking else mini(MAX_JUMPS, 3 * int(record["charge"]))
