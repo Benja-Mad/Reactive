@@ -17,12 +17,12 @@ const OPERATORS := {
 	Statics.Role.SUPPORT: {
 		"accent": "do", "flip": false,
 		"frames": preload("res://materials/operators/sereno_frames.tres"),
-		"about": "Suelta ánimas, espíritus de lluvia que buscan solas la máquina y revientan en agua. Lo que salpican se empapa y a veces deja un charco.",
+		"about": "Suelta ánimas, espíritus de lluvia que buscan solas la máquina y revientan en agua.",
 	},
 	Statics.Role.DAMAGE: {
 		"accent": "when", "flip": true,
 		"frames": preload("res://materials/operators/brasa_frames.tres"),
-		"about": "Echa fuego desde la palma, de cerca y sin parar. Seca lo mojado, calienta lo seco y hace vapor los charcos. Lo que vuela se le escapa.",
+		"about": "Fuego desde la palma, de cerca y sin parar; hace vapor los charcos. Lo que vuela se le escapa.",
 	},
 }
 

@@ -352,8 +352,6 @@ func _draw_chips(at: Vector2, build: Dictionary, support: bool) -> void:
 			x = _chip(Vector2(x + 5 * PX, y), key, name_of(key), "do", true)
 		if routine["then"] != "":
 			x = _chip(Vector2(x + 5 * PX, y), routine["then"], name_of(routine["then"]), "then", true)
-		if Build.problem(routine, routines, index) != "":
-			_cross(Vector2(x + 5 * PX, y + 4 * PX), Kit.FAINT)
 
 ## A build as the HUD's glyph rows, for a crew member's column on the parte.
 func _glyph_rows(at: Vector2, build: Dictionary, support: bool) -> void:

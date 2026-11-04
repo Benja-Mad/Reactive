@@ -447,7 +447,7 @@ func _draw() -> void:
 		if routine["when"] == "eco" and ri == 0 and not chain.is_empty(): _break_mark((chain[0]["rect"] as Rect2).position + Vector2(3, 0) * PX)
 		var issue: String = Build.problem(routine, rows, ri)
 		if issue != "" and routine["when"] != "" and not chain.is_empty():
-			_draw_row_issue(issue, (chain[-1]["rect"] as Rect2).end.x + 6 * PX, top)
+			_draw_row_issue((chain[-1]["rect"] as Rect2).end.x + 6 * PX, top)
 	_draw_cables(rows)
 	draw_rect(Rect2(0, _panel_top(), size.x, PX), Kit.LINE)
 	for node: Dictionary in _nodes:
@@ -552,7 +552,8 @@ func _draw_tooltip() -> void:
 # --- Drawing: the box and the problems ------------------------------------------------------
 
 ## The box: a dark tray right of the attack row with its word in front, the loose pieces in it.
-## While a placed piece is in hand it says where to put it back; a new piece says what to do.
+## While a placed piece is in hand it says where to put it back; a new piece is told apart by its
+## amber edge alone.
 func _draw_tray() -> void:
 	var tray: Rect2 = _box_area
 	draw_rect(tray, PLATE)
@@ -561,9 +562,6 @@ func _draw_tray() -> void:
 	var color: Color = Kit.FAINT
 	if not _held.is_empty() and int(_held["where"]["routine"]) != -1:
 		note = "suéltala aquí para guardarla"
-		color = Kit.RAMPS["tool"][2]
-	elif _fresh and _held.is_empty():
-		note = "arrástrala a una fila"
 		color = Kit.RAMPS["tool"][2]
 	elif draft["box"].is_empty():
 		note = "vacía"
@@ -619,6 +617,8 @@ func _say(x: float, y: float, value: String, room: float, colour: Color, bottom:
 ## and the mass rule in words.
 static func _plain_touch(touch: String) -> String:
 	if touch.begins_with("golpea según masa"): return "golpea más fuerte cuanto más pesa y más rápido va"
+	# The yard's hazards: the first one is enough to say the matter sets them off.
+	if touch.begins_with("en el patio: "): return touch.get_slice(", ", 0)
 	var clause: String = touch.get_slice(";", 0)
 	var colon: int = clause.find(": ")
 	if colon > 0 and clause.left(colon).split(" ").size() <= 2: clause = clause.substr(colon + 2)
@@ -628,18 +628,10 @@ static func _plain_touch(touch: String) -> String:
 static func _space() -> float:
 	return Kit.width("a b") - Kit.width("ab")
 
-## A row's problem as it reads after its last piece, at most two lines in the room left; empty
-## when it does not fit, and then the read-out spells it out instead.
-func _issue_lines(issue: String, x: float) -> Array[String]:
-	var room: float = size.x - x - 13 * PX
-	if room < 80 * PX: return []
-	var lines: Array[String] = _wrap(issue.trim_suffix("."), room)
-	return lines if lines.size() <= 2 else ([] as Array[String])
-
-func _draw_row_issue(issue: String, x: float, top: float) -> void:
-	var lines: Array[String] = _issue_lines(issue, x)
+## A row's problem is only its break mark after the last piece; the read-out says what it is
+## when the row is the one being read.
+func _draw_row_issue(x: float, top: float) -> void:
 	_break_mark(Vector2(x + 3 * PX, top + 7 * PX))
-	for i: int in lines.size(): Kit.text(self, Vector2(x + 10 * PX, top + i * 11 * PX), lines[i], ISSUE)
 
 # --- Drawing: the read-out ------------------------------------------------------------------
 
@@ -666,9 +658,6 @@ func _draw_panel(build: Dictionary, index: int, proposed: bool) -> void:
 	if proposed:
 		Kit.text(self, Vector2(x, y - PX), "Así quedaría la rutina %d" % (index + 1), Kit.TEXT)
 		y += READ_LINE
-	else:
-		Kit.text(self, Vector2(x, y - PX), "Rutina %d" % (index + 1), Kit.TEXT)
-		cx = x + Kit.width("Rutina %d" % (index + 1)) + 8 * PX
 	if routine["when"] == "":
 		_break_mark(Vector2(cx + 3 * PX, y + 6 * PX))
 		Kit.text(self, Vector2(cx + 9 * PX, y - PX), Build.problem(routine), ISSUE)
@@ -724,11 +713,9 @@ func _draw_panel(build: Dictionary, index: int, proposed: bool) -> void:
 	if index + 1 < build["routines"].size() and build["routines"][index + 1]["when"] == "eco":
 		_icon("eco", Vector2(x2, y), "mute")
 		y = _say(x2 + 15 * PX, y, "al activarse dispara la rutina %d" % (index + 2), room2 - 15 * PX, Kit.DIM, bottom)
-	# The problem, when the row could not say it after its last piece (or this is a proposal).
+	# The problem: the row only marks it.
 	var issue: String = Build.problem(routine, build["routines"], index)
-	var then_node: Dictionary = _row_node(index, "then")
-	var said: bool = not proposed and not then_node.is_empty() and not _issue_lines(issue, (then_node["rect"] as Rect2).end.x + 6 * PX).is_empty()
-	if issue != "" and not said:
+	if issue != "":
 		# The narrow column takes the short way of saying the relay one.
 		issue = issue.replace("no hace nada con el pulso", "no reacciona")
 		if _say(x2 + 15 * PX, y, issue, room2 - 15 * PX, ISSUE, bottom, 3) != y: _break_mark(Vector2(x2 + 5 * PX, y + 6 * PX))
@@ -1026,11 +1013,6 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 	elif t < built: title = Recipe.FROM[from]
 	else: title = Recipe.matter_text(final)
 	Kit.text(self, rect.position + Vector2(18 if key != "" else 4, 2) * PX, title, BLAST)
-	if shown_step >= 0 and t < built:
-		# The step's sentence on up to two lines at the bottom, or its one word when it is longer.
-		var lines: Array[String] = _wrap_even(trace[shown_step]["text"], rect.size.x - 8 * PX)
-		if lines.size() > 2: lines = [str(trace[shown_step]["tag"])]
-		for i: int in lines.size(): Kit.text(self, Vector2(rect.position.x + 4 * PX, rect.end.y - (14 + 12 * (lines.size() - 1 - i)) * PX), lines[i], Kit.TEXT)
 
 ## A puddle seen from above: a flat dark ellipse with its neon rim, `amount` of a full draught.
 func _pool(at: Vector2, amount: float, from: String = "water") -> void:
