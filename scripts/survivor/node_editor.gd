@@ -969,6 +969,8 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 	# On cue: the aim comes down where the player points, a beat before the matter.
 	if when == "mano" and t > fired - 0.45 and t < fired + 0.2: _reticle(place)
 	if routine.get("on", "contact") == "mano" and then != "" and t > moment_at - 0.45 and t < moment_at + 0.2: _reticle(place)
+	# «if marked» asks after the player's mark: the machine here wears it.
+	if "si_marcada" in routine["steps"]: _reticle(machine, 1.7)
 	if when == "herido" and t > fired - 0.1 and t < fired + 0.25: draw_circle(me, 9, Color(MACHINE, 0.5))
 	if ghost != Vector2.INF:
 		draw_rect(Rect2(ghost - Vector2(3, 18), Vector2(6, 36)), Color(BLAST, 0.25), false, PX)
@@ -1023,13 +1025,14 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 	Kit.text(self, rect.position + Vector2(18 if key != "" else 4, 2) * PX, title, BLAST)
 
 ## The player's aim on the floor: four corners round the spot, in the WHEN colour.
-func _reticle(at: Vector2) -> void:
+func _reticle(at: Vector2, scale: float = 1.0) -> void:
 	var c: Color = Kit.RAMPS["when"][2]
 	for sx: float in [-1.0, 1.0]:
 		for sy: float in [-1.0, 1.0]:
-			var corner := at + Vector2(sx * 9, sy * 6)
-			draw_rect(Rect2(corner - Vector2(maxf(0, sx) * 3, maxf(0, sy) * PX), Vector2(3, PX)), c)
-			draw_rect(Rect2(corner - Vector2(maxf(0, sx) * PX, maxf(0, sy) * 3), Vector2(PX, 3)), c)
+			var corner := at + Vector2(sx * 9, sy * 6) * scale
+			var arm: float = roundf(3.0 * scale)
+			draw_rect(Rect2(corner - Vector2(maxf(0, sx) * arm, maxf(0, sy) * PX), Vector2(arm, PX)), c)
+			draw_rect(Rect2(corner - Vector2(maxf(0, sx) * PX, maxf(0, sy) * arm), Vector2(PX, arm)), c)
 
 ## A puddle seen from above: a flat dark ellipse with its neon rim, `amount` of a full draught.
 func _pool(at: Vector2, amount: float, from: String = "water") -> void:
