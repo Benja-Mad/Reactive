@@ -38,8 +38,24 @@ static func of(node: Node) -> Sfx:
 	root.add_child.call_deferred(made)
 	return made
 
+const SETTINGS := "user://settings.cfg"
+
+## Whether the player turned the sound off; kept between runs.
+static func muted() -> bool:
+	var config := ConfigFile.new()
+	if config.load(SETTINGS) != OK: return false
+	return bool(config.get_value("audio", "muted", false))
+
+static func set_muted(value: bool) -> void:
+	var config := ConfigFile.new()
+	config.load(SETTINGS)
+	config.set_value("audio", "muted", value)
+	config.save(SETTINGS)
+	AudioServer.set_bus_mute(0, value)
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	AudioServer.set_bus_mute(0, muted())
 	for sound: String in SOUNDS: _streams[sound] = load("res://assets/audio/%s.wav" % sound)
 	for i: int in VOICES:
 		var player := AudioStreamPlayer.new()

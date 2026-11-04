@@ -672,13 +672,24 @@ func _build_placement() -> void:
 func _build_workshop() -> void:
 	var editor: Control = _open_editor()
 	editor.changed.connect(func(build: Dictionary) -> void: run.submit_build.rpc_id(1, build))
+	var menu: Button = null
 	if multiplayer.is_server():
 		var buttons: Array = _band("Reanudar", "menú", 28 * PX)
 		buttons[0].pressed.connect(func() -> void: run.toggle_pause.rpc_id(1))
 		buttons[1].pressed.connect(_to_menu)
 		buttons[0].grab_focus()
+		menu = buttons[1]
 	else:
-		_band("", "menú", 0.0)[1].pressed.connect(_to_menu)
+		menu = _band("", "menú", 0.0)[1]
+		menu.pressed.connect(_to_menu)
+	# The sound, beside the menu: the verb says what a press does.
+	var label: String = "activar sonido" if Sfx.muted() else "silenciar"
+	var sound := _link(Vector2(menu.position.x - 20 * PX - link_width(label), menu.position.y - PX), label)
+	sound.pressed.connect(func() -> void:
+		Sfx.set_muted(not Sfx.muted())
+		sound.text = "activar sonido" if Sfx.muted() else "silenciar"
+		sound.size.x = link_width(sound.text)
+		sound.position.x = menu.position.x - 20 * PX - sound.size.x)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo: return
