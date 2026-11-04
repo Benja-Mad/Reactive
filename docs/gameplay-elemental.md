@@ -136,6 +136,14 @@ a la vista. *on near* sigue siendo defensivo: usa la marca si está a 9 m y, si 
 Cuatro esquinas ámbar la siguen en el suelo hasta que cae o marcas otra. Funciona aunque no haya
 ninguna rutina *on cue* lista.
 
+**El THEN también puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto
+momento del THEN, *al hacer clic*: la materia se queda armada (en el programa, su THEN con el
+borde tenue todo el rato que ella siga en pie) y un clic suelta a la vez todos los THEN tuyos así
+armados, estén donde estén. Una rutina automática prepara la trampa; tú decides cuándo salta. Un
+clic justo al hacerla no la gasta (0,3 s de margen), y con algo armado las esquinas siguen al
+puntero aunque no haya rutina *on cue*. El clic es el único verbo del jugador: dispara las
+rutinas *on cue*, marca la máquina que pisa y suelta lo armado al clic.
+
 **Condiciones: if wet, if hot** (`Recipe.GATES`, `spellwork.gate`). Son DO que no tocan la
 materia: cuando les toca, preguntan por la máquina más cercana a ella (4 m). Si está mojada (o
 caliente), el DO siguiente corre; si no, se salta. *on crowd › agua › if wet › arc* moja al grupo

@@ -114,12 +114,15 @@ func _process(_delta: float) -> void:
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.hover = cue_spot() if phase == "running" and not get_tree().paused and cue_ready() else null
 
-## Whether a routine on cue of yours would answer a click now.
+## Whether a click of yours would do something now: a routine on cue charged, or matter of
+## yours armed «on click».
 func cue_ready() -> bool:
 	var routines: Array = builds.get(multiplayer.get_unique_id(), {}).get("routines", [])
 	var charge: Array = charges.get(multiplayer.get_unique_id(), [])
 	for index: int in routines.size():
 		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: return true
+	if world != null:
+		for record: Dictionary in world.records.values(): if Build.Recipe.click_ready(record, multiplayer.get_unique_id()): return true
 	return false
 
 ## Where the pointer meets the floor, brought within reach the way the host will bring it, so
@@ -152,6 +155,8 @@ func cue(point: Vector3) -> void:
 	if picked != null and clocks[peer].get("mark") != picked:
 		clocks[peer]["mark"] = picked
 		marked.rpc_id(peer, str(picked.name))
+	# And it lets go every THEN of theirs armed «on click».
+	spellwork.release(peer)
 
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2

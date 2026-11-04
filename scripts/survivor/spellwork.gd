@@ -338,6 +338,17 @@ func tick(delta: float) -> void:
 	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"): if not enemy.down: live.append(enemy)
 	rules.tick(delta, live)
 
+## Every THEN of `peer`'s armed «on click» and standing long enough, let go at once (run.cue).
+func release(peer: int) -> int:
+	var let_go: int = 0
+	for id: int in world.records.keys():
+		if not world.records.has(id): continue
+		var record: Dictionary = world.records[id]
+		if not Recipe.click_ready(record, peer): continue
+		fire(id)
+		let_go += 1
+	return let_go
+
 ## Whether this record's THEN should fire now.
 func _moment(record: Dictionary) -> bool:
 	match record["reaction"].get("on", "contact"):

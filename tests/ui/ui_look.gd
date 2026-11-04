@@ -52,7 +52,7 @@ func start() -> void:
 	build["routines"] = [
 		{"when": "cerca", "steps": ["raise", "cold"], "then": "cadena"},
 		{"when": "grupo", "steps": ["si_mojada", "arc"], "then": ""},
-		{"when": "eco", "steps": ["fire", "fire"], "then": "fragmentos"},
+		{"when": "eco", "steps": ["fire", "fire"], "then": "fragmentos", "on": "mano"},
 		{"when": "mano", "steps": ["well", "arc"], "then": ""},
 	]
 	build["box"] = ["push", "drop", "estallar"]

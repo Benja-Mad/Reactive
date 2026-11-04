@@ -104,6 +104,12 @@ func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> 
 			beat["armed"] = -1
 			beat["lit"][last] = now
 
+## Whether matter of routine `index` stands armed «on click».
+func _clicked_armed(index: int) -> bool:
+	for record: Dictionary in run.world.records.values():
+		if int(record.get("reaction", {}).get("routine", -1)) == index and Build.Recipe.click_ready(record, multiplayer.get_unique_id()): return true
+	return false
+
 func _on_combo(peer: int, a: int, b: int) -> void:
 	if peer != multiplayer.get_unique_id(): return
 	_combos = _combos.filter(func(c: Array) -> bool: return _now() - float(c[2]) < COMBO_HOLD and not (c[0] == a and c[1] == b))
@@ -279,6 +285,8 @@ func _draw_program() -> void:
 		var beat: Dictionary = _beats.get(index, {})
 		var flow: Array = beat.get("flow", [])
 		var armed: int = int(beat.get("armed", -1)) if _now() - float(beat.get("armed_at", 0.0)) < ARMED_HOLD else -1
+		# Armed «on click», it waits as long as its matter stands, however long that is.
+		if routine.get("on", "contact") == "mano" and routine["then"] != "": armed = pieces.size() - 1 if _clicked_armed(index) else -1
 		for i: int in pieces.size():
 			var key: String = pieces[i]
 			var spot := Rect2(Vector2(x, at.y), Vector2(12, 12) * PX)

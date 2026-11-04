@@ -96,6 +96,17 @@ func test() -> void:
 	run.spellwork.rules._clock = 0.4
 	run.spellwork.tick(0.01)
 	check("contact_discharges_before_spending_carrier", charged_target.health < 100 and not run.world.records.has(id))
+	# On click: the THEN waits for the player's click, not for a machine; a click right as it is
+	# made does not spend it.
+	await clear_case()
+	var clicked: int = cast([], "estallar", "mano")
+	var waits: bool = run.world.records.has(clicked) and run.world.records[clicked].has("reaction")
+	var too_soon: int = run.spellwork.release(1)
+	for i: int in 3: run.spellwork.tick(0.2)
+	var still_waits: bool = run.world.records.has(clicked) and run.world.records[clicked].has("reaction")
+	var not_theirs: int = run.spellwork.release(2)
+	var let_go: int = run.spellwork.release(1)
+	check("then_on_click_waits_for_the_click", waits and too_soon == 0 and still_waits and not_theirs == 0 and let_go == 1 and not (run.world.records.has(clicked) and run.world.records[clicked].has("reaction")))
 	# Real editor input edits ON without changing owned pieces.
 	var editor = preload("res://scripts/survivor/node_editor.gd").new()
 	add_child(editor)

@@ -943,6 +943,8 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 	var then: String = routine["then"]
 	var moment_at: float = built + (Recipe.REACTION_DELAY if routine.get("on", "contact") == "timer" else 0.5)
 	if routine.get("on", "contact") == "pulse": moment_at = LOOP + 1.0
+	# On click: it waits, then the aim comes down on it.
+	if routine.get("on", "contact") == "mano": moment_at = built + 1.2
 	if routine.get("on", "contact") == "broken" and final["material"] not in ["ice", "scrap"]: moment_at = LOOP + 1.0
 	var crowd: Array[Vector2] = [machine]
 	if when == "grupo":
@@ -966,6 +968,7 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 		_cross(place, MACHINE)
 	# On cue: the aim comes down where the player points, a beat before the matter.
 	if when == "mano" and t > fired - 0.45 and t < fired + 0.2: _reticle(place)
+	if routine.get("on", "contact") == "mano" and then != "" and t > moment_at - 0.45 and t < moment_at + 0.2: _reticle(place)
 	if when == "herido" and t > fired - 0.1 and t < fired + 0.25: draw_circle(me, 9, Color(MACHINE, 0.5))
 	if ghost != Vector2.INF:
 		draw_rect(Rect2(ghost - Vector2(3, 18), Vector2(6, 36)), Color(BLAST, 0.25), false, PX)

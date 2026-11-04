@@ -278,9 +278,17 @@ static func traits(state: Dictionary) -> Array[String]:
 	return out.filter(func(item: String) -> bool: return item != "")
 
 ## The reaction moment is an explicit instruction, independent of material.
-const ON := ["contact", "broken", "timer", "pulse"]
-const ON_NAMES := {"contact": "al contacto", "broken": "al romperse", "timer": "tras 2 s", "pulse": "al recibir pulso"}
+const ON := ["contact", "broken", "timer", "pulse", "mano"]
+const ON_NAMES := {"contact": "al contacto", "broken": "al romperse", "timer": "tras 2 s", "pulse": "al recibir pulso", "mano": "al hacer clic"}
+## How long matter armed «on click» must stand before a click lets it go, so the click that
+## made it does not also spend it.
+const CLICK_ARMING := 0.3
 const REACTION_DELAY := 2.0
+## Whether `record` is `peer`'s matter armed «on click» and ready for the click.
+static func click_ready(record: Dictionary, peer: int) -> bool:
+	var reaction: Dictionary = record.get("reaction", {})
+	return int(record.get("owner", 0)) == peer and reaction.get("trigger", "") == "survivor" and reaction.get("on", "") == "mano" and float(reaction.get("after", REACTION_DELAY)) <= REACTION_DELAY - CLICK_ARMING
+
 static func moment(state: Dictionary, _then: String, on: String = "contact") -> String:
 	if state["shape"] == "gone": return "nunca: no queda materia"
 	return ON_NAMES.get(on, "al contacto")
