@@ -70,6 +70,9 @@ var stats: Dictionary = {"scalded": 0, "frozen": 0, "dried": 0, "melted": 0, "bo
 	"ignited": 0, "spread": 0, "quenched": 0, "reddened": 0, "detonated": 0, "grounded": 0, "crushed": 0, "bowled": 0,
 	"flared": 0, "overloaded": 0, "electrified": 0, "iced": 0, "shrapnel": 0}
 
+## The matter whose rule is running, for crediting a combo on a machine another routine wet.
+var _acting: Dictionary = {}
+
 func count(what: String, amount: int = 1) -> void:
 	stats[what] = int(stats.get(what, 0)) + amount
 
@@ -209,6 +212,7 @@ func _dry(enemy: Node3D) -> void:
 
 ## Matter and a machine in contact: each moves the other one step toward itself.
 func _heat(record: Dictionary, enemy: Node3D) -> void:
+	_acting = record
 	var t: int = Catalog.temp_of(record)
 	var id: int = record["id"]
 	# Fire, and metal or plasma hot enough, light a dry machine; a wet one hisses dry instead and
@@ -242,7 +246,9 @@ func _heat(record: Dictionary, enemy: Node3D) -> void:
 	# Then the matter's on the machine. Contact with water always wets; charge and cold
 	# can subsequently act on that same visible wet state.
 	if t == 0:
-		if enemy.soaked < 0.6: enemy.soak(Vector3.ZERO)
+		if enemy.soaked < 0.6:
+			enemy.soak(Vector3.ZERO)
+			spellwork.wet_by(enemy, record)
 		return
 	if t >= 1 and enemy.wet():
 		_dry(enemy)
@@ -253,6 +259,7 @@ func _heat(record: Dictionary, enemy: Node3D) -> void:
 		if is_instance_valid(enemy) and not enemy.down and enemy.temp < 1: _set_temp(enemy, 1)
 		return
 	if t <= -1 and enemy.wet():
+		spellwork.wet_and(enemy, record)
 		enemy.soaked = 0.0
 		enemy.frozen = FREEZE_TIME
 		_set_temp(enemy, -1)
@@ -277,6 +284,7 @@ func light(enemy: Node3D) -> void:
 ## Current let go all at once from `at`: every machine within `radius` takes a discharge, drawn
 ## as one arc fanning out.
 func shock_around(at: Vector3, radius: float, enemies: Array[Node3D], plasma: bool = false) -> void:
+	_acting = {}
 	var path := PackedVector3Array([at + Vector3.UP * 0.4])
 	var seen: Dictionary = {}
 	var hits: int = 0
@@ -303,6 +311,7 @@ func chill(enemy: Node3D) -> void:
 ## A charged hit: `first` takes the discharge and it runs on, `jumps` more, to the nearest machine
 ## within a jump -- but only on through conductors (wet, metal), like any charge.
 func zap(first: Node3D, jumps: int, enemies: Array[Node3D]) -> void:
+	_acting = {}
 	if not is_instance_valid(first) or first.down: return
 	var seen: Dictionary = {}
 	var path := PackedVector3Array([first.global_position + Vector3.UP * 0.8])
@@ -517,6 +526,7 @@ func _touching(a: Dictionary, b: Dictionary) -> bool:
 ## machines, other water -- for 3 jumps per charge, 6 at most, hurting every machine it crosses.
 func _conduct(record: Dictionary, enemies: Array[Node3D]) -> void:
 	if _budget <= 0: return
+	_acting = record
 	var seeking: bool = record["material"] == "current"
 	var plasma: bool = seeking and Catalog.temp_of(record) >= 1
 	var limit: int = 3 if seeking else mini(MAX_JUMPS, 3 * int(record["charge"]))
@@ -594,6 +604,7 @@ func _wire_clear(from: Vector3, to: Vector3, from_id: int, to_id: int) -> bool:
 
 func _shock(enemy: Node3D, seen: Dictionary, path: PackedVector3Array, plasma: bool = false) -> int:
 	seen[enemy] = true
+	spellwork.wet_and(enemy, _acting)
 	path.append(enemy.global_position + Vector3.UP * 0.8)
 	enemy.charge = 1
 	enemy.charge_hold = 0.6

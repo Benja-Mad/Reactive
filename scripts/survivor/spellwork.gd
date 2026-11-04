@@ -94,6 +94,16 @@ var _combo_at: Dictionary = {}
 func combo_fx(peer: int, a: int, b: int) -> void:
 	combo.emit(peer, a, b)
 
+## A machine wet by a routine's matter remembers whose, so a later shock or freeze from another
+## routine of the same player counts as a combo between the two.
+func wet_by(enemy: Node3D, record: Dictionary) -> void:
+	if record.has("routine") and is_instance_valid(enemy): enemy.set_meta("wet_by", {"owner": record["owner"], "routine": record["routine"]})
+
+## The wet machine `enemy` was shocked or frozen by `record`: a combo if another routine wet it.
+func wet_and(enemy: Node3D, record: Dictionary) -> void:
+	if record.is_empty() or not is_instance_valid(enemy) or not enemy.wet() or not enemy.has_meta("wet_by"): return
+	linked(enemy.get_meta("wet_by"), record)
+
 ## Called by the rules when `one` and `other` reacted: if they came from two different routines of
 ## the same player, that player's program shows it (once a second per pair at most).
 func linked(one: Dictionary, other: Dictionary) -> void:
@@ -272,7 +282,9 @@ func _after_step(op: String, before: Dictionary, id: int) -> void:
 			var radius: float = 2.6 if before["shape"] == "wall" else Recipe.DROP_SOAK_RADIUS
 			match before["material"]:
 				"water", "steam":
-					for enemy: Node3D in _enemies_near(at, radius): enemy.soak(_flat(enemy.global_position - at).normalized() * 2.0)
+					for enemy: Node3D in _enemies_near(at, radius):
+						enemy.soak(_flat(enemy.global_position - at).normalized() * 2.0)
+						wet_by(enemy, before)
 				"fire":
 					for enemy: Node3D in _enemies_near(at, 2.6): rules.light(enemy)
 				"current":
@@ -369,7 +381,9 @@ func _forces(record: Dictionary, delta: float) -> void:
 				enemy.shove = enemy.shove.move_toward(gap.normalized() * 4.5, Catalog.FIELD_ACCEL * delta)
 	if record.get("sliding", false) and record["material"] == "water":
 		for enemy: Node3D in _enemies_near(at, 2.0):
-			if enemy.soaked < 0.6: enemy.soak(_flat(record["velocity"]).normalized() * 4.0)
+			if enemy.soaked < 0.6:
+				enemy.soak(_flat(record["velocity"]).normalized() * 4.0)
+				wet_by(enemy, record)
 	# A tongue of fire lights what it runs over.
 	if record.get("sliding", false) and record["material"] == "fire":
 		for enemy: Node3D in _enemies_near(at, 2.0):

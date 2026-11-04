@@ -283,6 +283,28 @@ func rule_checks(Build: GDScript, me: Vector3) -> void:
 	run.spellwork.combo.disconnect(listen)
 	clean.call()
 	check("combo_joins_two_routines", heard.size() == 1 and heard[0] == [1, 0, 1])
+	# Through a machine: wet by routine 2's water, then shocked by routine 1's charge, or frozen
+	# by routine 3's cold, while still wet. A weapon's zap credits nobody.
+	heard.clear()
+	run.spellwork.combo.connect(listen)
+	run.spellwork._combo_at.clear()
+	var target: Node = make.call(0, 994, Vector3(-6, 0, 6))
+	await frames(2)
+	target.soak(Vector3.ZERO)
+	run.spellwork.wet_by(target, {"owner": 1, "routine": 1})
+	rules._acting = {"owner": 1, "routine": 0}
+	rules._shock(target, {}, PackedVector3Array())
+	var shock_heard: bool = heard.size() == 1 and heard[0] == [1, 0, 1]
+	target.soak(Vector3.ZERO)
+	rules._heat({"id": -1, "owner": 1, "routine": 2, "material": "ice", "shape": "patch", "temp": -1, "states": ["solid"], "attachments": {}}, target)
+	var freeze_heard: bool = heard.size() == 2 and heard[1] == [1, 1, 2]
+	heard.clear()
+	if is_instance_valid(target) and not target.down:
+		target.soak(Vector3.ZERO)
+		rules.zap(target, 0, [] as Array[Node3D])
+	run.spellwork.combo.disconnect(listen)
+	if is_instance_valid(target): target.queue_free()
+	check("combo_through_a_wet_machine", shock_heard and freeze_heard and heard.is_empty())
 
 func test() -> void:
 	Game.instance.multiplayer_test = false
