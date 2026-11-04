@@ -121,58 +121,63 @@ esquina en ese mismo instante: el WHEN al disparar, el cable mientras la materia
 actuar (gris con borde rosa si no cambió nada), el THEN en espera sobre una placa quieta y su
 destello al soltarse. No es una animación aparte: es el mismo instante en que la materia cambia.
 
-**On cue, el WHEN que disparas tú** (`run.cue`, `_placement "mano"`). Un clic (o Espacio) marca un
-punto del suelo; en el siguiente tick salen juntas todas las rutinas *on cue* listas, en ese punto
-y hasta 13 m de ti (un clic más lejos se trae al borde). Recarga 4 s; un clic sin nada listo se
-pierde, no espera. Quien hace clic ve al instante cuatro esquinas en el suelo cerrándose sobre el
-punto: ámbar si respondió una rutina, gris si no. El programa inicial trae una: *on cue › arc*, un
-charco cargado donde apuntas. El piloto del soak hace clic sobre la máquina más cercana cada
-segundo.
+### El clic
 
-**El clic marca una máquina** (`run.cue`, `run.marked`, `run.targets`). Si el clic cae a menos
-de 2,2 m de una máquina, queda marcada para quien hizo clic: va primera en la lista de la que
-eligen todas sus rutinas (*every*, el arma, las pruebas, la dirección de los pasos) mientras siga
-a la vista. *on near* sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana.
-Cuatro esquinas ámbar la siguen en el suelo hasta que cae, marcas otra o queda a más de 16 m
-(`MARK_KEEP`). Funciona aunque no haya ninguna rutina *on cue* lista.
+El clic (o Espacio) es el único verbo del jugador además de moverse. Un mismo clic se lee por
+prioridad (`run.cue`):
 
-**Un clic, leído por prioridad** (revisión de diseño del 4 de noviembre). Primero suelta lo armado
-al clic cerca; si soltó algo, no marca: saltar una trampa justo cuando una máquina la pisa no debe
-redirigir todo el programa a esa máquina. Si no soltó nada y cae sobre una máquina, la marca. Las
-rutinas *on cue* salen siempre en el punto. Un clic que no hace nada (nada listo, nada que soltar,
-ninguna marca nueva) suma medio segundo a la recarga de las rutinas *on cue* (`IDLE_CLICK`): hacer
-clic sin parar no paga. Lo armado al clic espera como mucho 10 s (`Recipe.CLICK_STALE`); después
-salta al contacto como cualquier THEN, así no se acumulan trampas por todo el patio. Se probó que
-volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina una y otra
-vez sobre la misma máquina la marcaba y desmarcaba (en el soak, de 269 a 154 s).
+1. **Suelta lo armado al clic** a menos de 5 m de donde cae (ver más abajo).
+2. **Si no soltó nada y cae sobre una máquina, la marca.** Así, saltar una trampa justo cuando una
+   máquina la pisa no redirige todo el programa a esa máquina.
+3. **Las rutinas *on cue* listas salen siempre** en el punto.
+4. **Un clic que no hace nada** (nada listo, nada que soltar, ninguna marca nueva) suma medio
+   segundo a la recarga de las rutinas *on cue* (`IDLE_CLICK`): hacer clic sin parar no paga.
 
-**El THEN también puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto
-momento del THEN, *al hacer clic*: la materia se queda armada (en el programa, su THEN con el
-borde ámbar todo el rato que ella siga en pie) y un clic suelta los THEN tuyos así armados que
-estén a menos de 5 m de donde apuntas (`spellwork.RELEASE_RADIUS`): con varias trampas puestas,
-eliges cuál salta. Las que soltaría el clic, con el puntero encima, se marcan más gruesas. Cada una lleva en el suelo unas esquinas pequeñas a su medida, la
-misma marca del clic, solo para su dueño: tenues mientras espera y ámbar plenas cuando una
-máquina entra en su alcance, que es cuando conviene soltarla. Soak (`clickthen`, todos los THEN al clic):
-soltando a ciegas cada segundo, la semilla 2 aguanta 131 s; soltando cuando las esquinas se
-encienden, 202 s. La semilla 4, 199 s frente a 172 s con los THEN automáticos. Elegir el momento
-paga. Una rutina automática prepara la trampa; tú decides cuándo salta. Un
-clic justo al hacerla no la gasta (0,3 s de margen), y con algo armado las esquinas siguen al
-puntero aunque no haya rutina *on cue*. El clic es el único verbo del jugador: dispara las
-rutinas *on cue*, marca la máquina que pisa y suelta lo armado al clic.
+Quien hace clic ve al instante cuatro esquinas en el suelo cerrándose sobre el punto, ámbar si el
+clic hizo algo y gris si no, y oye un clic (seco si no). Con algo que hacer, unas esquinas pequeñas
+siguen al puntero; sobre una máquina, se ajustan a ella en un tono oscuro. Todas las esquinas se
+dibujan por encima de los objetos del patio. Más allá de 13 m el punto se trae al borde del
+alcance, y las esquinas ya están ahí.
 
-**Condiciones: if wet, if hot, if marked** (`Recipe.GATES`, `spellwork.gate`). Son DO que no tocan la
-materia: cuando les toca, preguntan por la máquina más cercana a ella (4 m). Si está mojada (o
-caliente), el DO siguiente corre; si no, se salta. *if marked* pregunta si la máquina es la que marcaste con el clic: *on crowd › agua › if
-marked › arc* moja a cualquier grupo y solo electrocuta el que tú señalas. En equipo vale la marca de
-cualquier compañero vivo: uno señala y la rutina de otro golpea. Cada uno ve las marcas de los
-demás como esquinas finas, y las suyas gruesas; la preferencia de objetivo sigue siendo solo la
-propia. En el soak, con el piloto
-poniéndolas antes del último DO, las condiciones dicen que sí entre un cuarto y un tercio de las
-veces (`gate_yes`, `gate_no`): deciden, no son decorado. *on crowd › agua › if wet › arc* moja al grupo
-la primera vez y lo electrocuta cuando vuelve mojado. En el programa de la esquina la condición se
-enciende si dijo que sí y, si dijo que no, ella y el DO saltado se apagan con borde rosa. No van
-en el arma, no suman recarga y una condición al final de la fila es un error («no tiene un DO
-detrás que decidir»).
+**On cue, el WHEN que disparas tú** (`_placement "mano"`). En el siguiente tick salen juntas
+todas las rutinas *on cue* listas en el punto del clic. Recarga 4 s. El programa inicial trae una:
+*on cue › arc*, un charco cargado donde apuntas.
+
+**La marca** (`run.marked`, `run.targets`). La máquina marcada va primera en la lista de la que
+eligen todas tus rutinas (*every*, el arma, las pruebas, la dirección de los pasos). *on near*
+sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana. Cuatro esquinas
+ámbar gruesas y quietas la siguen hasta que cae, marcas otra o queda a más de 16 m (`MARK_KEEP`).
+Se probó que volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina
+una y otra vez sobre la misma máquina la marcaba y desmarcaba (en el soak, de 269 a 154 s).
+En equipo las marcas se comparten: cada uno ve las de los demás como esquinas finas.
+
+**El THEN puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto momento del
+THEN, *al hacer clic*: una rutina automática prepara la trampa y tú decides cuándo salta. La
+materia queda armada: en el programa, su THEN con borde ámbar; en el suelo, unas esquinas
+pequeñas a su medida, tenues mientras espera y ámbar plenas (con un brillo que se oye) cuando una
+máquina entra en su alcance, que es cuando conviene soltarla. Con el puntero cerca, las que
+soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (0,3 s de margen) y
+espera como mucho 10 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
+no se acumulan trampas por todo el patio. Soak (`clickthen`, todos los THEN al clic): soltando a
+ciegas cada segundo, la semilla 2 aguanta 131 s; soltando cuando las esquinas se encienden, 202 s.
+Elegir el momento paga.
+
+### Condiciones: if wet, if hot, if marked
+
+`Recipe.GATES`, `spellwork.gate`. Son DO que no tocan la materia: cuando les toca, preguntan por
+las máquinas a 4 m de ella. Si alguna está mojada (*if wet*), caliente (*if hot*) o marcada por ti
+o por un compañero vivo (*if marked*), el DO siguiente corre; si no, se salta.
+
+- *on crowd › agua › if wet › arc* moja al grupo la primera vez y lo electrocuta cuando vuelve
+  mojado.
+- *on crowd › agua › if marked › arc* moja a cualquier grupo y solo electrocuta el que alguien
+  del equipo señala: uno apunta y la rutina de otro golpea.
+
+En el programa de la esquina la condición se enciende si dijo que sí y, si dijo que no, ella y el
+DO saltado se apagan. No van en el arma, no suman recarga, una condición al final de la fila es un
+error («no tiene un DO detrás que decidir») y una mano de mejoras trae como mucho una. En el soak,
+con el piloto poniéndolas antes del último DO, dicen que sí entre un cuarto y un tercio de las
+veces (`gate_yes`, `gate_no`): deciden, no son decorado.
 
 **Lo que cambias se prueba solo** (`run._note_changes`, `run._run_trials`). Al cerrar el taller
 o elegir pieza, cada rutina que cambió corre una vez al reanudarse (una cada 0,45 s), donde su
@@ -185,32 +190,36 @@ hizo (`record["routine"]`). Cuando la de dos rutinas distintas de un mismo jugad
 sí (fuego apagado en agua, hielo derretido, metal al rojo que hierve agua, vapor que ahoga fuego,
 carga que cruza materia de otra rutina o revienta sus nanitos), el programa une con un trazo
 ámbar los números de esas dos filas durante 0,9 s, y en el suelo, donde se juntaron, sale un aro
-del mismo ámbar (solo para ese jugador). A lo sumo una vez por segundo por pareja. Soak:
-de 3 a 18 por turno según la build.
+del mismo ámbar (solo para ese jugador). A lo sumo una vez por segundo por pareja. La máquina
+también sirve de puente: el agua de una rutina deja su marca en lo que moja (`spellwork.wet_by`),
+y si otra rutina la electrocuta o la congela mientras sigue mojada (`spellwork.wet_and`), el combo
+une esas dos filas. El rayo de un arma no acredita a nadie. Soak: de 3 a 18 por turno según la
+build.
 
-La máquina también cuenta como puente: el agua de una rutina deja su marca en lo que moja
-(`spellwork.wet_by`), y si otra rutina la electrocuta o la congela mientras sigue mojada
-(`spellwork.wet_and`), el combo une esas dos filas. El rayo de un arma no acredita a nadie.
+### Sonido
 
-**El programa suena** (`Sfx`, `tools/audio/synth.py`). Era el primer sonido del juego. Cada pulso
-que enciende una pieza suena en el mismo instante y solo para quien la programó: un golpe grave
-al disparar el WHEN, una nota por cada DO, un toque sordo si no cambió nada o la condición dijo
-que no, un brillo al armarse el THEN y un acorde al soltarse, una campana de dos notas en cada
-combo y un clic (seco si nada respondió). Los DO siguen una escala pentatónica y cada fila empieza
-en su propia nota, así que cada rutina toca su frase y dos rutinas se distinguen de oído. En el
-soak suena unas 2 veces por segundo, con ráfagas de 10 cuando coinciden rutinas, y la mezcla no
-pasa de −9 dB.
+Era el primer sonido del juego, sintetizado en `tools/audio/synth.py` (`Sfx`). Está afinado solo
+por medición: nadie lo ha escuchado todavía.
 
-**El patio suena** (`fields_fx.SOUND`, `Sfx.at`). Cada momento de una regla que ya se ve
-(`spellwork.rule_fx`) suena donde pasa y lo oyen todos: chispazo y zumbido cuando salta la
-corriente, siseo de vapor, fuego ahogado que chisporrotea, el golpe sordo de una máquina que
-prende, el crujido de vidrio al helarse, los nanitos como un racimo de campanitas, el raspado de
-lo que muele en un remolino, el soplo cuando suelta, el estruendo de un bidón y el traqueteo de la
-metralla. Oye el ojo de la vista en píxeles (`pixel_view`), con el paneo ensanchado porque desde
-55 m todo lo que se ve cabe en pocos grados. Cada repetición va un poco desafinada para no taladrar. Además: un
-crujido metálico cuando cae una máquina (más fuerte las grandes), una nota por chatarra recogida
-que sube por la escala si las recoges seguidas, un golpe sordo solo cuando te pegan a ti y tres
-notas al subir de nivel.
+**El programa suena**, solo para quien lo programó y en el mismo instante en que se enciende cada
+pieza: un golpe grave al disparar el WHEN, una nota por cada DO, un toque sordo si no cambió nada
+o la condición dijo que no, un brillo al armarse el THEN y un acorde al soltarse, y una campana de
+dos notas en cada combo. Los DO siguen una escala pentatónica y cada fila empieza en su propia
+nota, así que cada rutina toca su frase y dos rutinas se distinguen de oído.
+
+**El patio suena** (`fields_fx.SOUND`, `Sfx.at`) donde pasa cada momento de regla que ya se ve, y
+lo oyen todos: chispazo y zumbido de la corriente, siseo de vapor (como mucho cada 0,6 s), fuego
+ahogado que chisporrotea, el golpe sordo de una máquina que prende, el crujido de vidrio al
+helarse, los nanitos como un racimo de campanitas, el raspado de lo que muele un remolino, el
+soplo cuando suelta, el estruendo de un bidón y el traqueteo de la metralla. Además: un crujido
+metálico cuando cae una máquina, una nota por chatarra que sube por la escala si las recoges
+seguidas, un golpe sordo solo cuando te pegan a ti y tres notas al subir de nivel.
+
+Oye el ojo de la vista en píxeles (`pixel_view`), con el paneo ensanchado porque desde 55 m todo lo
+que se ve cabe en pocos grados. Cada repetición va un poco desafinada para no taladrar. Suena unas
+2 veces por segundo, con ráfagas de 10; al final de una partida cargada la mezcla llega a −4,7 dB
+y un limitador en el bus maestro la corta en −1 dB. «silenciar», en el taller junto a «menú», se
+recuerda entre partidas.
 
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
