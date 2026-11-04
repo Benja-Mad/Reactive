@@ -179,6 +179,8 @@ var hover: Variant = null
 var mark: Node3D = null
 ## The machine under the pointer, when it is not the mark already: dim corners that fit it.
 var hover_machine: Node3D = null
+## Crewmates' marks by peer: thin corners, so whoever's routines ask «if marked» can see them.
+var others: Dictionary = {}
 ## Where this player's matter stands armed «on click»: small corners, the click's own mark.
 var click_spots: Array = []
 const AIM_HOVER := Color("c98a3e")
@@ -376,6 +378,10 @@ func _draw_marks(delta: float) -> void:
 		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
 	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
 	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)
+	for peer: int in others.keys():
+		var theirs: Variant = others[peer]
+		if theirs == null or not is_instance_valid(theirs) or theirs.down: others.erase(peer)
+		elif theirs != mark: _corners(theirs.global_position, 1.1, 0.3, 2.0 * texel, AIM_HOVER)
 	if mark != null: _corners(mark.global_position, 1.0, 0.42, 4.0 * texel, AIM_READY)
 	for aim_mark: Dictionary in _aims:
 		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]

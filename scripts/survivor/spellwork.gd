@@ -218,10 +218,15 @@ func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool =
 const GATE_REACH := 4.0
 func gate(key: String, id: int) -> bool:
 	if not world.records.has(id): return false
-	var mark: Variant = run.clocks.get(int(world.records[id]["owner"]), {}).get("mark")
+	# Any living crewmate's mark counts: one points, another's routine strikes.
+	var marks: Array = []
+	for peer: int in run.clocks:
+		var mark: Variant = run.clocks[peer].get("mark")
+		var body: Character = world._player(peer) as Character
+		if mark != null and is_instance_valid(mark) and body != null and not body.eliminated: marks.append(mark)
 	for enemy: Node3D in _enemies_near(world.records[id]["position"], GATE_REACH, true):
 		match key:
-			"si_marcada": if mark != null and is_instance_valid(mark) and enemy == mark: return true
+			"si_marcada": if enemy in marks: return true
 			"si_mojada": if enemy.wet(): return true
 			"si_arde": if enemy.temp >= 1: return true
 	return false

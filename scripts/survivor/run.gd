@@ -186,7 +186,7 @@ func cue(point: Vector3) -> void:
 	if marking and clock.get("mark") != picked:
 		# Otherwise a click on a machine marks it: your routines take it first while in reach.
 		clock["mark"] = picked
-		marked.rpc_id(peer, str(picked.name))
+		marked.rpc(peer, str(picked.name))
 	# On cue always fires at the point. A click that does nothing at all costs a little: every
 	# routine on cue still recharging waits half a second more, so spamming does not pay.
 	var routines: Array = builds.get(peer, {}).get("routines", [])
@@ -212,6 +212,8 @@ func machine_at(point: Vector3, radius: float = MARK_RADIUS) -> Node3D:
 
 ## This machine's player's mark, by node name, as the host last said.
 var my_mark: String = ""
+## Every player's mark by peer, by node name, as the host last said.
+var crew_marks: Dictionary = {}
 
 ## Routine indices of yours with matter armed «on click» this frame (see _process).
 var click_armed: Dictionary = {}
@@ -227,15 +229,23 @@ const MARK_KEEP := 16.0
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
 
-## The host's word to the one who clicked: this machine is now your mark.
+## The host's word to everyone: this machine is now `peer`'s mark ("" for none).
 @rpc("authority", "call_local", "reliable")
-func marked(key: String) -> void:
-	my_mark = key
-	if key == "" and spellwork != null and spellwork._fx != null: spellwork._fx.mark = null
+func marked(peer: int, key: String) -> void:
+	if key == "": crew_marks.erase(peer)
+	else: crew_marks[peer] = key
 	var enemy: Node3D = machines.get_node_or_null(key) if machines != null and key != "" else null
-	if enemy != null and spellwork != null and spellwork._fx != null:
-		spellwork._fx.mark = enemy
-		Sfx.of(self).play("armed", 0.75, 4.0)
+	var fx: Node = spellwork._fx if spellwork != null else null
+	if peer != multiplayer.get_unique_id():
+		# A crewmate's mark: seen by everyone, so one can point and another strike.
+		if fx != null:
+			if enemy != null: fx.others[peer] = enemy
+			else: fx.others.erase(peer)
+		return
+	my_mark = key
+	if fx == null: return
+	fx.mark = enemy
+	if enemy != null: Sfx.of(self).play("armed", 0.75, 4.0)
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or phase != "running" or get_tree().paused: return
 	if players().is_empty(): return
@@ -297,7 +307,7 @@ func _automate(player: Character, peer: int, delta: float) -> void:
 	# A mark left far behind is let go: out past the reach routines pick from, it only misleads.
 	if clock.has("mark") and (not is_instance_valid(clock["mark"]) or player.global_position.distance_to(clock["mark"].global_position) > MARK_KEEP):
 		clock.erase("mark")
-		marked.rpc_id(peer, "")
+		marked.rpc(peer, "")
 	var enemies: Array[Node3D] = targets(player)
 	if clock["shot"] <= 0:
 		if player is Support: _animas(player, peer, clock, tools)

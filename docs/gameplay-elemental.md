@@ -163,7 +163,10 @@ rutinas *on cue*, marca la máquina que pisa y suelta lo armado al clic.
 **Condiciones: if wet, if hot, if marked** (`Recipe.GATES`, `spellwork.gate`). Son DO que no tocan la
 materia: cuando les toca, preguntan por la máquina más cercana a ella (4 m). Si está mojada (o
 caliente), el DO siguiente corre; si no, se salta. *if marked* pregunta si la máquina es la que marcaste con el clic: *on crowd › agua › if
-marked › arc* moja a cualquier grupo y solo electrocuta el que tú señalas. En el soak, con el piloto
+marked › arc* moja a cualquier grupo y solo electrocuta el que tú señalas. En equipo vale la marca de
+cualquier compañero vivo: uno señala y la rutina de otro golpea. Cada uno ve las marcas de los
+demás como esquinas finas, y las suyas gruesas; la preferencia de objetivo sigue siendo solo la
+propia. En el soak, con el piloto
 poniéndolas antes del último DO, las condiciones dicen que sí entre un cuarto y un tercio de las
 veces (`gate_yes`, `gate_no`): deciden, no son decorado. *on crowd › agua › if wet › arc* moja al grupo
 la primera vez y lo electrocuta cuando vuelve mojado. En el programa de la esquina la condición se

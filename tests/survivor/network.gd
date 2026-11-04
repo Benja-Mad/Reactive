@@ -107,7 +107,7 @@ func host_checks() -> void:
 	if hound != null:
 		client_click.rpc(hound.global_position)
 		await frames(12)
-		checks["client_click_marks_for_client"] = run.clocks[client_id].get("mark") == hound and run.clocks[1].get("mark") != hound and run.my_mark != "Machine701"
+		checks["client_click_marks_for_client"] = run.clocks[client_id].get("mark") == hound and run.clocks[1].get("mark") != hound and run.my_mark != "Machine701" and run.crew_marks.get(client_id, "") == "Machine701"
 		inspect_mark.rpc()
 		await frames(10)
 	for key_name: String in report: checks[key_name] = report[key_name]
