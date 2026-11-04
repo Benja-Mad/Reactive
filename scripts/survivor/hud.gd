@@ -297,6 +297,11 @@ func _draw_program() -> void:
 				# Acting now: its own colour lit behind it, the glyph lifted a pixel while fresh.
 				Kit.notched(self, spot.grow(PX), Color(Kit.ramp(accent)[0], maxf(glow, 0.6)), Kit.ramp(accent)[2 if glow > 0.5 else 1])
 				draw_texture_rect(Kit.icon(key), Rect2(spot.position - Vector2(0, PX if glow > 0.5 else 0.0), spot.size), false)
+			elif i == armed and routine.get("on", "contact") == "mano":
+				# Waiting for your click: the amber of the click's corners on the floor.
+				Kit.notched(self, spot.grow(PX), Color(Kit.RAMPS["tool"][1], 0.85), Color(0, 0, 0, 0))
+				Kit.notched(self, spot, Kit.BOARD, Color(0, 0, 0, 0))
+				draw_texture_rect(Kit.icon(key), spot, false)
 			elif i == armed:
 				# A THEN waiting for its moment: only a dim rim, lighter than a piece acting.
 				Kit.notched(self, spot.grow(PX), Color(Kit.ramp(accent)[1], 0.55), Color(0, 0, 0, 0))
