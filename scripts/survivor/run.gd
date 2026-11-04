@@ -104,7 +104,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if spot == null: return
 	cue.rpc_id(1, spot)
 	# The click answers at once, here: corners on the floor, amber if a routine on cue is ready.
-	var ready: bool = cue_ready(spot)
+	# Amber when the click does something: a routine fires, a trap goes, or a machine is marked.
+	var ready: bool = cue_ready(spot) or machine_at(spot) != null
 	if spellwork._fx != null: spellwork._fx.aim(spot, ready)
 	Sfx.of(self).play("cue" if ready else "cue_idle")
 
