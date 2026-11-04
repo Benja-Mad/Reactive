@@ -120,7 +120,10 @@ func _process(_delta: float) -> void:
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
 			click_armed[int(record["reaction"].get("routine", -1))] = true
 			var size: Vector3 = record.get("size", Vector3.ONE)
-			spots.append([record["position"], clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)])
+			var half: float = clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)
+			# A machine within its reach now: the moment to let it go.
+			var near: bool = machine_at(record["position"], half + 1.4) != null
+			spots.append([record["position"], half, near])
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.click_spots = spots
 	var live: bool = phase == "running" and not get_tree().paused
@@ -171,9 +174,9 @@ func cue(point: Vector3) -> void:
 	spellwork.release(peer)
 
 ## The standing machine nearest `point` within a click's reach of it, or null.
-func machine_at(point: Vector3) -> Node3D:
+func machine_at(point: Vector3, radius: float = MARK_RADIUS) -> Node3D:
 	var picked: Node3D = null
-	var best: float = MARK_RADIUS
+	var best: float = radius
 	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
 		if enemy.down: continue
 		var gap: float = Vector2(enemy.global_position.x - point.x, enemy.global_position.z - point.z).length()
