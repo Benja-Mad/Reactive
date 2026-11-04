@@ -177,6 +177,7 @@ func _advance(delta: float) -> void:
 				stage = "skip"
 			elif Recipe.GATES.has(key):
 				stage = "step" if gate(key, id) else "no"
+				rules.count("gate_yes" if stage == "step" else "gate_no")
 				if stage == "no": cast["skip"] = true
 			elif _apply_step(peer, id, key, cast["toward"], true): stage = "step"
 			beat_fx.rpc(peer, cast["index"], stage, cast["k"], STEP_BEAT)
