@@ -104,12 +104,21 @@ func _unhandled_input(event: InputEvent) -> void:
 	if spot == null: return
 	cue.rpc_id(1, spot)
 	# The click answers at once, here: corners on the floor, amber if a routine on cue is ready.
-	var ready: bool = false
+	if spellwork._fx != null: spellwork._fx.aim(spot, cue_ready())
+
+## Local, every frame: while one of your routines on cue is ready, the floor under the pointer
+## shows it can be clicked.
+func _process(_delta: float) -> void:
+	if spellwork == null or spellwork._fx == null: return
+	spellwork._fx.hover = cue_spot() if phase == "running" and not get_tree().paused and cue_ready() else null
+
+## Whether a routine on cue of yours would answer a click now.
+func cue_ready() -> bool:
 	var routines: Array = builds.get(multiplayer.get_unique_id(), {}).get("routines", [])
 	var charge: Array = charges.get(multiplayer.get_unique_id(), [])
 	for index: int in routines.size():
-		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: ready = true
-	if spellwork._fx != null: spellwork._fx.aim(spot, ready)
+		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: return true
+	return false
 
 ## Where the pointer meets the floor.
 func cue_spot() -> Variant:

@@ -78,7 +78,8 @@ const DRAW_SPEED := 18.0
 const STEP_BEAT := 0.28
 ## Each beat of a routine as the world takes it, for the program in the corner to light the same
 ## piece at the same moment: "draw" (the trigger fired; the draught runs for `duration`), "step" or
-## "idle" (DO number `k` acted, or found nothing to act on), "armed" (the THEN waits), "fire".
+## "idle" (DO number `k` acted, or found nothing to act on), "no" (a condition said no) and "skip"
+## (the DO it skipped), "armed" (the THEN waits), "fire".
 signal beat(peer: int, index: int, stage: String, k: int, duration: float)
 
 @rpc("authority", "call_local", "unreliable")
@@ -157,13 +158,15 @@ func _advance(delta: float) -> void:
 			continue
 		if not cast["steps"].is_empty():
 			var key: String = cast["steps"].pop_front()
-			var acted: bool = false
-			if cast.get("skip", false): cast.erase("skip")
+			var stage: String = "idle"
+			if cast.get("skip", false):
+				cast.erase("skip")
+				stage = "skip"
 			elif Recipe.GATES.has(key):
-				acted = gate(key, id)
-				if not acted: cast["skip"] = true
-			else: acted = _apply_step(peer, id, key, cast["toward"], true)
-			beat_fx.rpc(peer, cast["index"], "step" if acted else "idle", cast["k"], STEP_BEAT)
+				stage = "step" if gate(key, id) else "no"
+				if stage == "no": cast["skip"] = true
+			elif _apply_step(peer, id, key, cast["toward"], true): stage = "step"
+			beat_fx.rpc(peer, cast["index"], stage, cast["k"], STEP_BEAT)
 			cast["k"] += 1
 			cast["left"] = STEP_BEAT
 			continue

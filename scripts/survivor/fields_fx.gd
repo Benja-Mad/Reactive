@@ -155,6 +155,23 @@ func stream(from: Vector3, to: Vector3, duration: float, substance: String = "wa
 			_arcs.append({"points": PackedVector3Array([from + Vector3.UP * 0.6, to + Vector3.UP * 0.1]), "left": duration + 0.1, "life": duration + 0.1, "seed": randi(), "width": 0.7})
 		"scrap": CombatFx.smoke(get_parent(), from + Vector3.UP * 0.3, Color("4a4038"), 8)
 
+## Where the pointer is on the floor while a routine on cue is ready, or null: small dim corners
+## that follow it, so the click is offered without a word.
+var hover: Variant = null
+const AIM_HOVER := Color("c98a3e")
+const AIM_INK := Color("0d0f14")
+
+## Four floor corners round `at`, each an L of arm `arm`, on an ink outline so they read over
+## anything the yard has on it.
+func _corners(at: Vector3, half: float, arm: float, width: float, colour: Color) -> void:
+	for pass_ink: bool in [true, false]:
+		for sx: float in [-1.0, 1.0]:
+			for sz: float in [-1.0, 1.0]:
+				# The ink a little under the colour, so the colour wins the depth test over it.
+				var tip: Vector3 = at + Vector3(sx * half, 0.12 if pass_ink else 0.16, sz * half)
+				var l := PackedVector3Array([tip - Vector3(sx * arm, 0, 0), tip, tip - Vector3(0, 0, sz * arm)])
+				_ribbon(_lines, l, width + (2.0 * CombatFx._texel(self) if pass_ink else 0.0), AIM_INK if pass_ink else colour)
+
 func aim(at: Vector3, ready: bool) -> void:
 	_aims.append({"at": at, "left": 0.6 if ready else 0.3, "life": 0.6 if ready else 0.3, "ready": ready})
 
@@ -321,14 +338,10 @@ func _draw_marks(delta: float) -> void:
 	var beat: int = 0 if steady else int(_time / BEAT)
 	# The click's corners, on ribbons so they hold up over a busy floor: wide when it lands,
 	# snapping in to the spot.
+	if hover != null and _aims.is_empty(): _corners(hover, 0.75, 0.35, 3.0 * texel, AIM_HOVER)
 	for aim_mark: Dictionary in _aims:
 		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]
-		var half: float = lerpf(1.3, 0.85, minf(1.0, t * 4.0))
-		var colour: Color = AIM_READY if aim_mark["ready"] else AIM_IDLE
-		for sx: float in [-1.0, 1.0]:
-			for sz: float in [-1.0, 1.0]:
-				var corner: Vector3 = aim_mark["at"] + Vector3(sx * half, 0.06, sz * half)
-				_ribbon(_lines, PackedVector3Array([corner - Vector3(sx * 0.35, 0, 0), corner, corner - Vector3(0, 0, sz * 0.35)]), 3.0 * texel, colour)
+		_corners(aim_mark["at"], lerpf(1.6, 0.9, minf(1.0, t * 4.0)), 0.5, 4.0 * texel, AIM_READY if aim_mark["ready"] else AIM_IDLE)
 	# A struck machine still crackles: two short sparks crawling over it.
 	if machines != null:
 		for enemy: Node3D in machines.get_children():

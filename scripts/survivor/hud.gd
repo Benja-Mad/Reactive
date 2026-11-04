@@ -74,7 +74,7 @@ func _process(delta: float) -> void:
 func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> void:
 	if peer != multiplayer.get_unique_id() or index < 0: return
 	var now: float = _now()
-	if not _beats.has(index) or stage == "draw": _beats[index] = {"lit": {}, "idle": {}, "flow": [], "armed": -1, "armed_at": 0.0}
+	if not _beats.has(index) or stage == "draw": _beats[index] = {"lit": {}, "idle": {}, "no": {}, "flow": [], "armed": -1, "armed_at": 0.0}
 	var beat: Dictionary = _beats[index]
 	var last: int = 0
 	var routines: Array = my_build()["routines"]
@@ -83,9 +83,11 @@ func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> 
 		"draw":
 			beat["lit"][0] = now
 			beat["flow"] = [1, now, duration]
-		"step", "idle":
-			beat["lit" if stage == "step" else "idle"][1 + k] = now
+		"step", "idle", "no":
+			beat[{"step": "lit", "idle": "idle", "no": "no"}[stage]][1 + k] = now
 			beat["flow"] = [2 + k, now, duration] if 2 + k <= last and stage == "step" else []
+		"skip":
+			beat["flow"] = []
 		"armed":
 			beat["armed"] = 1 + k
 			beat["armed_at"] = now
@@ -239,7 +241,7 @@ func _draw_program() -> void:
 	var attack: Array = Build.attack_steps(my_build())
 	var charge: Array = run.charges.get(multiplayer.get_unique_id(), [])
 	var box := _program_rect()
-	draw_rect(box, Color(Kit.BOARD, 0.82))
+	draw_rect(box, Color(Kit.BOARD, 0.93))
 	draw_rect(Rect2(box.position, Vector2(box.size.x, PX)), Kit.LINE)
 	var left: float = box.position.x + 4 * PX
 	var first: float = box.position.y + 4 * PX
@@ -279,13 +281,19 @@ func _draw_program() -> void:
 				_wire(x, at.y, accent, 1.0 if _glow(index, i) > 0.0 else crossing)
 			var glow: float = _glow(index, i)
 			var idle: float = _glow(index, i, "idle")
-			if glow > 0.0 or i == armed:
-				# Acting now: its own colour lit behind it, the glyph lifted a pixel while fresh. A THEN
-				# waiting for its moment sits on a quiet dark plate until it goes.
-				var edge: Color = Kit.ramp(accent)[2 if glow > 0.5 else 1]
-				if glow <= 0.0: edge = Color(Kit.ramp(accent)[1], 0.5)
-				Kit.notched(self, spot.grow(PX), Color(Kit.ramp(accent)[0], maxf(glow, 0.6)), edge)
+			var said_no: float = _glow(index, i, "no")
+			if glow > 0.0:
+				# Acting now: its own colour lit behind it, the glyph lifted a pixel while fresh.
+				Kit.notched(self, spot.grow(PX), Color(Kit.ramp(accent)[0], maxf(glow, 0.6)), Kit.ramp(accent)[2 if glow > 0.5 else 1])
 				draw_texture_rect(Kit.icon(key), Rect2(spot.position - Vector2(0, PX if glow > 0.5 else 0.0), spot.size), false)
+			elif i == armed:
+				# A THEN waiting for its moment: only a dim rim, lighter than a piece acting.
+				Kit.notched(self, spot.grow(PX), Color(Kit.ramp(accent)[1], 0.55), Color(0, 0, 0, 0))
+				Kit.notched(self, spot, Kit.BOARD, Color(0, 0, 0, 0))
+				draw_texture_rect(Kit.icon(key), spot, false)
+			elif said_no > 0.0:
+				# A condition that said no: it goes grey for a beat; what it skipped just stays unlit.
+				draw_texture_rect(Kit.icon(key, "mute"), spot, false)
 			elif idle > 0.0:
 				# It ran and found nothing to act on: greyed, and a rose rim says so.
 				Kit.notched(self, spot.grow(PX), Color(0, 0, 0, 0), Color(Kit.RAMPS["danger"][1], idle))
@@ -318,8 +326,8 @@ func _draw_program() -> void:
 		var colour: Color = Color(Kit.RAMPS["tool"][1], fade)
 		var rail: float = box.position.x + PX
 		draw_rect(Rect2(rail, top_y, PX, bottom_y - top_y + PX), colour)
-		draw_rect(Rect2(rail, top_y, 2 * PX, PX), colour)
-		draw_rect(Rect2(rail, bottom_y, 2 * PX, PX), colour)
+		draw_rect(Rect2(rail, top_y, 3 * PX, PX), colour)
+		draw_rect(Rect2(rail, bottom_y, 3 * PX, PX), colour)
 
 ## The rose × the workshop puts by a routine that will not work as built; grey on the parte, where
 ## it is a record and no longer something to fix.
