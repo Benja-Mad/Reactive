@@ -31,6 +31,7 @@ const PIECES := {
 	"eco": {"slot": "when", "name": "echo", "text": "Justo después de la rutina de arriba, un poco más allá de su materia.", "cooldown": 0.0, "max": 2},
 	"derribo": {"slot": "when", "name": "on kill", "text": "Cuando cae una máquina a diez metros de ti, donde cayó.", "cooldown": 4.0},
 	"charco": {"slot": "when", "name": "on wade", "text": "Cuando una máquina pisa un charco a tu alcance, con el agua de ese mismo charco.", "cooldown": 4.0},
+	"mano": {"slot": "when", "name": "on cue", "text": "Cuando haces clic, donde apuntas, hasta trece metros de ti. Las rutinas on cue listas salen juntas.", "cooldown": 4.0},
 	"raise": {"slot": "step", "name": "raise", "text": "Eleva la materia y la sostiene: esfera de agua, hielo o chatarra, bola de fuego, rayo en bola, nube de vapor. Puedes lanzarla, cambiarla o soltarla.", "max": 2},
 	"wall": {"slot": "step", "name": "wall", "text": "Da forma de muro: agua como cortina, hielo o chatarra como barrera sólida, fuego que quema al cruzarlo, corriente que descarga al tocarla.", "max": 2},
 	"cold": {"slot": "step", "name": "cold", "text": "Frío: baja un paso la temperatura. Agua a hielo, vapor a agua; el hielo se endurece; el fuego se apaga; la corriente fría salta más lejos.", "max": 3},
@@ -50,7 +51,7 @@ const PIECES := {
 ## The same pieces and tools in a few words, for the level-up cards and the HUD.
 const SHORT := {
 	"cerca": "máquina a 9 m de ti", "cada": "cada 6 s, a la más cercana", "rastro": "cada 4 m que caminas", "grupo": "3 o más máquinas juntas",
-	"herido": "cuando te golpean", "eco": "justo tras la rutina anterior", "derribo": "donde cae una máquina", "charco": "máquina pisa un charco",
+	"herido": "cuando te golpean", "eco": "justo tras la rutina anterior", "derribo": "donde cae una máquina", "charco": "máquina pisa un charco", "mano": "cuando haces clic, donde apuntas",
 	"raise": "la eleva y la sostiene", "wall": "la para como muro", "cold": "agua a hielo, fuego apagado", "fire": "hielo a agua, agua a vapor", "arc": "electrifica, salta por lo mojado",
 	"coat": "la cubre de nanitos", "push": "la lanza contra la máquina", "well": "remolino que arrastra a 6 m", "repel": "onda que aparta a 6 m",
 	"drop": "deja caer lo elevado", "fragmentos": "la dispara a una máquina", "detonar": "revienta los nanitos",
@@ -71,8 +72,9 @@ const TOOLS := {
 static func fresh() -> Dictionary:
 	var tools: Dictionary = {}
 	for key: String in TOOLS: tools[key] = 0
-	# The first routine ships assembled so the shift starts working, and shows how one reads.
-	return {"routines": [{"when": "cerca", "steps": ["raise", "cold", "push"], "then": "fragmentos", "on": "broken"}, empty_routine()], "attack": {"steps": []}, "box": [], "tools": tools}
+	# The first routine ships assembled so the shift starts working, and shows how one reads; the
+	# second is yours to fire: a charged puddle wherever you click.
+	return {"routines": [{"when": "cerca", "steps": ["raise", "cold", "push"], "then": "fragmentos", "on": "broken"}, {"when": "mano", "steps": ["arc"], "then": "", "on": "contact"}], "attack": {"steps": []}, "box": [], "tools": tools}
 
 ## The attack's DO pieces; builds from before it was programmable have none.
 static func attack_steps(build: Dictionary) -> Array:

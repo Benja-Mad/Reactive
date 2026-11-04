@@ -97,6 +97,10 @@ func _physics_process(_delta: float) -> void:
 		get_tree().quit(0 if run.elapsed > 20 else 1)
 		return
 	if invulnerable: pilot.health = 100
+	# The pilot clicks too: on the nearest machine in sight, about once a second.
+	if run.phase == "running" and frames_run % 60 == 0:
+		var seen: Array[Node3D] = run.targets(pilot)
+		if not seen.is_empty(): run.cue(seen[0].global_position)
 	peak_enemies = maxi(peak_enemies, run.machines.get_child_count())
 	for enemy: Node in run.machines.get_children(): kinds_seen[str(enemy.kind)] = true
 	peak_matter = maxi(peak_matter, run.world.records.size())

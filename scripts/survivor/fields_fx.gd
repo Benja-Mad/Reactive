@@ -45,6 +45,11 @@ const CombatFx = preload("res://scenes/actions/combat_fx.gd")
 const Attack = preload("res://scripts/survivor/attack.gd")
 ## Weapon balls on their way up and down: the ball, its shadow, where it lands and when.
 var _falls: Array[Dictionary] = []
+## Where the player just clicked for «on cue»: four corners on the floor closing in, amber when a
+## routine answers, grey when none was ready. Local to the one who clicked.
+var _aims: Array[Dictionary] = []
+const AIM_READY := Color("f0a04a")
+const AIM_IDLE := Color("6a6f7a")
 var world: Node
 var machines: Node3D
 var _fields: Dictionary = {}
@@ -149,6 +154,9 @@ func stream(from: Vector3, to: Vector3, duration: float, substance: String = "wa
 		"current":
 			_arcs.append({"points": PackedVector3Array([from + Vector3.UP * 0.6, to + Vector3.UP * 0.1]), "left": duration + 0.1, "life": duration + 0.1, "seed": randi(), "width": 0.7})
 		"scrap": CombatFx.smoke(get_parent(), from + Vector3.UP * 0.3, Color("4a4038"), 8)
+
+func aim(at: Vector3, ready: bool) -> void:
+	_aims.append({"at": at, "left": 0.6 if ready else 0.3, "life": 0.6 if ready else 0.3, "ready": ready})
 
 ## Sparks thrown from a fire let go, out to `radius`.
 func sparks(at: Vector3, radius: float) -> void:
@@ -284,7 +292,7 @@ func _draw_marks(delta: float) -> void:
 	for index: int in range(_arcs.size() - 1, -1, -1):
 		_arcs[index]["left"] -= delta
 		if _arcs[index]["left"] <= 0.0: _arcs.remove_at(index)
-	for list: Array[Dictionary] in [_streams, _beams]:
+	for list: Array[Dictionary] in [_streams, _beams, _aims]:
 		for index: int in range(list.size() - 1, -1, -1):
 			list[index]["left"] -= delta
 			if list[index]["left"] <= 0.0: list.remove_at(index)
@@ -311,6 +319,16 @@ func _draw_marks(delta: float) -> void:
 	_open.clear()
 	var texel: float = CombatFx._texel(self)
 	var beat: int = 0 if steady else int(_time / BEAT)
+	# The click's corners, on ribbons so they hold up over a busy floor: wide when it lands,
+	# snapping in to the spot.
+	for aim_mark: Dictionary in _aims:
+		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]
+		var half: float = lerpf(1.3, 0.85, minf(1.0, t * 4.0))
+		var colour: Color = AIM_READY if aim_mark["ready"] else AIM_IDLE
+		for sx: float in [-1.0, 1.0]:
+			for sz: float in [-1.0, 1.0]:
+				var corner: Vector3 = aim_mark["at"] + Vector3(sx * half, 0.06, sz * half)
+				_ribbon(_lines, PackedVector3Array([corner - Vector3(sx * 0.35, 0, 0), corner, corner - Vector3(0, 0, sz * 0.35)]), 3.0 * texel, colour)
 	# A struck machine still crackles: two short sparks crawling over it.
 	if machines != null:
 		for enemy: Node3D in machines.get_children():

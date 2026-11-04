@@ -754,6 +754,19 @@ ICONS = {
         "3222222223",
         "1111111111",
     ],
+    # WHEN on cue: the aim the player puts down, four corners round a lit point.
+    "mano": [
+        "333....333",
+        "3........3",
+        "3........3",
+        "....22....",
+        "...2442...",
+        "...2442...",
+        "....22....",
+        "3........3",
+        "3........3",
+        "333....333",
+    ],
 }
 
 CATEGORY = {
@@ -763,7 +776,7 @@ CATEGORY = {
     "pozo": "do", "repeler": "do", "cubrir": "do",
     "fragmentos": "then", "detonar": "then", "estallar": "then", "cadena": "then", "colapso": "then",
     "valvula": "tool", "doble": "tool", "bocas": "tool", "botas": "tool", "parche": "tool", "manometro": "tool",
-    "otra": "tool", "charco": "when", "chatarra": "do",
+    "otra": "tool", "charco": "when", "chatarra": "do", "mano": "when",
 }
 for _name, _rows in ICONS.items():
     assert len(_rows) == 10 and all(len(r) == 10 for r in _rows), _name

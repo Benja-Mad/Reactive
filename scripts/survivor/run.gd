@@ -90,6 +90,35 @@ func nearest_player(point: Vector3) -> Character:
 	return found
 func local_player() -> Character:
 	return world._player(multiplayer.get_unique_id()) as Character
+
+## «on cue»: the player's own trigger. A click names a spot on the floor and the host fires every
+## ready routine that starts on cue there, on its next tick.
+func _unhandled_input(event: InputEvent) -> void:
+	if phase != "running" or get_tree().paused or not event.is_action_pressed("cue"): return
+	var spot: Variant = cue_spot()
+	if spot == null: return
+	cue.rpc_id(1, spot)
+	# The click answers at once, here: corners on the floor, amber if a routine on cue is ready.
+	var ready: bool = false
+	var routines: Array = builds.get(multiplayer.get_unique_id(), {}).get("routines", [])
+	var charge: Array = charges.get(multiplayer.get_unique_id(), [])
+	for index: int in routines.size():
+		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: ready = true
+	if spellwork._fx != null: spellwork._fx.aim(spot, ready)
+
+## Where the pointer meets the floor.
+func cue_spot() -> Variant:
+	if local_player() == null or arena == null: return null
+	var camera: Camera3D = arena.gameplay_camera
+	var mouse: Vector2 = get_viewport().get_mouse_position()
+	return Plane(Vector3.UP, 0.07).intersects_ray(camera.project_ray_origin(mouse), camera.project_ray_normal(mouse))
+
+@rpc("any_peer", "call_local", "reliable")
+func cue(point: Vector3) -> void:
+	if not multiplayer.is_server() or phase != "running": return
+	var peer: int = multiplayer.get_remote_sender_id()
+	if peer == 0: peer = multiplayer.get_unique_id()
+	if clocks.has(peer): clocks[peer]["cue"] = point
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server() or phase != "running" or get_tree().paused: return
 	if players().is_empty(): return
@@ -165,6 +194,8 @@ func _automate(player: Character, peer: int, delta: float) -> void:
 		# With nowhere to put it, it retries soon instead of losing the cycle.
 		clock[key] = cooldown(build, index) if outcome == "" else 0.6
 		water_log[outcome if outcome != "" else "drawn"] = int(water_log.get(outcome if outcome != "" else "drawn", 0)) + 1
+	# A click is spent on this tick: one that found nothing ready does not wait for a recharge.
+	clock.erase("cue")
 
 ## Brasa's combustion arm: a short cone of fire from the palm, many times a second. Bare, it
 ## hurts and heats a step what it licks, and flashes the puddles in its path into steam; every
@@ -426,6 +457,13 @@ func _placement(player: Character, clock: Dictionary, when: String, enemies: Arr
 			var fallen: Variant = spellwork.take_kill(me)
 			if fallen == null: return null
 			return [fallen, toward]
+		"mano":
+			# Where the player clicked, brought within reach.
+			if not clock.has("cue"): return null
+			var spot: Vector3 = clock["cue"]
+			var reach := Vector3(spot.x - me.x, 0, spot.z - me.z)
+			if reach.length() > Build.DRAW_REACH: spot = Vector3(me.x, 0, me.z) + reach.normalized() * Build.DRAW_REACH
+			return [spot, reach.normalized() if reach.length() > 0.1 else toward]
 		"charco":
 			# A machine standing in water within reach: the routine works that very puddle.
 			for enemy: Node3D in enemies:

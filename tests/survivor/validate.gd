@@ -102,6 +102,15 @@ func systemic_checks(Build: GDScript) -> void:
 	var nobody: Array[Node3D] = []
 	var kill_placement: Variant = run._placement(player, run.clocks[1], "derribo", nobody)
 	check("on_kill_fires_where_it_fell", kill_placement != null and kill_placement[0] == fallen_at and run._placement(player, run.clocks[1], "derribo", nobody) == null)
+	# On cue: nothing until a click, then there; a click beyond reach comes back to its edge.
+	run.clocks[1].erase("cue")
+	var idle_cue: Variant = run._placement(player, run.clocks[1], "mano", nobody)
+	run.cue(me + Vector3(5, 0, 2))
+	var near_cue: Variant = run._placement(player, run.clocks[1], "mano", nobody)
+	run.cue(me + Vector3(40, 0, 0))
+	var far_cue: Variant = run._placement(player, run.clocks[1], "mano", nobody)
+	run.clocks[1].erase("cue")
+	check("on_cue_fires_where_clicked", idle_cue == null and near_cue != null and Vector2(near_cue[0].x - me.x, near_cue[0].z - me.z).is_equal_approx(Vector2(5, 2)) and far_cue != null and absf(Vector2(far_cue[0].x - me.x, far_cue[0].z - me.z).length() - Build.DRAW_REACH) < 0.01)
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	await rule_checks(Build, me)
 	for i: int in 4: run.clocks[1]["r%d" % i] = 0.0

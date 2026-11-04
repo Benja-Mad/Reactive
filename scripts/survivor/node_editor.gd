@@ -900,6 +900,9 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 		"charco":
 			trigger_at = Vector2(me.x + m.call(8.0), mid)
 			place = trigger_at
+		"mano":
+			trigger_at = Vector2(me.x + m.call(8.0), mid)
+			place = trigger_at
 	var start_x: float = rect.end.x - 10
 	# Phase times: approach, build (one beat per step), then the reaction.
 	var fired: float = 1.2
@@ -961,6 +964,8 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 	if when in ["cerca", "derribo"]: _ground_ring(me_fired, m.call(9.0 if when == "cerca" else 10.0), Color(Kit.RAMPS["when"][1], 0.7 if t < fired else 0.35))
 	if when == "derribo" and t < fired:
 		_cross(place, MACHINE)
+	# On cue: the aim comes down where the player points, a beat before the matter.
+	if when == "mano" and t > fired - 0.45 and t < fired + 0.2: _reticle(place)
 	if when == "herido" and t > fired - 0.1 and t < fired + 0.25: draw_circle(me, 9, Color(MACHINE, 0.5))
 	if ghost != Vector2.INF:
 		draw_rect(Rect2(ghost - Vector2(3, 18), Vector2(6, 36)), Color(BLAST, 0.25), false, PX)
@@ -1013,6 +1018,15 @@ func _draw_screen(rect: Rect2, build: Dictionary, index: int) -> void:
 	elif t < built: title = Recipe.FROM[from]
 	else: title = Recipe.matter_text(final)
 	Kit.text(self, rect.position + Vector2(18 if key != "" else 4, 2) * PX, title, BLAST)
+
+## The player's aim on the floor: four corners round the spot, in the WHEN colour.
+func _reticle(at: Vector2) -> void:
+	var c: Color = Kit.RAMPS["when"][2]
+	for sx: float in [-1.0, 1.0]:
+		for sy: float in [-1.0, 1.0]:
+			var corner := at + Vector2(sx * 9, sy * 6)
+			draw_rect(Rect2(corner - Vector2(maxf(0, sx) * 3, maxf(0, sy) * PX), Vector2(3, PX)), c)
+			draw_rect(Rect2(corner - Vector2(maxf(0, sx) * PX, maxf(0, sy) * 3), Vector2(PX, 3)), c)
 
 ## A puddle seen from above: a flat dark ellipse with its neon rim, `amount` of a full draught.
 func _pool(at: Vector2, amount: float, from: String = "water") -> void:

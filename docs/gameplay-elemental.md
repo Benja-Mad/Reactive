@@ -111,6 +111,24 @@ quema a lo que lo empuja; corriente lanzada a una manada mojada en un charco la 
 un charco entre el fuego y tu barricada la protege; chispas a una manada seca la prenden y el
 fuego pasa de una máquina a la siguiente.
 
+## Controlar el programa en la partida (4 de noviembre de 2026)
+
+Queja: todo se dispara solo y el programa se siente como algo que corre en segundo plano.
+
+**El programa se ve correr** (`spellwork.beat`, `hud._on_beat`). Cada vez que el host aplica un
+paso de una rutina, envía un pulso a quien la programó y la pieza se enciende en el programa de la
+esquina en ese mismo instante: el WHEN al disparar, el cable mientras la materia cruza, cada DO al
+actuar (gris con borde rosa si no cambió nada), el THEN en espera sobre una placa quieta y su
+destello al soltarse. No es una animación aparte: es el mismo instante en que la materia cambia.
+
+**On cue, el WHEN que disparas tú** (`run.cue`, `_placement "mano"`). Un clic (o Espacio) marca un
+punto del suelo; en el siguiente tick salen juntas todas las rutinas *on cue* listas, en ese punto
+y hasta 13 m de ti (un clic más lejos se trae al borde). Recarga 4 s; un clic sin nada listo se
+pierde, no espera. Quien hace clic ve al instante cuatro esquinas en el suelo cerrándose sobre el
+punto: ámbar si respondió una rutina, gris si no. El programa inicial trae una: *on cue › arc*, un
+charco cargado donde apuntas. El piloto del soak hace clic sobre la máquina más cercana cada
+segundo.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

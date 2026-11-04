@@ -53,7 +53,7 @@ func start() -> void:
 		{"when": "cerca", "steps": ["raise", "cold"], "then": "cadena"},
 		{"when": "grupo", "steps": ["arc", "arc"], "then": ""},
 		{"when": "eco", "steps": ["fire", "fire"], "then": "fragmentos"},
-		{"when": "rastro", "steps": ["well", "arc"], "then": ""},
+		{"when": "mano", "steps": ["well", "arc"], "then": ""},
 	]
 	build["box"] = ["push", "drop", "estallar"]
 	run.level = 3
