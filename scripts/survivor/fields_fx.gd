@@ -371,7 +371,9 @@ func _draw_marks(delta: float) -> void:
 	if hover != null and _aims.is_empty(): _corners(hover, 0.75, 0.35, 3.0 * texel, AIM_HOVER)
 	if mark != null and (not is_instance_valid(mark) or mark.down): mark = null
 	if hover_machine != null and (not is_instance_valid(hover_machine) or hover_machine.down): hover_machine = null
-	for spot: Array in click_spots: _corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] else 2.0) * texel, AIM_READY if spot[2] else AIM_GHOST)
+	for spot: Array in click_spots:
+		var chosen: bool = spot.size() > 3 and spot[3]
+		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
 	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
 	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)
 	if mark != null: _corners(mark.global_position, 1.0, 0.42, 4.0 * texel, AIM_READY)

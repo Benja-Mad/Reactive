@@ -341,13 +341,18 @@ func tick(delta: float) -> void:
 	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"): if not enemy.down: live.append(enemy)
 	rules.tick(delta, live)
 
-## Every THEN of `peer`'s armed «on click» and standing long enough, let go at once (run.cue).
-func release(peer: int) -> int:
+## How near the click armed matter must stand for that click to let it go.
+const RELEASE_RADIUS := 5.0
+
+## The THENs of `peer`'s matter armed «on click» and standing long enough, let go at once
+## (run.cue): those within RELEASE_RADIUS of `at`, or all of them when `at` is null.
+func release(peer: int, at: Variant = null) -> int:
 	var let_go: int = 0
 	for id: int in world.records.keys():
 		if not world.records.has(id): continue
 		var record: Dictionary = world.records[id]
 		if not Recipe.click_ready(record, peer): continue
+		if at != null and _flat(record["position"] - at).length() > RELEASE_RADIUS: continue
 		fire(id)
 		let_go += 1
 	return let_go

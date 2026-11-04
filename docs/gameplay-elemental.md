@@ -138,8 +138,9 @@ ninguna rutina *on cue* lista.
 
 **El THEN también puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto
 momento del THEN, *al hacer clic*: la materia se queda armada (en el programa, su THEN con el
-borde tenue todo el rato que ella siga en pie) y un clic suelta a la vez todos los THEN tuyos así
-armados, estén donde estén. Cada una lleva en el suelo unas esquinas pequeñas a su medida, la
+borde ámbar todo el rato que ella siga en pie) y un clic suelta los THEN tuyos así armados que
+estén a menos de 5 m de donde apuntas (`spellwork.RELEASE_RADIUS`): con varias trampas puestas,
+eliges cuál salta. Las que soltaría el clic, con el puntero encima, se marcan más gruesas. Cada una lleva en el suelo unas esquinas pequeñas a su medida, la
 misma marca del clic, solo para su dueño: tenues mientras espera y ámbar plenas cuando una
 máquina entra en su alcance, que es cuando conviene soltarla. Soak (`clickthen`, todos los THEN al clic):
 soltando a ciegas cada segundo, la semilla 2 aguanta 131 s; soltando cuando las esquinas se

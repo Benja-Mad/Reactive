@@ -104,7 +104,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if spot == null: return
 	cue.rpc_id(1, spot)
 	# The click answers at once, here: corners on the floor, amber if a routine on cue is ready.
-	var ready: bool = cue_ready()
+	var ready: bool = cue_ready(spot)
 	if spellwork._fx != null: spellwork._fx.aim(spot, ready)
 	Sfx.of(self).play("cue" if ready else "cue_idle")
 
@@ -129,6 +129,7 @@ func _process(_delta: float) -> void:
 			if near and not _in_reach.has(record["id"]): Sfx.of(self).play("armed", 1.5, 2.0)
 			if near: reach_now[record["id"]] = true
 	_in_reach = reach_now
+	_armed_spots = spots
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.click_spots = spots
 	var live: bool = phase == "running" and not get_tree().paused
@@ -136,16 +137,21 @@ func _process(_delta: float) -> void:
 	# Over a machine, the corners close on it instead: a click there marks it.
 	var over: Node3D = machine_at(spot) if spot != null else null
 	spellwork._fx.hover_machine = over if over != spellwork._fx.mark else null
-	spellwork._fx.hover = spot if spot != null and over == null and cue_ready() else null
+	spellwork._fx.hover = spot if spot != null and over == null and cue_ready(spot) else null
+	# What this click would let go stands out from what it would not.
+	for armed: Array in spots: armed.append(spot != null and Vector2(armed[0].x - spot.x, armed[0].z - spot.z).length() <= spellwork.RELEASE_RADIUS)
 
 ## Whether a click of yours would do something now: a routine on cue charged, or matter of
 ## yours armed «on click».
-func cue_ready() -> bool:
+func cue_ready(spot: Variant = null) -> bool:
 	var routines: Array = builds.get(multiplayer.get_unique_id(), {}).get("routines", [])
 	var charge: Array = charges.get(multiplayer.get_unique_id(), [])
 	for index: int in routines.size():
 		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: return true
-	return not click_armed.is_empty()
+	if spot == null: return not click_armed.is_empty()
+	for armed: Array in _armed_spots:
+		if Vector2(armed[0].x - spot.x, armed[0].z - spot.z).length() <= spellwork.RELEASE_RADIUS: return true
+	return false
 
 ## Where the pointer meets the floor, brought within reach the way the host will bring it, so
 ## the corners stand where the matter will land.
@@ -175,8 +181,8 @@ func cue(point: Vector3) -> void:
 	if picked != null and clocks[peer].get("mark") != picked:
 		clocks[peer]["mark"] = picked
 		marked.rpc_id(peer, str(picked.name))
-	# And it lets go every THEN of theirs armed «on click».
-	spellwork.release(peer)
+	# And it lets go their THENs armed «on click» near where it landed.
+	spellwork.release(peer, point)
 
 ## The standing machine nearest `point` within a click's reach of it, or null.
 func machine_at(point: Vector3, radius: float = MARK_RADIUS) -> Node3D:
@@ -196,6 +202,8 @@ var my_mark: String = ""
 ## Routine indices of yours with matter armed «on click» this frame (see _process).
 var click_armed: Dictionary = {}
 var _in_reach: Dictionary = {}
+## This frame's armed spots: [position, half, machine in reach].
+var _armed_spots: Array = []
 
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
