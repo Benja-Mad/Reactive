@@ -103,6 +103,13 @@ func host_checks() -> void:
 	run.publish()
 	inspect_client.rpc()
 	await frames(20)
+	# The client's click on a machine marks it for the client alone.
+	if hound != null:
+		client_click.rpc(hound.global_position)
+		await frames(12)
+		checks["client_click_marks_for_client"] = run.clocks[client_id].get("mark") == hound and run.clocks[1].get("mark") != hound and run.my_mark != "Machine701"
+		inspect_mark.rpc()
+		await frames(10)
 	for key_name: String in report: checks[key_name] = report[key_name]
 	checks["client_report_received"] = not report.is_empty()
 	print("SURVIVOR NETWORK ", JSON.stringify(checks))
@@ -112,6 +119,12 @@ func move_client() -> void:
 	Input.action_press("move_right")
 	await frames(25)
 	Input.action_release("move_right")
+@rpc("authority", "call_remote", "reliable")
+func inspect_mark() -> void:
+	submit_report.rpc_id(1, {"client_knows_its_mark": run.my_mark == "Machine701"})
+@rpc("authority", "call_remote", "reliable")
+func client_click(at: Vector3) -> void:
+	run.cue.rpc_id(1, at)
 @rpc("authority", "call_remote", "reliable")
 func choose_client() -> void:
 	var choices: Array = run.offers.get(multiplayer.get_unique_id(), [])

@@ -73,6 +73,9 @@ func _ready() -> void:
 		add_child(voice)
 		_world.append(voice)
 
+func _exit_tree() -> void:
+	if _one == self: _one = null
+
 func play(sound: String, pitch: float = 1.0, gain_db: float = 0.0) -> void:
 	if _players.is_empty() or not _streams.has(sound): return
 	var now: float = Time.get_ticks_msec() / 1000.0

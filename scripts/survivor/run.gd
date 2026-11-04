@@ -171,12 +171,16 @@ func machine_at(point: Vector3) -> Node3D:
 			picked = enemy
 	return picked
 
+## This machine's player's mark, by node name, as the host last said.
+var my_mark: String = ""
+
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
 
 ## The host's word to the one who clicked: this machine is now your mark.
 @rpc("authority", "call_local", "reliable")
 func marked(key: String) -> void:
+	my_mark = key
 	var enemy: Node3D = machines.get_node_or_null(key) if machines != null else null
 	if enemy != null and spellwork != null and spellwork._fx != null:
 		spellwork._fx.mark = enemy
