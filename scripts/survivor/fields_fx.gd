@@ -56,6 +56,8 @@ var machines: Node3D
 var _fields: Dictionary = {}
 ## Property marks and live arcs, redrawn every frame as 1 px lines.
 var _lines: ImmediateMesh
+## The click's corners, drawn over the yard's props so a tower never cuts a mark in half.
+var _marks: ImmediateMesh
 var _arcs: Array[Dictionary] = []
 var _time: float = 0.0
 ## The additive halo round every bolt and crawling spark.
@@ -88,6 +90,15 @@ func _ready() -> void:
 	ink.vertex_color_use_as_albedo = true
 	holder.material_override = ink
 	add_child(holder)
+	_marks = ImmediateMesh.new()
+	var over := MeshInstance3D.new()
+	over.mesh = _marks
+	over.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var top: StandardMaterial3D = ink.duplicate()
+	top.no_depth_test = true
+	top.render_priority = 2
+	over.material_override = top
+	add_child(over)
 	_glow = ImmediateMesh.new()
 	var haze := MeshInstance3D.new()
 	haze.mesh = _glow
@@ -182,7 +193,7 @@ func _corners(at: Vector3, half: float, arm: float, width: float, colour: Color)
 				# The ink a little under the colour, so the colour wins the depth test over it.
 				var tip: Vector3 = at + Vector3(sx * half, 0.12 if pass_ink else 0.16, sz * half)
 				var l := PackedVector3Array([tip - Vector3(sx * arm, 0, 0), tip, tip - Vector3(0, 0, sz * arm)])
-				_ribbon(_lines, l, width + (2.0 * CombatFx._texel(self) if pass_ink else 0.0), AIM_INK if pass_ink else colour)
+				_ribbon(_marks, l, width + (2.0 * CombatFx._texel(self) if pass_ink else 0.0), AIM_INK if pass_ink else colour)
 
 ## Two of this player's routines meeting here (spellwork.combo_fx): the amber of the program's
 ## combo bracket, rung out once on the floor so the eye finds where the HUD's join came from.
@@ -321,6 +332,7 @@ func _keep_sources() -> void:
 func _draw_marks(delta: float) -> void:
 	_time += delta
 	_lines.clear_surfaces()
+	_marks.clear_surfaces()
 	_glow.clear_surfaces()
 	var camera := get_viewport().get_camera_3d()
 	if camera != null: _view = -camera.global_basis.z
