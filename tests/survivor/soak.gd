@@ -51,6 +51,19 @@ func _physics_process(_delta: float) -> void:
 			var key: String = options[0]
 			var target: int = -1
 			var build: Dictionary = run.builds[1]
+			# A condition goes right before a routine's last DO, the way a player would ask
+			# before the step worth asking about.
+			for option: String in options:
+				if not Build.is_gate(option): continue
+				for index: int in build["routines"].size():
+					var steps: Array = build["routines"][index]["steps"]
+					if build["routines"][index]["when"] == "" or steps.is_empty() or steps.any(func(step: String) -> bool: return Build.is_gate(step)): continue
+					var asked: Dictionary = Build.put(build, option, {"routine": index, "slot": "step", "index": steps.size() - 1})
+					if asked.is_empty() or Build.problem(asked["routines"][index]) != "": continue
+					chosen.append(option)
+					run.choose_upgrade(option, -1, asked)
+					return
+
 			for option: String in options:
 				if Build.is_tool_key(option): continue
 				var slot: String = Build.PIECES[option]["slot"]
