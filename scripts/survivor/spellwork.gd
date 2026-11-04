@@ -76,6 +76,15 @@ func take_kill(me: Vector3) -> Variant:
 const DRAW_REACH := Build.DRAW_REACH
 const DRAW_SPEED := 18.0
 const STEP_BEAT := 0.28
+## Each beat of a routine as the world takes it, for the program in the corner to light the same
+## piece at the same moment: "draw" (the trigger fired; the draught runs for `duration`), "step" or
+## "idle" (DO number `k` acted, or found nothing to act on), "armed" (the THEN waits), "fire".
+signal beat(peer: int, index: int, stage: String, k: int, duration: float)
+
+@rpc("authority", "call_local", "unreliable")
+func beat_fx(peer: int, index: int, stage: String, k: int, duration: float) -> void:
+	beat.emit(peer, index, stage, k, duration)
+
 ## Routines under way: {"peer", "index", "point", "toward", "depth", "left", "id", "steps", "then", "on"}.
 ## `id` is 0 while the drawn water is still running to its spot.
 var _casts: Array[Dictionary] = []
@@ -95,7 +104,8 @@ func begin(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 
 	if from == null: from = Vector3(player.global_position.x, 0.07, player.global_position.z)
 	var travel: float = maxf(0.15, _flat(point - from).length() / DRAW_SPEED)
 	stream_fx.rpc(from, point, travel, substance)
-	_casts.append({"peer": peer, "index": index, "point": point, "toward": toward, "depth": depth, "left": travel, "id": 0, "material": substance,
+	beat_fx.rpc(peer, index, "draw", 0, travel)
+	_casts.append({"k": 0, "peer": peer, "index": index, "point": point, "toward": toward, "depth": depth, "left": travel, "id": 0, "material": substance,
 		"steps": routine["steps"].duplicate(), "then": routine["then"], "on": routine.get("on", "contact")})
 	run.automations_fired += 1
 	return ""
@@ -124,13 +134,16 @@ func _advance(delta: float) -> void:
 			_casts.erase(cast)
 			continue
 		if not cast["steps"].is_empty():
-			_apply_step(peer, id, cast["steps"].pop_front(), cast["toward"], true)
+			var acted: bool = _apply_step(peer, id, cast["steps"].pop_front(), cast["toward"], true)
+			beat_fx.rpc(peer, cast["index"], "step" if acted else "idle", cast["k"], STEP_BEAT)
+			cast["k"] += 1
 			cast["left"] = STEP_BEAT
 			continue
 		_casts.erase(cast)
 		if not world.records.has(id): continue
 		world.records[id].erase("forming")
 		_arm(peer, cast["index"], id, cast["then"], cast["on"], cast["toward"])
+		if cast["then"] != "": beat_fx.rpc(peer, cast["index"], "armed", cast["k"], 0.0)
 		var routines: Array = run.builds[peer]["routines"]
 		var below: int = cast["index"] + 1
 		if cast["depth"] < Build.MAX_ROUTINES and below < routines.size() and routines[below]["when"] == "eco":
@@ -143,15 +156,18 @@ func casting(peer: int) -> bool:
 
 ## One DO step compiled against the matter as it is now. Paced, a push is aimed at the machine
 ## nearest the matter when it happens, and the operator's beam shows where the energy came from.
-func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool = false) -> void:
+## Returns whether it changed the matter.
+func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool = false) -> bool:
 	var plan: Dictionary = Recipe.step(Recipe.state_of(world.records[id]), key)
-	if plan["op"] == "": return
+	if plan["op"] == "": return false
 	var at: Vector3 = world.records[id]["position"]
 	var heading: Vector3 = _aim(at, toward) if paced and plan["op"] in ["push", "slide"] else toward
 	var vector: Vector3 = toward.cross(Vector3.UP) * 4.0 if plan["op"] == "wall" else heading * 9.0
 	var before: Dictionary = world.records[id].duplicate()
 	if paced and key in TETHERED: tether_fx.rpc(key, peer, at + Vector3.UP * (0.9 if before.get("suspended", false) else 0.2))
-	if world.execute(peer, plan["op"], id, {"vector": vector}).get("ok", false): _after_step(plan["op"], before, id)
+	if not world.execute(peer, plan["op"], id, {"vector": vector}).get("ok", false): return false
+	_after_step(plan["op"], before, id)
+	return true
 
 ## Steps that put the operator's own energy into the matter, drawn as a beam from them to it.
 const TETHERED := ["cold", "fire", "arc", "coat", "push", "well", "repel"]
@@ -322,6 +338,7 @@ func fire(id: int) -> void:
 	var reaction: Dictionary = record["reaction"]
 	record.erase("reaction")
 	world._dirty = true
+	beat_fx.rpc(int(record["owner"]), int(reaction.get("routine", -1)), "fire", 0, 0.0)
 	rules.discharge(record)
 	match reaction["action"]:
 		"fragmentos": _shrapnel(id, reaction["vector"])

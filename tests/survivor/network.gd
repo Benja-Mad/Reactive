@@ -6,6 +6,8 @@ var is_host: bool
 var client_id: int = 0
 var report: Dictionary = {}
 var checks: Dictionary = {}
+## The beats of its own routines this peer heard, by stage: what lights its program in the corner.
+var beats: Dictionary = {}
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	is_host = "host" in OS.get_cmdline_user_args()
@@ -35,6 +37,8 @@ func launch(id: int) -> void:
 	add_child(scene)
 	run = scene.get_node("SurvivorRun")
 	run.test_mode = true
+	run.spellwork.beat.connect(func(peer: int, _index: int, stage: String, _k: int, _duration: float) -> void:
+		if peer == multiplayer.get_unique_id(): beats[stage] = int(beats.get(stage, 0)) + 1)
 func frames(count: int) -> void:
 	for i: int in count: await get_tree().physics_frame
 func host_checks() -> void:
@@ -88,6 +92,14 @@ func host_checks() -> void:
 		hound.charge = 1
 		hound.charge_hold = 30.0
 		hound.soaked = 30.0
+	# One of the client's routines run by the host: the client hears each beat of it.
+	var client_build: Dictionary = run.builds[client_id]
+	if client_build["routines"].is_empty(): client_build["routines"].append({"when": "", "steps": [], "then": ""})
+	client_build["routines"][0] = {"when": "cerca", "steps": ["raise", "cold"], "then": "estallar", "from": "water"}
+	var client_body: Node3D = run.world._player(client_id)
+	run.publish()
+	run.spellwork.begin(client_id, 0, client_body.global_position + Vector3(2.5, 0, 0), Vector3.RIGHT)
+	await frames(80)
 	run.publish()
 	inspect_client.rpc()
 	await frames(20)
@@ -108,6 +120,7 @@ func choose_client() -> void:
 func inspect_client() -> void:
 	var me: Character = run.local_player()
 	submit_report.rpc_id(1, {"client_has_body": me != null, "client_has_builds": run.builds.size() == 2, "client_has_host_kills": run.kills > 0, "client_phase_resumed": run.phase == "running", "client_worker_present": me != null and me.has_node("ShiftWorker"),
+		"client_hears_its_routine_beats": int(beats.get("draw", 0)) >= 1 and int(beats.get("step", 0)) + int(beats.get("idle", 0)) >= 2 and int(beats.get("armed", 0)) >= 1,
 		"client_sees_well_field": run.world.records.values().any(func(r: Dictionary) -> bool: return int(r.get("grav", 0)) > 0 and r.get("reaction", {}).get("action", "") == "detonar"),
 		"client_sees_well_turning": run.world.records.values().any(func(r: Dictionary) -> bool: return int(r.get("grav", 0)) > 0 and r.get("grav_left", 0.0) > 0.0),
 		"client_sees_held_sphere_and_trigger": run.world.records.values().any(func(r: Dictionary) -> bool: return r["shape"] == "orb" and r.get("suspended", false) and r.get("reaction", {}).get("on", "") == "pulse" and run.world.views[r["id"]].collider.shape is SphereShape3D),

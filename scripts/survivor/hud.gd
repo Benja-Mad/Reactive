@@ -1,7 +1,7 @@
 ## The HUD in the crew's pixel kit, kept off the yard as much as it can: the clock to the relief
-## crew big at the top with the machines downed under it, your face with your health labelled and
-## the level in words, and the program in the corner as glyph rows, each trigger refilling as it
-## recharges. Only the face and the program sit on a plate; the rest is text on the world.
+## crew big at the top, your face with your health beside it and the level on its corner, and the
+## program in the corner as glyph rows, each trigger refilling as it recharges and each piece
+## lighting as the world carries it out. Only the face and the program sit on a plate.
 ## Level-ups dock three parts above that program, each with the socket it goes in; the pause opens
 ## the workshop; the shift ends on a parte de turno whose centrepiece is the program you ended with.
 extends Control
@@ -33,6 +33,12 @@ var _editor: Control
 var _faces: Dictionary = {}
 var _vignette: Texture2D
 var _shade: Texture2D
+## The program running, per routine of yours: when each piece last acted ("lit"), or acted on
+## nothing ("idle"); the wire the matter is crossing ("flow": [piece, start, duration]); the THEN
+## waiting for its moment ("armed": piece, since when). Times are this machine's seconds.
+var _beats: Dictionary = {}
+const GLOW := 0.3
+const ARMED_HOLD := 6.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -49,6 +55,7 @@ func my_build() -> Dictionary:
 
 func _process(delta: float) -> void:
 	size = get_viewport_rect().size
+	if run.spellwork != null and not run.spellwork.beat.is_connected(_on_beat): run.spellwork.beat.connect(_on_beat)
 	_controls.size = size
 	_choices = run.offers.get(multiplayer.get_unique_id(), [])
 	if run.phase != "upgrade" or _picking not in _choices: _picking = ""
@@ -57,6 +64,38 @@ func _process(delta: float) -> void:
 		_key = key
 		_rebuild()
 	queue_redraw()
+
+## A beat of one of your routines, as the host's world takes it: light the piece that acted.
+func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> void:
+	if peer != multiplayer.get_unique_id() or index < 0: return
+	var now: float = _now()
+	if not _beats.has(index) or stage == "draw": _beats[index] = {"lit": {}, "idle": {}, "flow": [], "armed": -1, "armed_at": 0.0}
+	var beat: Dictionary = _beats[index]
+	var last: int = 0
+	var routines: Array = my_build()["routines"]
+	if index < routines.size(): last = routines[index]["steps"].size() + (1 if routines[index]["then"] != "" else 0)
+	match stage:
+		"draw":
+			beat["lit"][0] = now
+			beat["flow"] = [1, now, duration]
+		"step", "idle":
+			beat["lit" if stage == "step" else "idle"][1 + k] = now
+			beat["flow"] = [2 + k, now, duration] if 2 + k <= last and stage == "step" else []
+		"armed":
+			beat["armed"] = 1 + k
+			beat["armed_at"] = now
+			beat["flow"] = []
+		"fire":
+			beat["armed"] = -1
+			beat["lit"][last] = now
+
+static func _now() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+## How lit piece `slot` of routine `index` still is, 1 just now to 0 gone.
+func _glow(index: int, slot: int, kind: String = "lit") -> float:
+	var at: float = float(_beats.get(index, {}).get(kind, {}).get(slot, -99.0))
+	return clampf(1.0 - (_now() - at) / GLOW, 0.0, 1.0)
 
 ## A routine written in one line of shorthand: «near › raise · cold › relay».
 static func shorthand(routine: Dictionary) -> String:
@@ -208,11 +247,33 @@ func _draw_program() -> void:
 		var pieces: Array = [routine["when"]] + routine["steps"]
 		if routine["then"] != "": pieces.append(routine["then"])
 		x = at.x
+		var beat: Dictionary = _beats.get(index, {})
+		var flow: Array = beat.get("flow", [])
+		var armed: int = int(beat.get("armed", -1)) if _now() - float(beat.get("armed_at", 0.0)) < ARMED_HOLD else -1
 		for i: int in pieces.size():
 			var key: String = pieces[i]
 			var spot := Rect2(Vector2(x, at.y), Vector2(12, 12) * PX)
-			if i > 0: _wire(x, at.y, Kit.accent_of(key))
-			if i == 0 and ready >= 1.0:
+			var accent: String = Kit.accent_of(key)
+			if i > 0:
+				# The wire in lights while the matter crosses to this piece, filling as it goes.
+				var crossing: float = -1.0
+				if not flow.is_empty() and int(flow[0]) == i: crossing = clampf((_now() - float(flow[1])) / maxf(0.05, float(flow[2])), 0.0, 1.0)
+				_wire(x, at.y, accent, 1.0 if _glow(index, i) > 0.0 else crossing)
+			var glow: float = _glow(index, i)
+			var idle: float = _glow(index, i, "idle")
+			if glow > 0.0 or i == armed:
+				# Acting now: its own colour lit behind it, the glyph lifted a pixel while fresh. A THEN
+				# waiting for its moment sits on a quiet dark plate until it goes.
+				var edge: Color = Kit.ramp(accent)[2 if glow > 0.5 else 1]
+				if glow <= 0.0: edge = Color(Kit.ramp(accent)[1], 0.5)
+				Kit.notched(self, spot.grow(PX), Color(Kit.ramp(accent)[0], maxf(glow, 0.6)), edge)
+				draw_texture_rect(Kit.icon(key), Rect2(spot.position - Vector2(0, PX if glow > 0.5 else 0.0), spot.size), false)
+			elif idle > 0.0:
+				# It ran and found nothing to act on: greyed, and a rose rim says so.
+				Kit.notched(self, spot.grow(PX), Color(0, 0, 0, 0), Color(Kit.RAMPS["danger"][1], idle))
+				Kit.notched(self, spot, Kit.BOARD, Color(0, 0, 0, 0))
+				draw_texture_rect(Kit.icon(key, "mute"), spot, false)
+			elif i == 0 and ready >= 1.0:
 				Kit.notched(self, spot.grow(PX), Kit.FILL_HI, Kit.RAMPS["when"][1])
 				draw_texture_rect(Kit.icon(key), spot, false)
 			elif i == 0:
@@ -226,6 +287,8 @@ func _draw_program() -> void:
 				draw_rect(Rect2(spot.position.x - PX, spot.end.y + PX, roundf(ready * 14.0) * PX, 2 * PX), Kit.RAMPS["when"][1])
 			else:
 				draw_texture_rect(Kit.icon(key), spot, false)
+			if i == 0 and glow > 0.0 and ready < 1.0:
+				draw_rect(Rect2(spot.position.x - PX, spot.end.y + PX, 14 * PX, 2 * PX), Kit.LINE)
 			x += STEP
 		if broken: _cross(Vector2(x - 2 * PX, at.y + 3 * PX))
 
@@ -236,9 +299,12 @@ func _cross(at: Vector2, color: Color = Kit.RAMPS["danger"][1]) -> void:
 		draw_rect(Rect2(at + Vector2(i, i) * PX, Vector2(PX, PX)), color)
 		draw_rect(Rect2(at + Vector2(4 - i, i) * PX, Vector2(PX, PX)), color)
 
-## The short wire into the glyph at `x`, in the colour of the piece it feeds.
-func _wire(x: float, y: float, accent: String) -> void:
+## The short wire into the glyph at `x`, in the colour of the piece it feeds; `lit` from 0 to 1
+## fills it from the left in the bright tone, while matter crosses it.
+func _wire(x: float, y: float, accent: String, lit: float = -1.0) -> void:
 	draw_rect(Rect2(x - 4 * PX, y + 6 * PX, 3 * PX, PX), Kit.ramp(accent)[0])
+	if lit > 0.0:
+		draw_rect(Rect2(x - 4 * PX, y + 5 * PX, maxf(1.0, ceilf(lit * 3.0)) * PX, 3 * PX), Kit.ramp(accent)[2])
 
 # --- Sheets: level-up, workshop, end of shift ----------------------------------------------------
 

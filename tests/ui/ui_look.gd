@@ -40,7 +40,7 @@ func start() -> void:
 	Game.instance.solo = true
 	Game.instance.players = [Statics.PlayerData.new(multiplayer.get_unique_id(), "Operador", 0, Statics.Role.SUPPORT)]
 	await screen("res://lobby/waiting_screen.tscn", "crew")
-	if not (wanted("hud") or wanted("levelup") or wanted("place") or wanted("workshop") or wanted("end")):
+	if not (wanted("hud") or wanted("pulse") or wanted("levelup") or wanted("place") or wanted("workshop") or wanted("end")):
 		get_tree().quit()
 		return
 	var scene: Node = load("res://scenes/main_scene.tscn").instantiate()
@@ -61,6 +61,15 @@ func start() -> void:
 	run.publish()
 	await frames(40)
 	if wanted("hud"): await shot("hud")
+	if wanted("pulse"):
+		# Routines 1 and 2 fired by hand (3 echoes 2), a frame every three: the program in the
+		# corner lighting each piece as the yard carries it out.
+		var me: Vector3 = run.local_player().global_position
+		run.spellwork.begin(1, 0, me + Vector3(4, 0, 0), Vector3(1, 0, 0))
+		run.spellwork.begin(1, 1, me + Vector3(-3, 0, 3), Vector3(-1, 0, 0))
+		for i: int in 48:
+			await frames(3)
+			await shot("pulse_%02d" % i)
 	run.offers[1] = ["arc", "pressure", "eco"]
 	run.set_phase("upgrade")
 	await frames(10)
