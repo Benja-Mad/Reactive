@@ -36,7 +36,8 @@ func setup(camera: Camera3D, distance: float) -> void:
 	view.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	view.use_taa = false
 	view.positional_shadow_atlas_size = _root.positional_shadow_atlas_size
-	view.audio_listener_enable_3d = false
+	# The window's own 3D is off, so the yard's sounds are heard from this eye.
+	view.audio_listener_enable_3d = true
 	view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child(view)
 	eye = Camera3D.new()

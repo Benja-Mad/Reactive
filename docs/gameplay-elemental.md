@@ -163,6 +163,14 @@ en su propia nota, así que cada rutina toca su frase y dos rutinas se distingue
 soak suena unas 2 veces por segundo, con ráfagas de 10 cuando coinciden rutinas, y la mezcla no
 pasa de −9 dB.
 
+**El patio suena** (`fields_fx.SOUND`, `Sfx.at`). Cada momento de una regla que ya se ve
+(`spellwork.rule_fx`) suena donde pasa y lo oyen todos: chispazo y zumbido cuando salta la
+corriente, siseo de vapor, fuego ahogado que chisporrotea, el golpe sordo de una máquina que
+prende, el crujido de vidrio al helarse, los nanitos como un racimo de campanitas, el raspado de
+lo que muele en un remolino, el soplo cuando suelta, el estruendo de un bidón y el traqueteo de la
+metralla. Oye el ojo de la vista en píxeles (`pixel_view`), con el paneo ensanchado porque desde
+55 m todo lo que se ve cabe en pocos grados. Cada repetición va un poco desafinada para no taladrar.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

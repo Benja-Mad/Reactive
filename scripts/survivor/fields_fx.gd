@@ -99,8 +99,13 @@ func _ready() -> void:
 	haze.material_override = light
 	add_child(haze)
 
+## What each rule's moment sounds like (tools/audio/synth.py).
+const SOUND: Dictionary = {"arc": "zap", "steam": "hiss", "smoke": "sizzle", "ignite": "ignite", "frost": "frost",
+	"nanites": "nanites", "grind": "grind", "sling": "whoosh", "flare": "boom", "shrapnel": "clatter", "bowl": "thud"}
+
 ## A rule's moment, sent by the host (spellwork.rule_fx).
 func rule(kind: String, points: PackedVector3Array) -> void:
+	if not points.is_empty() and SOUND.has(kind): Sfx.of(self).at(SOUND[kind], points[0])
 	match kind:
 		"arc":
 			_arcs.append({"points": points, "left": ARC_LIFE, "life": ARC_LIFE, "seed": randi(), "width": 1.0})
