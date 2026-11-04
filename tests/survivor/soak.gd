@@ -111,6 +111,9 @@ func _physics_process(_delta: float) -> void:
 		return
 	if invulnerable: pilot.health = 100
 	# The pilot clicks too: on the nearest machine in sight, about once a second.
+	# `clickthen`: every THEN the pilot owns waits for its click instead of a machine.
+	if "clickthen" in OS.get_cmdline_user_args():
+		for routine: Dictionary in run.builds[1]["routines"]: if routine["then"] != "": routine["on"] = "mano"
 	if run.phase == "running" and frames_run % 60 == 0:
 		var seen: Array[Node3D] = run.targets(pilot)
 		if not seen.is_empty(): run.cue(seen[0].global_position)
