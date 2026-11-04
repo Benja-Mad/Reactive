@@ -431,22 +431,18 @@ func _draw() -> void:
 				var before: Rect2 = chain[i - 1]["rect"]
 				_wire(Vector2(before.end.x, top + NODE_H * 0.5), Vector2(rect.position.x, top + NODE_H * 0.5), live, ACCENT[node["slot"]], live and ri == focus)
 			_draw_node(node, idle, node["where"] == held_where and not held_where.is_empty())
-			# What comes out of this node, as marks; the word only on the row being read.
+			# What comes out of this node, as marks only: the panel below says it in words.
 			var after: Dictionary = {}
-			var tag: String = ""
-			if node["slot"] == "water":
-				after = Recipe.source(routine.get("from", "water"))
-				tag = "manos"
-			elif is_step:
-				after = result["trace"][step_index]["state"]
-				tag = result["trace"][step_index]["tag"]
-			if not after.is_empty() and not idle:
-				var px_end: float = _props(Vector2(rect.position.x + PX, rect.end.y + 3 * PX), after)
-				# Glyphs under every row; the word after them, a space clear, on the row being read.
-				if ri == focus and Kit.width(tag) <= rect.end.x + WIRE * 0.5 - px_end - _space(): Kit.text(self, Vector2(px_end + _space(), rect.end.y), tag, Kit.DIM)
+			if node["slot"] == "water": after = Recipe.source(routine.get("from", "water"))
+			elif is_step: after = result["trace"][step_index]["state"]
+			if not after.is_empty() and not idle: _props(Vector2(rect.position.x + PX, rect.end.y + 3 * PX), after)
 		if routine["when"] == "eco" and ri == 0 and not chain.is_empty(): _break_mark((chain[0]["rect"] as Rect2).position + Vector2(3, 0) * PX)
 		var issue: String = Build.problem(routine, rows, ri)
-		if issue != "" and routine["when"] != "" and not chain.is_empty():
+		# Where the break already shows on the row (an echo with nothing above, a pulse cable that
+		# stops short), that mark is the one: no second cross trailing the chain.
+		var target: int = Build.relay_target(rows, ri) if routine["then"] == "cadena" else -1
+		var marked: bool = (routine["when"] == "eco" and ri == 0) or (target >= 0 and issue.begins_with("la rutina"))
+		if issue != "" and routine["when"] != "" and not chain.is_empty() and not marked:
 			_draw_row_issue((chain[-1]["rect"] as Rect2).end.x + 6 * PX, top)
 	_draw_cables(rows)
 	draw_rect(Rect2(0, _panel_top(), size.x, PX), Kit.LINE)

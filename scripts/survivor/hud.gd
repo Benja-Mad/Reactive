@@ -528,12 +528,13 @@ func _offers_rect() -> Rect2:
 	var program := _program_rect()
 	return Rect2(Vector2(program.position.x, program.position.y - 8 * PX - h), Vector2(_row_width(), h))
 
-## The list as wide as its longest line, so each part's sockets sit right by its name.
+## The list as wide as its longest line, so a tool's rank pips sit right by its name.
 func _row_width() -> float:
 	var widest: float = 120 * PX
 	for key: String in _choices:
 		widest = maxf(widest, Kit.width(Build.SHORT.get(key, "")))
-		widest = maxf(widest, Kit.width(name_of(key)) + 8 * PX + 39 * PX)
+		var pips: float = 8 * PX + int(Build.TOOLS[key]["max"]) * 7 * PX if Build.is_tool_key(key) else 0.0
+		widest = maxf(widest, Kit.width(name_of(key)) + pips)
 	return roundf((51 * PX + widest + 10 * PX) / PX) * PX
 
 # --- Controls -----------------------------------------------------------------------------------
@@ -714,10 +715,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 ## A level-up offer as one line of a parts list: its glyph, its name and what it does (1–9 still
-## pick it, unlabelled);
-## on the right, where it goes, drawn as a routine's three sockets with its own lit (WHEN opens a
-## routine, DO is a step in the middle, THEN closes it), or for a tool the level it brings. The
-## focused row is the lighter one, with the amber marker.
+## pick it, unlabelled); a tool also shows the rank it brings. The focused row is the lighter one,
+## with the amber marker.
 class OfferRow extends Button:
 	var key: String = ""
 	var level: int = 0
@@ -753,10 +752,4 @@ class OfferRow extends Button:
 				var spot := Rect2(Vector2(left + pip * 7 * px + px, 4 * px), Vector2(5, 10) * px)
 				draw_rect(spot.grow(px), Kit.INK)
 				draw_rect(spot, r[1] if pip < level else r[2] if pip == level else Kit.FILL)
-		else:
-			var lit: int = ["when", "step", "then"].find(Build.slot_of(key))
-			for i: int in 3:
-				var spot := Rect2(Vector2(left + i * 13 * px, 4 * px), Vector2(10, 10) * px)
-				if i > 0: draw_rect(Rect2(spot.position.x - 3 * px, spot.position.y + 5 * px, 3 * px, px), Kit.LINE_HI)
-				if i == lit: Kit.notched(self, spot, r[1], r[2], 1)
-				else: Kit.dashed(self, spot, Kit.LINE_HI)
+		# A piece shows no strip: its colour already says WHEN, DO or THEN, and pips mean rank.
