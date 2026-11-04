@@ -111,6 +111,12 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Local, every frame: while one of your routines on cue is ready, the floor under the pointer
 ## shows it can be clicked.
 func _process(_delta: float) -> void:
+	# Which of your routines have matter armed «on click», read once a frame for the HUD and the
+	# pointer.
+	click_armed.clear()
+	if world != null:
+		for record: Dictionary in world.records.values():
+			if Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): click_armed[int(record["reaction"].get("routine", -1))] = true
 	if spellwork == null or spellwork._fx == null: return
 	var live: bool = phase == "running" and not get_tree().paused
 	var spot: Variant = cue_spot() if live else null
@@ -126,9 +132,7 @@ func cue_ready() -> bool:
 	var charge: Array = charges.get(multiplayer.get_unique_id(), [])
 	for index: int in routines.size():
 		if routines[index]["when"] == "mano" and index < charge.size() and float(charge[index]) >= 1.0: return true
-	if world != null:
-		for record: Dictionary in world.records.values(): if Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): return true
-	return false
+	return not click_armed.is_empty()
 
 ## Where the pointer meets the floor, brought within reach the way the host will bring it, so
 ## the corners stand where the matter will land.
@@ -175,6 +179,9 @@ func machine_at(point: Vector3) -> Node3D:
 
 ## This machine's player's mark, by node name, as the host last said.
 var my_mark: String = ""
+
+## Routine indices of yours with matter armed «on click» this frame (see _process).
+var click_armed: Dictionary = {}
 
 ## How near a click must land to a machine to mark it.
 const MARK_RADIUS := 2.2
