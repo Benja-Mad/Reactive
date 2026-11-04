@@ -121,7 +121,9 @@ static func offers(build: Dictionary, rng: RandomNumberGenerator) -> Array[Strin
 	var result: Array[String] = []
 	for pool: Array[String] in [pieces, pieces, tools]:
 		var source: Array[String] = pool if not pool.is_empty() else (pieces if not pieces.is_empty() else tools)
-		var left: Array = source.filter(func(key: String) -> bool: return key not in result)
+		# At most one condition a hand: a gate only decides, it never does, and two crowd out the rest.
+		var gated: bool = result.any(func(key: String) -> bool: return is_gate(key))
+		var left: Array = source.filter(func(key: String) -> bool: return key not in result and not (gated and is_gate(key)))
 		if left.is_empty(): continue
 		result.append(left[rng.randi_range(0, left.size() - 1)])
 	return result
