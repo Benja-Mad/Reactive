@@ -1,3 +1,3 @@
-icons: cerca cada rastro grupo herido eco derribo agua fuego frio arco alzar empujar soltar pozo repeler cubrir fragmentos detonar estallar cadena colapso valvula doble bocas botas parche manometro otra charco chatarra si_mojada si_arde mano
+icons: cerca cada rastro grupo herido eco derribo agua fuego frio arco alzar empujar soltar pozo repeler cubrir fragmentos detonar estallar cadena colapso valvula doble bocas botas parche manometro otra charco chatarra si_mojada si_arde si_marcada mano
 accents: when do then tool danger mute
 props: caliente frio mojado carga pozo repele vapor masa

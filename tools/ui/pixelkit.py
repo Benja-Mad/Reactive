@@ -779,6 +779,19 @@ ICONS = {
         "...3..3...",
         "....33....",
     ],
+    # The gate that asks after your mark: the diamond round the click's corners.
+    "si_marcada": [
+        "....33....",
+        "...3..3...",
+        "..3....3..",
+        ".3.4..4.3.",
+        "3...22...3",
+        "3...22...3",
+        ".3.4..4.3.",
+        "..3....3..",
+        "...3..3...",
+        "....33....",
+    ],
     # WHEN on cue: the aim the player puts down, four corners round a lit point.
     "mano": [
         "333....333",
@@ -801,7 +814,7 @@ CATEGORY = {
     "pozo": "do", "repeler": "do", "cubrir": "do",
     "fragmentos": "then", "detonar": "then", "estallar": "then", "cadena": "then", "colapso": "then",
     "valvula": "tool", "doble": "tool", "bocas": "tool", "botas": "tool", "parche": "tool", "manometro": "tool",
-    "otra": "tool", "charco": "when", "chatarra": "do", "mano": "when", "si_mojada": "do", "si_arde": "do",
+    "otra": "tool", "charco": "when", "chatarra": "do", "mano": "when", "si_mojada": "do", "si_arde": "do", "si_marcada": "do",
 }
 for _name, _rows in ICONS.items():
     assert len(_rows) == 10 and all(len(r) == 10 for r in _rows), _name

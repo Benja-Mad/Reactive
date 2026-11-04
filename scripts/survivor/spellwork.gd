@@ -217,8 +217,10 @@ func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool =
 const GATE_REACH := 4.0
 func gate(key: String, id: int) -> bool:
 	if not world.records.has(id): return false
+	var mark: Variant = run.clocks.get(int(world.records[id]["owner"]), {}).get("mark")
 	for enemy: Node3D in _enemies_near(world.records[id]["position"], GATE_REACH, true):
 		match key:
+			"si_marcada": if mark != null and is_instance_valid(mark) and enemy == mark: return true
 			"si_mojada": if enemy.wet(): return true
 			"si_arde": if enemy.temp >= 1: return true
 	return false

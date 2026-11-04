@@ -53,7 +53,7 @@ static func state_of(record: Dictionary) -> Dictionary:
 ## in a word for under the node, "next": the state after}. An empty op is a step with nothing to act on.
 ## DO pieces that change no matter: they ask about the machine nearest it when they run, and
 ## when the answer is no, the DO after them is skipped. Key -> what the machine must be.
-const GATES := {"si_mojada": "mojada", "si_arde": "ardiendo"}
+const GATES := {"si_mojada": "mojada", "si_arde": "ardiendo", "si_marcada": "marcada"}
 
 static func step(state: Dictionary, key: String) -> Dictionary:
 	if GATES.has(key):

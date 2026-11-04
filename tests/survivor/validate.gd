@@ -273,8 +273,12 @@ func rule_checks(Build: GDScript, me: Vector3) -> void:
 	asked.soaked = 0.0
 	asked.temp = 1
 	var hot_yes: bool = run.spellwork.gate("si_arde", spot)
+	var unmarked_no: bool = not run.spellwork.gate("si_marcada", spot)
+	run.clocks[1]["mark"] = asked
+	var marked_yes: bool = run.spellwork.gate("si_marcada", spot)
+	run.clocks[1].erase("mark")
 	world.execute(1, "remove", spot)
-	check("do_gate_asks_the_nearest_machine", dry_no and wet_yes and hot_yes)
+	check("do_gate_asks_the_nearest_machine", dry_no and wet_yes and hot_yes and unmarked_no and marked_yes)
 	var kept: Dictionary = run.builds[1]["routines"][0].duplicate(true)
 	run.builds[1]["routines"][0] = {"when": "cerca", "steps": ["si_arde", "cold"], "then": "", "on": "contact"}
 	var passed: int = run.spellwork.cast(1, 0, asked.global_position + Vector3(1.2, 0, 0), Vector3.FORWARD)
