@@ -85,6 +85,27 @@ signal beat(peer: int, index: int, stage: String, k: int, duration: float)
 func beat_fx(peer: int, index: int, stage: String, k: int, duration: float) -> void:
 	beat.emit(peer, index, stage, k, duration)
 
+## Matter from two of one player's routines acted on each other: the program joins the two rows.
+signal combo(peer: int, a: int, b: int)
+var _combo_at: Dictionary = {}
+
+@rpc("authority", "call_local", "unreliable")
+func combo_fx(peer: int, a: int, b: int) -> void:
+	combo.emit(peer, a, b)
+
+## Called by the rules when `one` and `other` reacted: if they came from two different routines of
+## the same player, that player's program shows it (once a second per pair at most).
+func linked(one: Dictionary, other: Dictionary) -> void:
+	if not one.has("routine") or not other.has("routine") or one["owner"] != other["owner"]: return
+	var a: int = int(one["routine"])
+	var b: int = int(other["routine"])
+	if a == b: return
+	var key: String = "%d:%d:%d" % [int(one["owner"]), mini(a, b), maxi(a, b)]
+	if run.elapsed < float(_combo_at.get(key, -INF)): return
+	_combo_at[key] = run.elapsed + 1.0
+	rules.count("combos")
+	combo_fx.rpc(int(one["owner"]), mini(a, b), maxi(a, b))
+
 ## Routines under way: {"peer", "index", "point", "toward", "depth", "left", "id", "steps", "then", "on"}.
 ## `id` is 0 while the drawn water is still running to its spot.
 var _casts: Array[Dictionary] = []
@@ -126,6 +147,7 @@ func _advance(delta: float) -> void:
 				continue
 			cast["id"] = made["id"]
 			world.records[cast["id"]]["ttl"] = 12.0
+			world.records[cast["id"]]["routine"] = cast["index"]
 			world.records[cast["id"]]["forming"] = true
 			cast["left"] = STEP_BEAT * 0.6
 			continue
@@ -213,6 +235,7 @@ func cast(peer: int, index: int, point: Vector3, toward: Vector3, depth: int = 0
 	if not created.get("ok", false): return 0
 	var id: int = created["id"]
 	world.records[id]["ttl"] = 12.0
+	world.records[id]["routine"] = index
 	var skip: bool = false
 	for key: String in routine["steps"]:
 		if not world.records.has(id): break

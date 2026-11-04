@@ -268,6 +268,21 @@ func rule_checks(Build: GDScript, me: Vector3) -> void:
 	run.builds[1]["routines"][0] = kept
 	asked.queue_free()
 	check("do_gate_skips_the_next_do", passed_left == "ice" and plain_left == "water" and Build.problem({"when": "cerca", "steps": ["cold", "si_mojada"], "then": ""}) != "" and Build.put(Build.fresh(), "si_mojada", {"routine": Build.ATTACK, "index": 0}).is_empty())
+	# Combos: fire from routine 1 put out on water from routine 2 joins the two rows; matter from
+	# one routine reacting with itself does not.
+	var heard: Array = []
+	var listen := func(peer: int, a: int, b: int) -> void: heard.append([peer, a, b])
+	run.spellwork.combo.connect(listen)
+	run.spellwork._combo_at.clear()
+	var pond: int = lay.call(me + Vector3(-6, 0, -6))
+	var flame: int = int(world.execute(1, "create", 0, {"point": Vector3(me.x - 6, me.y - 1.08, me.z - 6), "material": "fire"}).get("id", 0))
+	if world.records.has(pond): world.records[pond]["routine"] = 1
+	if world.records.has(flame): world.records[flame]["routine"] = 0
+	var none: Array[Node3D] = []
+	rules._contact(none)
+	run.spellwork.combo.disconnect(listen)
+	clean.call()
+	check("combo_joins_two_routines", heard.size() == 1 and heard[0] == [1, 0, 1])
 
 func test() -> void:
 	Game.instance.multiplayer_test = false

@@ -37,6 +37,9 @@ var _shade: Texture2D
 ## nothing ("idle"); the wire the matter is crossing ("flow": [piece, start, duration]); the THEN
 ## waiting for its moment ("armed": piece, since when). Times are this machine's seconds.
 var _beats: Dictionary = {}
+## Two of your routines whose matter just acted on each other: [a, b, when].
+var _combos: Array = []
+const COMBO_HOLD := 0.9
 const GLOW := 0.3
 const ARMED_HOLD := 6.0
 
@@ -55,7 +58,9 @@ func my_build() -> Dictionary:
 
 func _process(delta: float) -> void:
 	size = get_viewport_rect().size
-	if run.spellwork != null and not run.spellwork.beat.is_connected(_on_beat): run.spellwork.beat.connect(_on_beat)
+	if run.spellwork != null and not run.spellwork.beat.is_connected(_on_beat):
+		run.spellwork.beat.connect(_on_beat)
+		run.spellwork.combo.connect(_on_combo)
 	_controls.size = size
 	_choices = run.offers.get(multiplayer.get_unique_id(), [])
 	if run.phase != "upgrade" or _picking not in _choices: _picking = ""
@@ -88,6 +93,18 @@ func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> 
 		"fire":
 			beat["armed"] = -1
 			beat["lit"][last] = now
+
+func _on_combo(peer: int, a: int, b: int) -> void:
+	if peer != multiplayer.get_unique_id(): return
+	_combos = _combos.filter(func(c: Array) -> bool: return _now() - float(c[2]) < COMBO_HOLD and not (c[0] == a and c[1] == b))
+	_combos.append([a, b, _now()])
+
+## How lit routine `index`'s number is from a combo, 1 just now to 0.
+func _combo_glow(index: int) -> float:
+	var best: float = 0.0
+	for c: Array in _combos:
+		if index == int(c[0]) or index == int(c[1]): best = maxf(best, 1.0 - (_now() - float(c[2])) / COMBO_HOLD)
+	return clampf(best, 0.0, 1.0)
 
 static func _now() -> float:
 	return Time.get_ticks_msec() / 1000.0
@@ -238,7 +255,8 @@ func _draw_program() -> void:
 	for index: int in routines.size():
 		var routine: Dictionary = routines[index]
 		var at := Vector2(left + 9 * PX, first + (index + 1) * LINE_H)
-		Kit.text(self, Vector2(left, at.y - PX), "%d" % (index + 1), Kit.FAINT)
+		var joined: float = _combo_glow(index)
+		Kit.text(self, Vector2(left, at.y - PX), "%d" % (index + 1), Kit.RAMPS["tool"][2] if joined > 0.0 else Kit.FAINT)
 		if routine["when"] == "":
 			for i: int in 3: Kit.dashed(self, Rect2(at + Vector2(i * STEP - PX, -PX), Vector2(14, 14) * PX), Kit.LINE_HI)
 			continue
@@ -291,6 +309,17 @@ func _draw_program() -> void:
 				draw_rect(Rect2(spot.position.x - PX, spot.end.y + PX, 14 * PX, 2 * PX), Kit.LINE)
 			x += STEP
 		if broken: _cross(Vector2(x - 2 * PX, at.y + 3 * PX))
+	# Combos: a bracket in the plate's left margin from one number to the other, amber, fading.
+	for c: Array in _combos:
+		var fade: float = 1.0 - (_now() - float(c[2])) / COMBO_HOLD
+		if fade <= 0.0 or int(c[1]) >= routines.size(): continue
+		var top_y: float = first + (int(c[0]) + 1) * LINE_H + 5 * PX
+		var bottom_y: float = first + (int(c[1]) + 1) * LINE_H + 5 * PX
+		var colour: Color = Color(Kit.RAMPS["tool"][1], fade)
+		var rail: float = box.position.x + PX
+		draw_rect(Rect2(rail, top_y, PX, bottom_y - top_y + PX), colour)
+		draw_rect(Rect2(rail, top_y, 2 * PX, PX), colour)
+		draw_rect(Rect2(rail, bottom_y, 2 * PX, PX), colour)
 
 ## The rose × the workshop puts by a routine that will not work as built; grey on the parte, where
 ## it is a record and no longer something to fix.

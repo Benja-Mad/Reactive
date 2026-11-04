@@ -394,29 +394,35 @@ func _react(hot: Dictionary, other: Dictionary) -> void:
 				_act(other, "heat")
 				_act(hot, "quench")
 				count("quenched")
+				spellwork.linked(hot, other)
 				spellwork.rule_fx.rpc("smoke", PackedVector3Array([hot["position"]]))
 			"ice":
 				if not _spend(): return
 				_act(other, "heat")
 				hot["burn"] = float(hot.get("burn", Catalog.FIRE_LIFETIME)) - 2.0
 				count("melted")
+				spellwork.linked(hot, other)
 			"scrap", "current":
 				if Catalog.temp_of(other) < 2 and _spend() and _act(other, "warm"):
 					count("reddened")
+					spellwork.linked(hot, other)
 		return
 	if hot["material"] in ["scrap", "current"] and t >= 1 and other["material"] in ["water", "ice"] and _spend():
 		# Hot metal into water: the water steams off and the metal goes back to cold.
 		_act(other, "heat")
 		_act(hot, "chill")
 		count("boiled")
+		spellwork.linked(hot, other)
 		return
 	if hot["material"] == "steam" and other["material"] == "fire" and _spend():
 		# Steam smothers a fire it settles on.
 		_act(other, "quench")
 		count("quenched")
+		spellwork.linked(hot, other)
 		spellwork.rule_fx.rpc("smoke", PackedVector3Array([other["position"]]))
 		return
 	if world.records.has(hot_id) and world.records.has(other_id) and int(hot.get("charge", 0)) > 0 and other["attachments"].has("nanites") and _spend():
+		spellwork.linked(hot, other)
 		_detonate(other)
 
 # --- The yard's stores, set off ----------------------------------------------------------------
@@ -566,7 +572,9 @@ func _conduct(record: Dictionary, enemies: Array[Node3D]) -> void:
 	count("jumps", hits)
 	stats["longest"] = maxi(int(stats["longest"]), hits)
 	for id: int in visited:
-		if world.records.has(id) and world.records[id]["attachments"].has("nanites"): _detonate.call_deferred(world.records[id])
+		if not world.records.has(id): continue
+		if id != record["id"]: spellwork.linked(record, world.records[id])
+		if world.records[id]["attachments"].has("nanites"): _detonate.call_deferred(world.records[id])
 	if seeking and int(record["charge"]) <= 0 and not record.get("source", false): world.spend(record["id"])
 
 ## Distance to the oriented footprint, not a radius enclosing a long thin wall.

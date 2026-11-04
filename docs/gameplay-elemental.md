@@ -143,6 +143,13 @@ WHEN la pondría o, si no puede decirlo, sobre la máquina más cercana o unos p
 cuenta de la casa: no gasta la recarga. El taller sigue siendo una pausa real: la cámara lenta se
 descartó porque en multijugador el host pausa para todos y Esc tiene que seguir parando.
 
+**Combos entre rutinas** (`spellwork.linked`, `hud._on_combo`). La materia guarda qué rutina la
+hizo (`record["routine"]`). Cuando la de dos rutinas distintas de un mismo jugador reacciona entre
+sí (fuego apagado en agua, hielo derretido, metal al rojo que hierve agua, vapor que ahoga fuego,
+carga que cruza materia de otra rutina o revienta sus nanitos), el programa une con un trazo
+ámbar los números de esas dos filas durante 0,9 s. A lo sumo una vez por segundo por pareja. Soak:
+de 3 a 18 por turno según la build.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

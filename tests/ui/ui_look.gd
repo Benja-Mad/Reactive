@@ -68,6 +68,8 @@ func start() -> void:
 		run.spellwork.begin(1, 0, me + Vector3(4, 0, 0), Vector3(1, 0, 0))
 		run.spellwork.begin(1, 1, me + Vector3(-3, 0, 3), Vector3(-1, 0, 0))
 		for i: int in 48:
+			# A combo between routines 1 and 3 partway, as the rules would report one.
+			if i == 6: run.spellwork.combo_fx(1, 0, 2)
 			await frames(3)
 			await shot("pulse_%02d" % i)
 	run.offers[1] = ["arc", "pressure", "eco"]
