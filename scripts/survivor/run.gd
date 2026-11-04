@@ -104,7 +104,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if spot == null: return
 	cue.rpc_id(1, spot)
 	# The click answers at once, here: corners on the floor, amber if a routine on cue is ready.
-	if spellwork._fx != null: spellwork._fx.aim(spot, cue_ready())
+	var ready: bool = cue_ready()
+	if spellwork._fx != null: spellwork._fx.aim(spot, ready)
+	Sfx.of(self).play("cue" if ready else "cue_idle")
 
 ## Local, every frame: while one of your routines on cue is ready, the floor under the pointer
 ## shows it can be clicked.

@@ -154,6 +154,15 @@ La máquina también cuenta como puente: el agua de una rutina deja su marca en 
 (`spellwork.wet_by`), y si otra rutina la electrocuta o la congela mientras sigue mojada
 (`spellwork.wet_and`), el combo une esas dos filas. El rayo de un arma no acredita a nadie.
 
+**El programa suena** (`Sfx`, `tools/audio/synth.py`). Era el primer sonido del juego. Cada pulso
+que enciende una pieza suena en el mismo instante y solo para quien la programó: un golpe grave
+al disparar el WHEN, una nota por cada DO, un toque sordo si no cambió nada o la condición dijo
+que no, un brillo al armarse el THEN y un acorde al soltarse, una campana de dos notas en cada
+combo y un clic (seco si nada respondió). Los DO siguen una escala pentatónica y cada fila empieza
+en su propia nota, así que cada rutina toca su frase y dos rutinas se distinguen de oído. En el
+soak suena unas 2 veces por segundo, con ráfagas de 10 cuando coinciden rutinas, y la mezcla no
+pasa de −9 dB.
+
 ## Tercera pasada: cargar menos, gravedad con peso, ataque programable
 
 Revisado el 21 de octubre de 2026, tras la tercera prueba. Tres quejas: recolectar del patio era

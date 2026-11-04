@@ -79,6 +79,14 @@ func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> 
 	var last: int = 0
 	var routines: Array = my_build()["routines"]
 	if index < routines.size(): last = routines[index]["steps"].size() + (1 if routines[index]["then"] != "" else 0)
+	# The same instant, by ear: each DO a note of its row's phrase.
+	var sfx: Sfx = Sfx.of(self)
+	match stage:
+		"draw": sfx.play("draw", Sfx.ROWS[posmod(index, Sfx.ROWS.size())])
+		"step": sfx.play("step", Sfx.note(index, k))
+		"idle", "no": sfx.play("idle")
+		"armed": sfx.play("armed")
+		"fire": sfx.play("fire", Sfx.ROWS[posmod(index, Sfx.ROWS.size())])
 	match stage:
 		"draw":
 			beat["lit"][0] = now
@@ -100,6 +108,7 @@ func _on_combo(peer: int, a: int, b: int) -> void:
 	if peer != multiplayer.get_unique_id(): return
 	_combos = _combos.filter(func(c: Array) -> bool: return _now() - float(c[2]) < COMBO_HOLD and not (c[0] == a and c[1] == b))
 	_combos.append([a, b, _now()])
+	Sfx.of(self).play("combo")
 
 ## How lit routine `index`'s number is from a combo, 1 just now to 0.
 func _combo_glow(index: int) -> float:
