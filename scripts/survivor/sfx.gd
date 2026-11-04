@@ -65,6 +65,13 @@ static func set_muted(value: bool) -> void:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	AudioServer.set_bus_mute(0, muted())
+	# A ceiling on the master bus, so a pile-up of reactions late in a shift never clips.
+	var guarded: bool = false
+	for i: int in AudioServer.get_bus_effect_count(0): if AudioServer.get_bus_effect(0, i) is AudioEffectHardLimiter: guarded = true
+	if not guarded:
+		var limiter := AudioEffectHardLimiter.new()
+		limiter.ceiling_db = -1.0
+		AudioServer.add_bus_effect(0, limiter)
 	for sound: String in SOUNDS: _streams[sound] = load("res://assets/audio/%s.wav" % sound)
 	for i: int in VOICES:
 		var player := AudioStreamPlayer.new()
