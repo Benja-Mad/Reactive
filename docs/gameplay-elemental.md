@@ -28,7 +28,8 @@ operador. El origen sigue siendo visible: ahora son sus manos.
 3. **Cada paso se ve ocurrir.** Los pasos se aplican uno por compás (0,28 s): el charco sube en
    esfera, después escarcha, después sale lanzado. Frío, calor, nanitos, impulso y campos salen
    del operador como un haz hacia la materia; el arco, como un rayo desde sus manos. El impulso
-   apunta a la máquina más cercana a la materia en el momento de lanzarla.
+   apunta en el momento de lanzarla: a tu marca si está a 9 m de la materia, si no a la máquina más
+   cercana a ella (ver «El clic y la marca apuntan»).
 4. **El agua no se pierde: vuelve al suelo.** Un salpicón, una dispersión, esquirlas que se
    derriten, una esfera que cae o caduca, un vapor que llueve: todo deja un charco donde terminó,
    que se suma a uno cercano (2,8 m). Solo beber (la Novia) y `on wade` se llevan agua.
