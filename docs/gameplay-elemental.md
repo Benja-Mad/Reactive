@@ -135,7 +135,8 @@ prioridad (`run.cue`):
 4. **Un clic que no hace nada** (nada listo, nada que soltar, ninguna marca nueva) suma medio
    segundo a la recarga de las rutinas *on cue* (`IDLE_CLICK`): hacer clic sin parar no paga.
 
-Quien hace clic ve al instante cuatro esquinas en el suelo cerrándose sobre el punto, ámbar si el
+Quien hace clic ve al instante cuatro esquinas en el suelo cerrándose sobre el punto (sobre la máquina
+clicada si el host la va a marcar o a usar de blanco, `run._click_is_for_a_trap`), ámbar si el
 clic hizo algo y gris si no, y oye un clic (seco si no). Con algo que hacer, unas esquinas pequeñas
 siguen al puntero; sobre una máquina, se ajustan a ella en un tono oscuro. Todas las esquinas se
 dibujan por encima de los objetos del patio. Más allá de 13 m el punto se trae al borde del
