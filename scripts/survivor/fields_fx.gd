@@ -414,12 +414,12 @@ func _draw_marks(delta: float) -> void:
 		if chosen and spot[3] and toward != null: _dotted(spot[0], toward.global_position, 3.0 * texel, AIM_LINE)
 		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
 	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
-	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)
+	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, texel, AIM_GHOST)
 	for peer: int in others.keys():
 		var theirs: Variant = others[peer]
 		if theirs == null or not is_instance_valid(theirs) or theirs.down: others.erase(peer)
 		elif theirs != mark: _corners(theirs.global_position, 1.1, 0.3, 2.0 * texel, AIM_HOVER)
-	if mark != null: _corners(mark.global_position, 1.0, 0.42, 4.0 * texel, AIM_READY)
+	if mark != null: _corners(mark.global_position, 1.0, 0.6, 4.0 * texel, AIM_READY)
 	for aim_mark: Dictionary in _aims:
 		var t: float = 1.0 - aim_mark["left"] / aim_mark["life"]
 		_corners(aim_mark["at"], lerpf(1.6, 0.7, minf(1.0, t * 2.5)), 0.3, 3.0 * texel, AIM_READY if aim_mark["ready"] else AIM_IDLE)
