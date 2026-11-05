@@ -110,6 +110,15 @@ func host_checks() -> void:
 		checks["client_click_marks_for_client"] = run.clocks[client_id].get("mark") == hound and run.clocks[1].get("mark") != hound and run.my_mark != "Machine701" and run.crew_marks.get(client_id, "") == "Machine701"
 		inspect_mark.rpc()
 		await frames(10)
+		# The client's click lets its trap go at the machine it clicked: the host aims it there.
+		client_build["routines"][0] = {"when": "cerca", "steps": ["raise", "cold"], "then": "fragmentos", "on": "mano", "from": "water"}
+		run.publish()
+		var trap: int = run.spellwork.cast(client_id, 0, hound.global_position + Vector3(2.5, 0, 0), Vector3.LEFT)
+		if run.world.records.has(trap): run.world.records[trap]["reaction"]["after"] = 0.0
+		var aimed_before: int = int(run.spellwork.rules.stats.get("aimed", 0))
+		client_click.rpc(hound.global_position)
+		await frames(12)
+		checks["client_click_aims_its_trap"] = trap > 0 and not (run.world.records.has(trap) and run.world.records[trap].has("reaction")) and int(run.spellwork.rules.stats.get("aimed", 0)) > aimed_before
 	for key_name: String in report: checks[key_name] = report[key_name]
 	checks["client_report_received"] = not report.is_empty()
 	print("SURVIVOR NETWORK ", JSON.stringify(checks))
