@@ -57,7 +57,7 @@ const GATES := {"si_mojada": "mojada", "si_arde": "ardiendo", "si_marcada": "mar
 
 static func step(state: Dictionary, key: String) -> Dictionary:
 	if GATES.has(key):
-		return {"op": "gate", "text": "si la máquina más cercana está %s sigue; si no, salta el DO siguiente" % GATES[key], "tag": "¿%s?" % GATES[key], "next": state.duplicate()}
+		return {"op": "gate", "text": "si alguna máquina a 4 m está %s sigue; si no, salta el DO siguiente" % GATES[key], "tag": "¿%s?" % GATES[key], "next": state.duplicate()}
 	var result: Dictionary = _step(state, key)
 	_derive(result["next"])
 	return result
