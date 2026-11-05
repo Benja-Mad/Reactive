@@ -456,7 +456,7 @@ func _shrapnel(id: int, fallback: Vector3, aim_at: Variant = null) -> void:
 			_gust(id)
 			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback, peer, aim_at) * 9.0, "remote": true})
 		"scrap":
-			# Shrapnel: the scrap breaks and its pieces fly at the nearest machine.
+			# Shrapnel: the scrap breaks and its pieces fly where `_aim` says (click, mark, else nearest).
 			if record["shape"] != "fragments": world.damage_construct(id, 999.0)
 			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback, peer, aim_at) * 16.0, "remote": true})
 		"fire":
