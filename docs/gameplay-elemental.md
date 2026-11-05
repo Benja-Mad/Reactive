@@ -154,7 +154,8 @@ sobre el grupo de tu marca en cuanto son tres, antes que sobre otro más grande;
 charco que pisa la marcada si lo hay. Cuatro esquinas ámbar gruesas y quietas la siguen hasta que
 cae, marcas otra o queda a más de 16 m (`MARK_KEEP`). Se probó que volver a hacer clic sobre la
 marca la quitara y se descartó: quien dispara su rutina una y otra vez sobre la misma máquina la
-marcaba y desmarcaba (en el soak, de 269 a 154 s). En equipo las marcas se comparten: cada uno ve
+marcaba y desmarcaba (en el soak, de 269 a 154 s, medido con el reloj real de antes; la razón de
+diseño basta). En equipo las marcas se comparten: cada uno ve
 las de los demás como esquinas finas; la de quien queda fuera de servicio se borra.
 
 **Marcar adelanta el programa** (`run._pull_forward`). Una marca nueva hace que tus rutinas que
