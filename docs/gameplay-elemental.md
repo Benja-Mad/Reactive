@@ -178,7 +178,8 @@ cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca l
 
 **La placa del programa** (`hud.row_at`, `hud.open_row`). El clic (o Espacio) sobre ella
 (abajo a la izquierda) no va al suelo: pausa el turno y abre el taller en esa fila. Bajo el puntero, la fila
-se aclara y su número se enciende en ámbar. Solo quien puede pausar, el anfitrión o el jugador
+se aclara y su número se enciende en ámbar. Espacio solo si el puntero se movió hace menos de 1,5 s, para que un cursor
+olvidado en la esquina no pause a todos. Solo quien puede pausar, el anfitrión o el jugador
 solo; para un invitado, el clic sobre la placa sigue yendo al suelo. Una edición rehace el
 taller, y vuelve a abrir en la misma fila.
 

@@ -98,11 +98,17 @@ func local_player() -> Character:
 
 ## «on cue»: the player's own trigger. A click names a spot on the floor and the host fires every
 ## ready routine that starts on cue there, on its next tick.
+## When the pointer last moved, so Space only reads it where the player is still pointing.
+var _pointed_at: float = -10.0
+
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion: _pointed_at = Time.get_ticks_msec() / 1000.0
 	if phase != "running" or get_tree().paused or not event.is_action_pressed("cue"): return
 	# On the program's plate the click (or Space, the same verb) is for the program, not the floor
-	# under it.
-	var row: Variant = hud.row_at(hud.get_local_mouse_position()) if hud != null else null
+	# under it; Space only while the pointer is fresh there, so a cursor left in the corner does
+	# not pause the shift for everyone.
+	var fresh: bool = event is InputEventMouseButton or Time.get_ticks_msec() / 1000.0 - _pointed_at < 1.5
+	var row: Variant = hud.row_at(hud.get_local_mouse_position()) if hud != null and fresh else null
 	if row != null:
 		hud.open_row(row)
 		get_viewport().set_input_as_handled()
