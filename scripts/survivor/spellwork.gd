@@ -207,7 +207,7 @@ func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool =
 	var plan: Dictionary = Recipe.step(Recipe.state_of(world.records[id]), key)
 	if plan["op"] == "": return false
 	var at: Vector3 = world.records[id]["position"]
-	var heading: Vector3 = _aim(at, toward, peer) if paced and plan["op"] in ["push", "slide"] else toward
+	var heading: Vector3 = _aim(at, toward, peer, null, false) if paced and plan["op"] in ["push", "slide"] else toward
 	var vector: Vector3 = toward.cross(Vector3.UP) * 4.0 if plan["op"] == "wall" else heading * 9.0
 	var before: Dictionary = world.records[id].duplicate()
 	if paced and key in TETHERED: tether_fx.rpc(key, peer, at + Vector3.UP * (0.9 if before.get("suspended", false) else 0.2))
@@ -550,13 +550,14 @@ func _enemies_near(at: Vector3, radius: float, aloft: bool = false) -> Array[Nod
 ## Toward the machine nearest `from`, flat; `fallback` when there is none.
 ## Where a throw from `from` goes: at the machine `peer` clicked (`at`), else at their own mark if
 ## it stands within MARK_STEER of the matter, else at the machine nearest the matter. When the
-## click or the mark chose, a thin amber thread shows it, so the turn of the throw has a cause.
-func _aim(from: Vector3, fallback: Vector3, peer: int = 0, at: Variant = null) -> Vector3:
+## click or the mark chose a THEN's throw, a thin amber thread shows it, so the turn has a cause; a
+## DO step's push (`shown` false) turns quietly, since it already has the operator's beam.
+func _aim(from: Vector3, fallback: Vector3, peer: int = 0, at: Variant = null, shown: bool = true) -> Vector3:
 	var best: Node3D = run.machine_at(at) if at != null else null
 	if best == null and peer != 0 and run.clocks.has(peer):
 		var mark: Variant = run.clocks[peer].get("mark")
 		if mark != null and is_instance_valid(mark) and not mark.down and _flat(mark.global_position - from).length() <= MARK_STEER: best = mark
-	if best != null:
+	if best != null and shown:
 		rules.count("aimed")
 		aimed_fx.rpc(from, best.global_position)
 	else:

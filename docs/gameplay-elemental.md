@@ -151,8 +151,9 @@ sobre el grupo de tu marca en cuanto son tres, antes que sobre otro más grande;
 charco que pisa la marcada si lo hay. Los lanzamientos
 (esquirlas, ráfaga y metralla de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina
 del clic que los soltó, si no a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`) y si
-no a la más cercana a la materia (`spellwork._aim`). Cuando el clic o la marca eligen, un hilo
-ámbar fino va de la materia a esa máquina, para que el giro tenga causa. La marca de un compañero
+no a la más cercana a la materia (`spellwork._aim`). Cuando el clic o la marca eligen el blanco
+de un THEN, un hilo ámbar fino va de la materia a esa máquina, para que el giro tenga causa; el
+*push* de un DO gira sin hilo, porque ya lleva el haz del operador. La marca de un compañero
 no tuerce tus lanzamientos. El soak no puede mostrar lo que gana: su piloto hace clic sobre la
 máquina que ya tiene al lado, la misma que elegía «la más cercana». Con la puntería, semillas 1–6
 de support en `clickthen`: a tiempo 184 s de media, a ciegas 209 s, y apuntando a la máquina más
@@ -182,7 +183,8 @@ porque las mejoras divergen en cuanto cambian los clics.
 El clic sobre la placa del programa (abajo a la izquierda) no va al suelo: pausa el turno y abre
 el taller en esa fila (`hud.row_at`, `hud.open_row`). Bajo el puntero, la fila se aclara y su
 número se enciende en ámbar. Solo quien puede pausar, el anfitrión o el jugador solo; para un
-invitado, la placa no hace nada.
+invitado, el clic sobre la placa sigue yendo al suelo. Una edición rehace el taller, y vuelve a
+abrir en la misma fila.
 
 ### Condiciones: if wet, if hot, if marked
 

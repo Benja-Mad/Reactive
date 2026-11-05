@@ -259,9 +259,9 @@ func _measure_plate() -> Rect2:
 	return Rect2(Vector2(8 * PX, size.y - 8 * PX - h), Vector2(w, h))
 
 ## Which row of the corner plate is under `point`: the weapon row as `Build.ATTACK`, a routine by
-## its index, null off the plate or outside the shift.
+## its index, null off the plate, outside the shift, or for a guest (whose click stays the floor's).
 func row_at(point: Vector2) -> Variant:
-	if run.phase != "running" or run.local_player() == null: return null
+	if run.phase != "running" or run.local_player() == null or not can_open_rows(): return null
 	var box := _program_rect()
 	if not box.has_point(point): return null
 	var row: int = clampi(int((point.y - box.position.y - 2 * PX) / LINE_H), 0, my_build()["routines"].size())
@@ -291,7 +291,7 @@ func _draw_program() -> void:
 	var left: float = box.position.x + 4 * PX
 	var first: float = box.position.y + 4 * PX
 	# Under the pointer, the row a click would open in the workshop.
-	var pointed: Variant = row_at(get_local_mouse_position()) if can_open_rows() else null
+	var pointed: Variant = row_at(get_local_mouse_position())
 	if pointed != null:
 		var line: int = 0 if pointed == Build.ATTACK else int(pointed) + 1
 		draw_rect(Rect2(box.position.x + PX, first - 2 * PX + line * LINE_H, box.size.x - 2 * PX, LINE_H), Color(Kit.FILL_HI, 0.8))
@@ -582,6 +582,8 @@ func _row_width() -> float:
 func _rebuild() -> void:
 	_hotkeys.clear()
 	_enter = Callable()
+	# An edit rebuilds the workshop: it reopens on the row being edited, not the first one.
+	if is_instance_valid(_editor) and run.phase == "paused" and _open_row == null: _open_row = _editor.focus
 	_editor = null
 	for child: Node in _controls.get_children():
 		_controls.remove_child(child)
@@ -720,7 +722,7 @@ func _build_placement() -> void:
 func _build_workshop() -> void:
 	var editor: Control = _open_editor()
 	if _open_row != null:
-		editor.focus = _open_row
+		if _open_row == Build.ATTACK or int(_open_row) < editor.draft["routines"].size(): editor.focus = _open_row
 		_open_row = null
 	editor.changed.connect(func(build: Dictionary) -> void: run.submit_build.rpc_id(1, build))
 	var menu: Button = null
