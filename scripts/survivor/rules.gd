@@ -179,10 +179,15 @@ func bowl(thrown: Node3D, struck: Node3D, speed: float) -> void:
 	var blow: float = minf(9.0, float(thrown.tag("mass")) * speed * 0.45)
 	var onward: Vector3 = _flat(struck.global_position - thrown.global_position).normalized() * speed * 0.6
 	spellwork.run.log_damage("bowl", blow * 1.5)
+	# Thrown by a routine's whirl a moment ago: that routine is behind both blows.
+	var was: Dictionary = world.culprit
+	var flung: Array = thrown.get_meta("flung_by", [])
+	if flung.size() == 2 and spellwork.run.elapsed - float(flung[1]) < 1.5: world.culprit = flung[0]
 	thrown.take_damage(blow * 0.5)
 	if is_instance_valid(struck) and not struck.down:
 		struck.take_damage(blow)
 		struck.shove += onward
+	world.culprit = was
 	count("bowled")
 	spellwork.rule_fx.rpc("bowl", PackedVector3Array([(thrown.global_position + struck.global_position) * 0.5]))
 

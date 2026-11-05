@@ -537,6 +537,8 @@ func _let_go(id: int, at: Vector3) -> void:
 	for enemy: Node3D in _enemies_near(center, Catalog.VORTEX_RING + Catalog.RING_BAND * 1.5):
 		if enemy.pulled("well", center): continue
 		enemy.shove = Catalog.sling(center, enemy.global_position)
+		# Whose whirl threw it, for a bowl it makes in the next moments (rules.bowl).
+		if world.records.has(id): enemy.set_meta("flung_by", [world.records[id], run.elapsed])
 	rules.count("slung")
 	rule_fx.rpc("sling", PackedVector3Array([center]))
 	if world.records.has(id) and world.records[id]["shape"] != "wall": _burst(id)
