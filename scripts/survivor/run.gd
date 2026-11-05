@@ -100,9 +100,11 @@ func local_player() -> Character:
 ## ready routine that starts on cue there, on its next tick.
 func _unhandled_input(event: InputEvent) -> void:
 	if phase != "running" or get_tree().paused or not event.is_action_pressed("cue"): return
-	# On the program's plate the click is for the program, not the floor under it.
-	if event is InputEventMouseButton and hud != null and hud.row_at(hud.get_local_mouse_position()) != null:
-		hud.open_row(hud.row_at(hud.get_local_mouse_position()))
+	# On the program's plate the click (or Space, the same verb) is for the program, not the floor
+	# under it.
+	var row: Variant = hud.row_at(hud.get_local_mouse_position()) if hud != null else null
+	if row != null:
+		hud.open_row(row)
 		get_viewport().set_input_as_handled()
 		return
 	var spot: Variant = cue_spot()
