@@ -163,6 +163,24 @@ func systemic_checks(Build: GDScript) -> void:
 	run.spellwork._burst(shard)
 	run.spellwork.credited.disconnect(on_credit)
 	check("kill_credits_the_routine", credits == [[1, 1]] and run.world.culprit.is_empty() and run.hud._combo_glow(1) > 0.5)
+	# A machine a routine's whirl threw, bowling another over, and a burn a routine's heat began:
+	# both credit that routine.
+	credits.clear()
+	run.spellwork.credited.connect(on_credit)
+	var thrown: Node = still.call(998, Vector3(-3, 0, 3))
+	var struck: Node = still.call(999, Vector3(-4, 0, 3))
+	struck.health = 0.5
+	thrown.set_meta("flung_by", [{"owner": 1, "routine": 2}, run.elapsed])
+	run.spellwork.rules.bowl(thrown, struck, 8.0)
+	var bowled: bool = credits == [[1, 2]]
+	credits.clear()
+	if is_instance_valid(thrown) and not thrown.down:
+		thrown.health = 0.1
+		thrown.set_meta("heated_by", {"owner": 1, "routine": 0})
+		thrown.temp = 2
+		run.spellwork.rules._settle(thrown)
+	run.spellwork.credited.disconnect(on_credit)
+	check("bowl_and_burn_credit_the_routine", bowled and credits == [[1, 0]] and run.world.culprit.is_empty())
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	marked.queue_free()
 	await frames(2)
