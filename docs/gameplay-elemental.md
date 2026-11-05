@@ -170,7 +170,8 @@ THEN, *al hacer clic*: una rutina automática prepara la trampa y tú decides cu
 materia queda armada: en el programa, su THEN con borde ámbar; en el suelo, unas esquinas
 pequeñas a su medida, tenues mientras espera y ámbar plenas (con un brillo que se oye) cuando una
 máquina entra en su alcance, que es cuando conviene soltarla. Con el puntero cerca, las que
-soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (0,3 s de margen) y
+soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (0,3 s de margen; esquinas y línea
+esperan ese margen también, el invitado contándolo desde que la vio armada) y
 espera como mucho 6 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
 no se acumulan trampas por todo el patio (la materia vive 12 s, así que al contacto le quedan unos
 cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina.
