@@ -411,7 +411,7 @@ func _crush(point: Vector3, radius: float, damage: float, source: int) -> void:
 		if not actor is Node3D or not actor.has_method("take_damage"): continue
 		var gap: Vector3 = actor.global_position - point
 		var distance: float = Vector2(gap.x,gap.z).length()
-		if distance < radius and absf(gap.y) < 2.0: _strike(actor, records.get(source, {}), damage*(1.0-0.5*distance/radius))
+		if distance < radius and absf(gap.y) < 2.0: strike(actor, records.get(source, {}), damage*(1.0-0.5*distance/radius))
 	for id: int in records.keys():
 		if id != source and records[id]["position"].distance_to(point) < radius: _damage(id,damage)
 
@@ -499,7 +499,7 @@ func _blast(point: Vector3, radius: float, damage: float, source: int) -> void:
 	for actor: Node in get_tree().get_nodes_in_group("matter_damageable"):
 		if not actor is Node3D or not actor.has_method("take_damage"): continue
 		var distance: float = actor.global_position.distance_to(point)
-		if distance < radius and _blast_visible(point, actor.global_position+Vector3.UP*0.6, actor, source): _strike(actor, records.get(source, {}), damage*(1.0-distance/radius))
+		if distance < radius and _blast_visible(point, actor.global_position+Vector3.UP*0.6, actor, source): strike(actor, records.get(source, {}), damage*(1.0-distance/radius))
 
 func _blast_visible(origin: Vector3, target: Vector3, body: Node, source: int) -> bool:
 	var ray := PhysicsRayQueryParameters3D.create(origin,target,1)
@@ -693,7 +693,7 @@ func _physics_process(delta: float) -> void:
 		if views.has(id): ray.exclude = [views[id].get_rid()]
 		var hit: Dictionary = _sweep_orb(record, velocity * delta) if record["shape"] == "orb" else get_world_3d().direct_space_state.intersect_ray(ray)
 		if not hit.is_empty() and record["shape"] == "orb":
-			_strike(hit.collider, record, Catalog.impact(record, velocity.length()))
+			strike(hit.collider, record, Catalog.impact(record, velocity.length()))
 			if record["material"] in ["ice", "scrap"]: _damage(id, 999.0)
 			else:
 				# Water splashes, fire spatters into a burning pool, current goes to ground.
@@ -706,13 +706,13 @@ func _physics_process(delta: float) -> void:
 			record["velocity"] = Vector3.ZERO
 			record.erase("sliding")
 			if record["material"] in ["ice", "scrap"]:
-				_strike(hit.collider, record, Catalog.impact(record, velocity.length()))
+				strike(hit.collider, record, Catalog.impact(record, velocity.length()))
 				_damage(id,999.0)
 		elif not hit.is_empty() and record["material"] == "steam":
 			# A pushed cloud banks up against what it meets; vapour has nothing to break with.
 			record["velocity"] = Vector3.ZERO
 		elif not hit.is_empty():
-			_strike(hit.collider, record, Catalog.impact(record, velocity.length()))
+			strike(hit.collider, record, Catalog.impact(record, velocity.length()))
 			_erase(id,"collided")
 		else:
 			record["position"] += velocity*delta
@@ -993,8 +993,9 @@ func _sync_views() -> void:
 			views[id] = view
 		views[id].apply(records[id])
 
-## Matter `record` meeting `body` with `amount` of blow, named as the culprit while it lands.
-func _strike(body: Object, record: Dictionary, amount: float) -> void:
+## Matter `record` meeting `body` with `amount` of blow, named as the culprit while it lands (and
+## the culprit before it restored after): every blow that can credit a routine goes through here.
+func strike(body: Object, record: Dictionary, amount: float) -> void:
 	if not body.has_method("take_damage"): return
 	var was: Dictionary = culprit
 	culprit = record

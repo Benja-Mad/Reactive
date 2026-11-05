@@ -166,10 +166,7 @@ func _ring(enemies: Array[Node3D]) -> void:
 			if record["material"] in ["scrap", "ice"] and is_instance_valid(enemy) and not enemy.down and _spend():
 				var blow: float = GRIND * Catalog.mass_of(record)
 				spellwork.run.log_damage("ring", blow * enemy.exposure)
-				var was: Dictionary = world.culprit
-				world.culprit = record
-				enemy.take_damage(blow)
-				world.culprit = was
+				world.strike(enemy, record, blow)
 				count("ground")
 				spellwork.rule_fx.rpc("grind", PackedVector3Array([enemy.global_position]))
 
@@ -203,10 +200,7 @@ func _settle(enemy: Node3D) -> void:
 		enemy.nanites = 0
 		detonate_machine(enemy.global_position, planted)
 	if enemy.temp >= 2 and enemy.tag("material") in BURNS:
-		var was: Dictionary = world.culprit
-		world.culprit = enemy.get_meta("heated_by", {})
-		enemy.take_damage(BURN_DAMAGE)
-		world.culprit = was
+		world.strike(enemy, enemy.get_meta("heated_by", {}), BURN_DAMAGE)
 	if not is_instance_valid(enemy) or enemy.down: return
 	var rest: int = enemy.rest_temp()
 	if enemy.temp == rest: return
@@ -522,10 +516,7 @@ func _trip(store: Dictionary, matter: Dictionary, enemies: Array[Node3D]) -> voi
 				var blow: float = SHRAPNEL_DAMAGE * (1.0 - 0.5 * away.length() / SHRAPNEL_RADIUS)
 				enemy.shove += (away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 6.0
 				spellwork.run.log_damage("shrapnel", blow)
-				var was: Dictionary = world.culprit
-				world.culprit = matter if matter.has("routine") else store
-				enemy.take_damage(blow)
-				world.culprit = was
+				world.strike(enemy, matter if matter.has("routine") else store, blow)
 	world._dirty = true
 
 func _around(at: Vector3, radius: float, enemies: Array[Node3D]) -> Array[Node3D]:
@@ -641,10 +632,7 @@ func _shock(enemy: Node3D, seen: Dictionary, path: PackedVector3Array, plasma: b
 	path.append(enemy.global_position + Vector3.UP * 0.8)
 	enemy.charge = 1
 	enemy.charge_hold = 0.6
-	var was: Dictionary = world.culprit
-	if not _acting.is_empty(): world.culprit = _acting
-	enemy.take_damage(ARC_DAMAGE)
-	world.culprit = was
+	world.strike(enemy, _acting if not _acting.is_empty() else world.culprit, ARC_DAMAGE)
 	# Plasma burns as it passes.
 	if plasma and is_instance_valid(enemy) and not enemy.down and enemy.temp < 2: _set_temp(enemy, enemy.temp + 1)
 	return 1
