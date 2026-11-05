@@ -118,8 +118,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	cue.rpc_id(1, spot)
 	# The click answers at once, here: corners on the floor, amber if a routine on cue is ready.
 	# Amber when the click does something: a routine fires, a trap goes, or a machine is marked.
-	var ready: bool = cue_ready(spot) or machine_at(spot) != null
-	if spellwork._fx != null: spellwork._fx.aim(spot, ready)
+	# On a machine the corners close on it, not on the floor beside it: it is what gets marked,
+	# and what anything released now is thrown at.
+	var under: Node3D = machine_at(spot)
+	var ready: bool = cue_ready(spot) or under != null
+	if spellwork._fx != null: spellwork._fx.aim(spot if under == null else Vector3(under.global_position.x, spot.y, under.global_position.z), ready)
 	Sfx.of(self).play("cue" if ready else "cue_idle")
 
 ## Local, every frame: while one of your routines on cue is ready, the floor under the pointer
