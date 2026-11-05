@@ -702,7 +702,7 @@ func _draw_panel(build: Dictionary, index: int, proposed: bool) -> void:
 		if hot: draw_rect(Rect2(verb_x, y + 11 * PX, Kit.width("cambiar"), PX), Kit.RAMPS["tool"][1])
 		y += READ_LINE
 		if routine["then"] != "cadena" and state["shape"] != "gone":
-			y = _say(x2 + 15 * PX, y, Recipe.effect(state, routine["then"]), room2 - 15 * PX, Kit.DIM, bottom)
+			y = _say(x2 + 15 * PX, y, Recipe.effect(state, routine["then"], routine.get("on", "contact")), room2 - 15 * PX, Kit.DIM, bottom)
 	if routine["then"] == "cadena":
 		var target: int = Build.relay_target(build["routines"], index)
 		_icon("cadena", Vector2(x2, y), "mute")

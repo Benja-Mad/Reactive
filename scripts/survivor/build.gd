@@ -308,7 +308,7 @@ static func explain(build: Dictionary, index: int) -> Array:
 	var touch: Array[String] = Rules.touch(state)
 	if not touch.is_empty(): lines.append(["TOUCH", "con lo que toque: " + "; ".join(touch)])
 	if routine["then"] != "":
-		lines.append(["THEN " + PIECES[routine["then"]]["name"], "%s: %s" % [Recipe.moment(state, routine["then"], routine.get("on", "contact")), Recipe.effect(state, routine["then"])]])
+		lines.append(["THEN " + PIECES[routine["then"]]["name"], "%s: %s" % [Recipe.moment(state, routine["then"], routine.get("on", "contact")), Recipe.effect(state, routine["then"], routine.get("on", "contact"))]])
 	if routine["then"] == "cadena":
 		var target: int = relay_target(routines, index)
 		if target < 0: lines.append(["LINK", "no hay otra rutina activa: el pulso no llega a nada"])

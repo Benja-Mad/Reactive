@@ -301,13 +301,15 @@ static func moment(state: Dictionary, _then: String, on: String = "contact") -> 
 	return ON_NAMES.get(on, "al contacto")
 
 ## What a THEN does with this matter when its moment comes.
-static func effect(state: Dictionary, then: String) -> String:
+static func effect(state: Dictionary, then: String, on: String = "contact") -> String:
+	# Where a throw goes (spellwork._aim): the click's machine when it waits for one, else your mark.
+	var target: String = "la máquina del clic" if on == "mano" else "tu marca o a la más próxima"
 	var material: String = state["material"]
 	var text: String = ""
 	match then:
 		"fragmentos":
-			text = {"ice": "esquirlas disparadas a la máquina más próxima", "water": "salpica, empapa y empuja a %s m" % _num(SPLASH_RADIUS), "steam": "sale en ráfaga y empuja a %s m" % _num(SPLASH_RADIUS) + (" y quema" if state["scald"] else ""),
-				"fire": "suelta chispas que prenden a %s m" % _num(SPLASH_RADIUS), "current": "descarga en cadena a la máquina más próxima", "scrap": "metralla disparada a la máquina más próxima"}[material]
+			text = {"ice": "esquirlas disparadas a " + target, "water": "salpica, empapa y empuja a %s m" % _num(SPLASH_RADIUS), "steam": "sale en ráfaga y empuja a %s m" % _num(SPLASH_RADIUS) + (" y quema" if state["scald"] else ""),
+				"fire": "suelta chispas que prenden a %s m" % _num(SPLASH_RADIUS), "current": "descarga en cadena a la máquina más próxima", "scrap": "metralla disparada a " + target}[material]
 		"detonar":
 			return "detona los nanitos" + (" (doble carga)" if state["coat"] > 1 else "") if state["coat"] > 0 else "no detona nada sin coat"
 		"estallar":
