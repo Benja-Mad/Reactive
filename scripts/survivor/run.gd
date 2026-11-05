@@ -123,13 +123,15 @@ func _process(_delta: float) -> void:
 	var spots: Array = []
 	var reach_now: Dictionary = {}
 	if world != null:
+		# The machines read once for every trap this frame.
+		var standing: Array = get_tree().get_nodes_in_group("survivor_enemies")
 		for record: Dictionary in world.records.values():
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
 			click_armed[int(record["reaction"].get("routine", -1))] = true
 			var size: Vector3 = record.get("size", Vector3.ONE)
 			var half: float = clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)
 			# A machine within its reach now: the moment to let it go.
-			var near: bool = machine_at(record["position"], half + 1.4) != null
+			var near: bool = not standing.is_empty() and machine_at(record["position"], half + 1.4, standing) != null
 			spots.append([record["position"], half, near])
 			# Heard once as it comes into reach, so the moment can be caught without looking.
 			if near and not _in_reach.has(record["id"]): Sfx.of(self).play("armed", 1.5, 2.0)
@@ -213,10 +215,10 @@ func cue(point: Vector3) -> void:
 			if routines[index]["when"] == "mano" and float(clock.get(key, 0.0)) > 0.0: clock[key] = float(clock[key]) + IDLE_CLICK
 
 ## The standing machine nearest `point` within a click's reach of it, or null.
-func machine_at(point: Vector3, radius: float = MARK_RADIUS) -> Node3D:
+func machine_at(point: Vector3, radius: float = MARK_RADIUS, among: Array = []) -> Node3D:
 	var picked: Node3D = null
 	var best: float = radius
-	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
+	for enemy: Node3D in (among if not among.is_empty() else get_tree().get_nodes_in_group("survivor_enemies")):
 		if enemy.down: continue
 		var gap: float = Vector2(enemy.global_position.x - point.x, enemy.global_position.z - point.z).length()
 		if gap < best:
