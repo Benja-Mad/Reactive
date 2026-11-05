@@ -133,8 +133,12 @@ func systemic_checks(Build: GDScript) -> void:
 	run.builds[1]["routines"][0] = {"when": "cerca", "steps": [], "then": "estallar", "on": "mano"}
 	var trap: int = run.spellwork.cast(1, 0, marked.global_position + Vector3(1.5, 0, 0), Vector3.RIGHT)
 	if run.world.records.has(trap): run.world.records[trap]["reaction"]["after"] = 0.0
+	run._armed_spots = []
+	var for_trap: bool = run._click_is_for_a_trap(marked.global_position)
 	run.cue(marked.global_position)
 	var sprung_unmarked: bool = trap > 0 and not run.clocks[1].has("mark") and not (run.world.records.has(trap) and run.world.records[trap].has("reaction"))
+	# The click's corners say the same: on the trap's click they do not close on the machine.
+	check("click_corners_follow_the_host", for_trap and not run._click_is_for_a_trap(marked.global_position))
 	run.clocks[1].erase("cue")
 	# The click aims what it lets go, and a mark nearby steers every throw; else the nearest.
 	var plain_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD)
@@ -501,6 +505,19 @@ func test() -> void:
 	opened = opened and run.hud._editor != null and run.hud._editor.focus == 1
 	run.set_phase("running")
 	check("plate_row_opens_workshop", on_second == 1 and on_weapon == Build.ATTACK and off_plate == null and opened)
+	# The plate thins over a machine behind it.
+	var cam: Camera3D = run.get_viewport().get_camera_3d()
+	var veiled: bool = false
+	if cam != null and run.machines.get_child_count() > 0:
+		var behind: Node3D = run.machines.get_child(0)
+		var keep: Vector3 = behind.global_position
+		var c: Vector2 = plate.get_center()
+		var o: Vector3 = cam.project_ray_origin(c)
+		var d: Vector3 = cam.project_ray_normal(c)
+		behind.global_position = o + d * ((keep.y - o.y) / d.y)
+		veiled = run.hud._behind_plate()
+		behind.global_position = keep
+	check("plate_thins_over_a_machine", veiled)
 	# Node editor model: lifting and setting pieces keeps exactly the pieces owned.
 	var sample: Dictionary = Build.fresh()
 	sample["box"] = ["push", "detonar"]
