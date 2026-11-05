@@ -152,7 +152,9 @@ func _grate() -> void:
 
 func _overflow() -> void:
 	# The tank's pipe ends 3.2 m up, over the puddle (depot_yard.gd builds tank and pipe):
-	# here is only the water falling from it and the splash where it lands.
+	# here is only the water falling from it and the splash where it lands, and the wet sheen at
+	# the pipe's mouth, so the fall reads as leaving the iron and not the night air.
+	_part(_cylinder(0.09, 0.09, 0.05), _sheen(), Vector3(0, 3.18, 0))
 	var fall := _well_at(Vector3(0, 3.1, 0), 0.05, 0.0, 0.3, 6.0, 40)
 	if fall != null:
 		fall.lifetime = 0.8
