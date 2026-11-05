@@ -372,7 +372,8 @@ Lo frío (temperatura < 0) además frena 20 % a la máquina.
 para el Sereno, `attackfirst` para llenar el arma antes que las rutinas) se promedia en tres
 semillas (8026, 311, 7), porque una sola es caótica: un cambio chico voltea una partida entera.
 Antes del afinado el Sereno ganaba el turno completo y Brasa caía a los 150-170 s; el salpicón
-dañaba entero a toda la manada y los bolos llegaban a 12. Supervivencia media tras el afinado:
+dañaba entero a toda la manada y los bolos llegaban a 12. Supervivencia media tras el afinado
+(medida con el reloj real de entonces; ver la nota siguiente):
 
 | Piloto | Rutinas primero | Arma primero |
 |---|---|---|
