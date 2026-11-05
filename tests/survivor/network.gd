@@ -126,6 +126,15 @@ func host_checks() -> void:
 		client_click.rpc(hound.global_position)
 		await frames(12)
 		checks["client_click_aims_its_trap"] = trap > 0 and not (run.world.records.has(trap) and run.world.records[trap].has("reaction")) and int(run.spellwork.rules.stats.get("aimed", 0)) > aimed_before
+		# A machine felled by the client's routine lights that row on the client's plate.
+		if is_instance_valid(hound) and not hound.down:
+			hound.health = 0.5
+			var shard: int = int(run.world.execute(client_id, "create", 0, {"point": hound.global_position, "material": "scrap"}).get("id", 0))
+			if run.world.records.has(shard): run.world.records[shard]["routine"] = 0
+			run.spellwork._burst(shard)
+		await frames(10)
+		inspect_credit.rpc()
+		await frames(10)
 	for key_name: String in report: checks[key_name] = report[key_name]
 	checks["client_report_received"] = not report.is_empty()
 	print("SURVIVOR NETWORK ", JSON.stringify(checks))
@@ -141,6 +150,9 @@ func inspect_mark() -> void:
 @rpc("authority", "call_remote", "reliable")
 func inspect_armed() -> void:
 	submit_report.rpc_id(1, {"client_sees_its_trap_ready": not run._armed_spots.is_empty() and not run.click_armed.is_empty()})
+@rpc("authority", "call_remote", "reliable")
+func inspect_credit() -> void:
+	submit_report.rpc_id(1, {"client_sees_its_kill": run.hud._credits.has(0)})
 @rpc("authority", "call_remote", "reliable")
 func client_click(at: Vector3) -> void:
 	run.cue.rpc_id(1, at)
