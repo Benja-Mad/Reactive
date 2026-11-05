@@ -139,7 +139,7 @@ var _credits: Dictionary = {}
 const CREDIT_HOLD := 0.7
 func _on_credit(_peer: int, index: int) -> void:
 	# Heard too, higher and softer than a combo, at most twice a second.
-	if _now() - float(_credits.get(index, -10.0)) > 0.5 and _credits.values().all(func(t: float) -> bool: return _now() - t > 0.5):
+	if _credits.values().all(func(t: float) -> bool: return _now() - t > 0.5):
 		Sfx.of(self).play("combo", 1.5, -8.0)
 	_credits[index] = _now()
 
