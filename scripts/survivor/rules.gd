@@ -68,7 +68,7 @@ func discharge(record: Dictionary) -> void:
 ## Running totals, for the checks and the soak run.
 var stats: Dictionary = {"scalded": 0, "frozen": 0, "dried": 0, "melted": 0, "boiled": 0, "chilled": 0, "arcs": 0, "jumps": 0, "longest": 0, "impacts": 0, "capped": 0,
 	"ignited": 0, "spread": 0, "quenched": 0, "reddened": 0, "detonated": 0, "grounded": 0, "crushed": 0, "bowled": 0,
-	"flared": 0, "overloaded": 0, "electrified": 0, "iced": 0, "shrapnel": 0}
+	"flared": 0, "overloaded": 0, "electrified": 0, "iced": 0, "shrapnel": 0, "credited": 0}
 
 ## The matter whose rule is running, for crediting a combo on a machine another routine wet.
 var _acting: Dictionary = {}

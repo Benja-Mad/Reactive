@@ -411,7 +411,7 @@ func _crush(point: Vector3, radius: float, damage: float, source: int) -> void:
 		if not actor is Node3D or not actor.has_method("take_damage"): continue
 		var gap: Vector3 = actor.global_position - point
 		var distance: float = Vector2(gap.x,gap.z).length()
-		if distance < radius and absf(gap.y) < 2.0: actor.take_damage(damage*(1.0-0.5*distance/radius))
+		if distance < radius and absf(gap.y) < 2.0: _strike(actor, records.get(source, {}), damage*(1.0-0.5*distance/radius))
 	for id: int in records.keys():
 		if id != source and records[id]["position"].distance_to(point) < radius: _damage(id,damage)
 
@@ -499,7 +499,7 @@ func _blast(point: Vector3, radius: float, damage: float, source: int) -> void:
 	for actor: Node in get_tree().get_nodes_in_group("matter_damageable"):
 		if not actor is Node3D or not actor.has_method("take_damage"): continue
 		var distance: float = actor.global_position.distance_to(point)
-		if distance < radius and _blast_visible(point, actor.global_position+Vector3.UP*0.6, actor, source): actor.take_damage(damage*(1.0-distance/radius))
+		if distance < radius and _blast_visible(point, actor.global_position+Vector3.UP*0.6, actor, source): _strike(actor, records.get(source, {}), damage*(1.0-distance/radius))
 
 func _blast_visible(origin: Vector3, target: Vector3, body: Node, source: int) -> bool:
 	var ray := PhysicsRayQueryParameters3D.create(origin,target,1)

@@ -216,7 +216,10 @@ materia nacida de una rutina (impacto, estallido, ráfaga, molienda del remolino
 que conduce, calor que prende o escalda), el mundo la nombra culpable; si la máquina cae con ese golpe, el número de esa fila se
 enciende en ámbar 0,7 s en la placa de su dueño y sale un aro ámbar del mismo color de los combos
 desde el pecio. Lo que el arma derriba no enciende nada. La quemadura que sigue sola (una máquina
-ya caliente que arde con el tiempo) todavía no acredita a nadie.
+ya caliente que arde con el tiempo), el bowl de una máquina contra otra y los nanitos todavía no
+acreditan a nadie. En el soak (`rule_stats.credited`), las rutinas rematan el 11 % de las muertes
+en support (13/123, 55/502) y entre el 28 y el 29 % en showcase (32/112, 97/346): hacen cerca de
+la mitad del daño, pero el arma, que golpea sin parar, se queda con el último golpe.
 
 ### Condiciones: if wet, if hot, if marked
 
