@@ -148,28 +148,18 @@ todas las rutinas *on cue* listas en el punto del clic. Recarga 4 s. El programa
 eligen todas tus rutinas (*every*, el arma, las pruebas, la dirección de los pasos). *on near*
 sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana. *on crowd* sale
 sobre el grupo de tu marca en cuanto son tres, antes que sobre otro más grande; *charco*, sobre el
-charco que pisa la marcada si lo hay. Los lanzamientos
-(esquirlas, ráfaga y metralla de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina
-del clic que los soltó, si no a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`) y si
-no a la más cercana a la materia (`spellwork._aim`). Cuando el clic o la marca eligen el blanco
-de un THEN, un hilo ámbar fino va de la materia a esa máquina, para que el giro tenga causa; el
-*push* de un DO gira sin hilo, porque ya lleva el haz del operador. La marca de un compañero
-no tuerce tus lanzamientos. El soak no puede mostrar lo que gana: su piloto hace clic sobre la
-máquina que ya tiene al lado, la misma que elegía «la más cercana». Con la puntería, semillas 1–6
-de support en `clickthen`: a tiempo 184 s de media, a ciegas 209 s, y apuntando a la máquina más
-cercana al piloto entre las que alcanza la trampa (`aimthreat`) 193 s; las diferencias quedan
-dentro del ruido de una partida caótica (de 138 a 300 s según la semilla). Lo que aporta es para quien
-elige a quién: la máquina peligrosa en vez de la próxima.
+charco que pisa la marcada si lo hay. Cuatro esquinas ámbar gruesas y quietas la siguen hasta que
+cae, marcas otra o queda a más de 16 m (`MARK_KEEP`). Se probó que volver a hacer clic sobre la
+marca la quitara y se descartó: quien dispara su rutina una y otra vez sobre la misma máquina la
+marcaba y desmarcaba (en el soak, de 269 a 154 s). En equipo las marcas se comparten: cada uno ve
+las de los demás como esquinas finas; la de quien queda fuera de servicio se borra.
 
-Quién hace el daño (`run.damage_log`, 4 de noviembre de 2026, semillas 1, 3, 5 y 6 de support y
-showcase): el arma (la fila A) hace entre el 38 y el 61 % del daño a máquinas, 52 % de media; el
-resto lo ponen las rutinas y las reacciones (el bowl de un remolino llega al 20 % en la mejor).
-Las partidas largas son las de más peso de las rutinas (la única que llega a 300 s: arma 46 %).
-No se tocó el balance; queda como dato para decidir si las rutinas deben pesar más. Cuatro esquinas
-ámbar gruesas y quietas la siguen hasta que cae, marcas otra o queda a más de 16 m (`MARK_KEEP`).
-Se probó que volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina
-una y otra vez sobre la misma máquina la marcaba y desmarcaba (en el soak, de 269 a 154 s).
-En equipo las marcas se comparten: cada uno ve las de los demás como esquinas finas.
+**El clic y la marca apuntan** (`spellwork._aim`). Los lanzamientos (esquirlas, ráfaga y metralla
+de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina del clic que los soltó; si no,
+a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`); si no, a la más cercana a la
+materia. Cuando el clic o la marca eligen el blanco de un THEN, un hilo ámbar fino va de la
+materia a esa máquina, para que el giro tenga causa; el *push* de un DO gira sin hilo, porque ya
+lleva el haz del operador. La marca de un compañero no tuerce tus lanzamientos.
 
 **El THEN puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto momento del
 THEN, *al hacer clic*: una rutina automática prepara la trampa y tú decides cuándo salta. La
@@ -180,17 +170,32 @@ soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (
 espera como mucho 6 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
 no se acumulan trampas por todo el patio (la materia vive 12 s, así que al contacto le quedan unos
 cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina.
-Soak (`clickthen`, todos los THEN al clic; `spamclick` suelta a ciegas cada segundo), semillas 1–6
-de support, antes de que el clic apuntara: soltando cuando las esquinas se encienden aguanta de
-media 209 s; a ciegas, 192 s. Gana en 4 de 6. Elegir el momento paga, pero poco: un THEN que apunta solo (esquirlas a la
-máquina más próxima) rinde igual suelto en cualquier momento, y una semilla sola no dice nada
-porque las mejoras divergen en cuanto cambian los clics.
 
-El clic sobre la placa del programa (abajo a la izquierda) no va al suelo: pausa el turno y abre
-el taller en esa fila (`hud.row_at`, `hud.open_row`). Bajo el puntero, la fila se aclara y su
-número se enciende en ámbar. Solo quien puede pausar, el anfitrión o el jugador solo; para un
-invitado, el clic sobre la placa sigue yendo al suelo. Una edición rehace el taller, y vuelve a
-abrir en la misma fila.
+**La placa del programa** (`hud.row_at`, `hud.open_row`). El clic sobre ella (abajo a la
+izquierda) no va al suelo: pausa el turno y abre el taller en esa fila. Bajo el puntero, la fila
+se aclara y su número se enciende en ámbar. Solo quien puede pausar, el anfitrión o el jugador
+solo; para un invitado, el clic sobre la placa sigue yendo al suelo. Una edición rehace el
+taller, y vuelve a abrir en la misma fila.
+
+**Lo que dice el soak.** Con `clickthen` todos los THEN del piloto esperan al clic; `spamclick`
+los suelta a ciegas cada segundo y `aimthreat` contra la máquina más cercana al piloto entre las
+que alcanza la trampa. Semillas 1–6 de support:
+
+- Antes de que el clic apuntara: soltando cuando las esquinas se encienden, 209 s de media; a
+  ciegas, 192 s (gana en 4 de 6).
+- Con la puntería: a tiempo 184 s, a ciegas 209 s, `aimthreat` 193 s.
+
+Las diferencias quedan dentro del ruido de una partida caótica (de 138 a 300 s según la semilla;
+las mejoras divergen en cuanto cambian los clics). Elegir el momento paga poco porque muchos THEN
+apuntan solos, y el piloto hace clic sobre la máquina que ya tiene al lado, la misma que elegía
+«la más cercana»: lo que aporta la puntería es para quien elige a quién, la máquina peligrosa en
+vez de la próxima.
+
+Quién hace el daño (`run.damage_log`, semillas 1, 3, 5 y 6 de support y showcase): el arma (la
+fila A) hace entre el 38 y el 61 % del daño a máquinas, 52 % de media; el resto lo ponen las
+rutinas y las reacciones (el bowl de un remolino llega al 20 % en la mejor). Las partidas largas
+son las de más peso de las rutinas (la única que llega a 300 s: arma 46 %). No se tocó el
+balance; queda como dato para decidir si las rutinas deben pesar más.
 
 ### Condiciones: if wet, if hot, if marked
 
