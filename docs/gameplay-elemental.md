@@ -211,6 +211,13 @@ rutinas y las reacciones (el bowl de un remolino llega al 20 % en la mejor). Las
 son las de más peso de las rutinas (la única que llega a 300 s: arma 46 %). No se tocó el
 balance; queda como dato para decidir si las rutinas deben pesar más.
 
+**Lo que tu programa derriba** (`world.culprit`, `spellwork.credit_fx`). Mientras cae el golpe de una
+materia nacida de una rutina (impacto, estallido, ráfaga, molienda del remolino, metralla, arco
+que conduce), el mundo la nombra culpable; si la máquina cae con ese golpe, el número de esa fila se
+enciende en ámbar 0,7 s en la placa de su dueño y sale un aro ámbar del mismo color de los combos
+desde el pecio. Lo que el arma derriba no enciende nada. El calor y la quemadura, que no tienen
+golpe propio, todavía no acreditan a nadie.
+
 ### Condiciones: if wet, if hot, if marked
 
 `Recipe.GATES`, `spellwork.gate`. Son DO que no tocan la materia: cuando les toca, preguntan por

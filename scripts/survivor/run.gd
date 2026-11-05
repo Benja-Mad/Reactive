@@ -802,6 +802,10 @@ func machine_hit(key: String) -> void:
 	if enemy != null: enemy.flash = 0.1
 func machine_killed(point: Vector3, kind: int) -> void:
 	kills += 1
+	# Felled by a routine's matter: its owner sees which row did it (spellwork.credit_fx).
+	var by: Dictionary = world.culprit
+	if by.has("routine") and int(by.get("owner", 0)) > 0 and int(by["routine"]) >= 0:
+		spellwork.credit_fx.rpc(int(by["owner"]), int(by["routine"]), point)
 	spellwork.note_kill(point)
 	# What is left of it is scrap: half a draught where it fell, a whole one where two fell close.
 	if world.residue: world.spill(point, 0.5, "scrap")

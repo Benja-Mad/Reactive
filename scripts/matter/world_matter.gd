@@ -37,6 +37,9 @@ const REPEL_TIME := 4.0
 const DROP_RADIUS := 2.5
 const DROP_DAMAGE := 10.0
 var records: Dictionary = {}
+## The matter whose blow is landing right now (host only), so a machine it fells can name the
+## routine that made it; empty between blows.
+var culprit: Dictionary = {}
 var views: Dictionary = {}
 var next_id: int = 1
 var revision: int = 0
@@ -690,7 +693,7 @@ func _physics_process(delta: float) -> void:
 		if views.has(id): ray.exclude = [views[id].get_rid()]
 		var hit: Dictionary = _sweep_orb(record, velocity * delta) if record["shape"] == "orb" else get_world_3d().direct_space_state.intersect_ray(ray)
 		if not hit.is_empty() and record["shape"] == "orb":
-			if hit.collider.has_method("take_damage"): hit.collider.take_damage(Catalog.impact(record, velocity.length()))
+			_strike(hit.collider, record, Catalog.impact(record, velocity.length()))
 			if record["material"] in ["ice", "scrap"]: _damage(id, 999.0)
 			else:
 				# Water splashes, fire spatters into a burning pool, current goes to ground.
@@ -703,13 +706,13 @@ func _physics_process(delta: float) -> void:
 			record["velocity"] = Vector3.ZERO
 			record.erase("sliding")
 			if record["material"] in ["ice", "scrap"]:
-				if hit.collider.has_method("take_damage"): hit.collider.take_damage(Catalog.impact(record,velocity.length()))
+				_strike(hit.collider, record, Catalog.impact(record, velocity.length()))
 				_damage(id,999.0)
 		elif not hit.is_empty() and record["material"] == "steam":
 			# A pushed cloud banks up against what it meets; vapour has nothing to break with.
 			record["velocity"] = Vector3.ZERO
 		elif not hit.is_empty():
-			if hit.collider.has_method("take_damage"): hit.collider.take_damage(Catalog.impact(record,velocity.length()))
+			_strike(hit.collider, record, Catalog.impact(record, velocity.length()))
 			_erase(id,"collided")
 		else:
 			record["position"] += velocity*delta
@@ -989,3 +992,11 @@ func _sync_views() -> void:
 			add_child(view)
 			views[id] = view
 		views[id].apply(records[id])
+
+## Matter `record` meeting `body` with `amount` of blow, named as the culprit while it lands.
+func _strike(body: Object, record: Dictionary, amount: float) -> void:
+	if not body.has_method("take_damage"): return
+	var was: Dictionary = culprit
+	culprit = record
+	body.take_damage(amount)
+	culprit = was

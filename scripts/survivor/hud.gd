@@ -63,6 +63,7 @@ func _process(delta: float) -> void:
 	if run.spellwork != null and not run.spellwork.beat.is_connected(_on_beat):
 		run.spellwork.beat.connect(_on_beat)
 		run.spellwork.combo.connect(_on_combo)
+		run.spellwork.credited.connect(_on_credit)
 	_controls.size = size
 	_choices = run.offers.get(multiplayer.get_unique_id(), [])
 	if run.phase != "upgrade" or _picking not in _choices: _picking = ""
@@ -128,9 +129,15 @@ func _on_combo(peer: int, a: int, b: int) -> void:
 	_combos.append([a, b, _now()])
 	Sfx.of(self).play("combo")
 
-## How lit routine `index`'s number is from a combo, 1 just now to 0.
+## A machine your routine `index` felled: its number lights like a combo's, briefly.
+var _credits: Dictionary = {}
+const CREDIT_HOLD := 0.7
+func _on_credit(_peer: int, index: int) -> void:
+	_credits[index] = _now()
+
+## How lit routine `index`'s number is from a combo or a kill it made, 1 just now to 0.
 func _combo_glow(index: int) -> float:
-	var best: float = 0.0
+	var best: float = 1.0 - (_now() - float(_credits.get(index, -10.0))) / CREDIT_HOLD
 	for c: Array in _combos:
 		if index == int(c[0]) or index == int(c[1]): best = maxf(best, 1.0 - (_now() - float(c[2])) / COMBO_HOLD)
 	return clampf(best, 0.0, 1.0)

@@ -169,6 +169,17 @@ func systemic_checks(Build: GDScript) -> void:
 	run._automate(player, 1, 0.0)
 	var paid: bool = float(run.clocks[1]["r0"]) > full * 1.3 and not run.clocks[1].has("owed0")
 	check("mark_pulls_the_program_forward", pulled_now and kept_waiting and paid)
+	# A machine felled by a routine's matter credits that routine on its owner's plate.
+	var credits: Array = []
+	var on_credit := func(peer: int, index: int) -> void: credits.append([peer, index])
+	run.spellwork.credited.connect(on_credit)
+	var weak: Node = still.call(997, Vector3(3, 0, 3))
+	weak.health = 1.0
+	var shard: int = int(run.world.execute(1, "create", 0, {"point": Vector3(weak.global_position.x, me.y - 1.08, weak.global_position.z), "material": "scrap"}).get("id", 0))
+	if run.world.records.has(shard): run.world.records[shard]["routine"] = 1
+	run.spellwork._burst(shard)
+	run.spellwork.credited.disconnect(on_credit)
+	check("kill_credits_the_routine", credits == [[1, 1]] and run.world.culprit.is_empty() and run.hud._combo_glow(1) > 0.5)
 	run.builds[1]["routines"][0] = kept_routine
 	run.builds[1]["routines"][1] = kept_second
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)

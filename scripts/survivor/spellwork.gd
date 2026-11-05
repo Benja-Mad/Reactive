@@ -96,6 +96,15 @@ func combo_fx(peer: int, a: int, b: int, at: Vector3 = Vector3.INF) -> void:
 	# Where it happened, for the one whose routines met: an amber ring off the spot.
 	if _fx != null and peer == multiplayer.get_unique_id() and at != Vector3.INF: _fx.combo(at)
 
+## A machine felled by a routine's matter: that routine's number lights on its owner's plate and an
+## amber ring goes off the wreck, so what the program achieved is seen where and in which row.
+signal credited(peer: int, index: int)
+@rpc("authority", "call_local", "unreliable")
+func credit_fx(peer: int, index: int, at: Vector3) -> void:
+	if peer != multiplayer.get_unique_id(): return
+	credited.emit(peer, index)
+	if _fx != null: _fx.combo(at)
+
 ## A machine wet by a routine's matter remembers whose, so a later shock or freeze from another
 ## routine of the same player counts as a combo between the two.
 func wet_by(enemy: Node3D, record: Dictionary) -> void:
@@ -476,6 +485,11 @@ func _shrapnel(id: int, fallback: Vector3, aim_at: Variant = null) -> void:
 func _burst(id: int) -> void:
 	if not world.records.has(id): return
 	var record: Dictionary = world.records[id]
+	world.culprit = record
+	_burst_blow(id, record)
+	world.culprit = {}
+
+func _burst_blow(id: int, record: Dictionary) -> void:
 	var at: Vector3 = record["position"]
 	if record["material"] == "water": _splash(at, Recipe.BURST_RADIUS, 0.0)
 	elif record["material"] == "current": rules.shock_around(at, Recipe.BURST_RADIUS, _enemies_near(at, Recipe.BURST_RADIUS), Catalog.temp_of(record) >= 1)
@@ -504,10 +518,12 @@ func _splash(at: Vector3, radius: float, damage: float) -> void:
 
 func _gust(id: int) -> void:
 	var at: Vector3 = world.records[id]["position"]
+	world.culprit = world.records[id]
 	for enemy: Node3D in _enemies_near(at, Recipe.SPLASH_RADIUS):
 		var away: Vector3 = _flat(enemy.global_position - at)
 		if Catalog.scald(world.records[id]): enemy.take_damage(Recipe.GUST_DAMAGE)
 		if is_instance_valid(enemy) and not enemy.down: enemy.shove += (away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 6.0
+	world.culprit = {}
 
 ## A well letting go (world event "released"): the machines riding its ring fly off along it,
 ## into whatever stands there, and the well's own matter is flung out with them -- water splashes,
