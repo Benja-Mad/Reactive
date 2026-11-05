@@ -159,7 +159,13 @@ máquina que ya tiene al lado, la misma que elegía «la más cercana». Con la 
 de support en `clickthen`: a tiempo 184 s de media, a ciegas 209 s, y apuntando a la máquina más
 cercana al piloto entre las que alcanza la trampa (`aimthreat`) 193 s; las diferencias quedan
 dentro del ruido de una partida caótica (de 138 a 300 s según la semilla). Lo que aporta es para quien
-elige a quién: la máquina peligrosa en vez de la próxima. Cuatro esquinas
+elige a quién: la máquina peligrosa en vez de la próxima.
+
+Quién hace el daño (`run.damage_log`, 4 de noviembre de 2026, semillas 1, 3, 5 y 6 de support y
+showcase): el arma (la fila A) hace entre el 38 y el 61 % del daño a máquinas, 52 % de media; el
+resto lo ponen las rutinas y las reacciones (el bowl de un remolino llega al 20 % en la mejor).
+Las partidas largas son las de más peso de las rutinas (la única que llega a 300 s: arma 46 %).
+No se tocó el balance; queda como dato para decidir si las rutinas deben pesar más. Cuatro esquinas
 ámbar gruesas y quietas la siguen hasta que cae, marcas otra o queda a más de 16 m (`MARK_KEEP`).
 Se probó que volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina
 una y otra vez sobre la misma máquina la marcaba y desmarcaba (en el soak, de 269 a 154 s).
