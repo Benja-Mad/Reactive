@@ -70,6 +70,8 @@ func _process(delta: float) -> void:
 	var key: String = "%s|%s|%s|%s|%s" % [run.phase, _choices, my_build(), _picking, size]
 	if key != _key:
 		_key = key
+		# A credit names a row by its index; once the program changes, that row may be another.
+		_credits.clear()
 		_rebuild()
 	_plate_veil = move_toward(_plate_veil, 0.5 if run.phase == "running" and _behind_plate() else 0.93, delta * 3.0)
 	queue_redraw()

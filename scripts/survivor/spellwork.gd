@@ -99,7 +99,7 @@ func combo_fx(peer: int, a: int, b: int, at: Vector3 = Vector3.INF) -> void:
 ## A machine felled by a routine's matter: that routine's number lights on its owner's plate and an
 ## amber ring goes off the wreck, so what the program achieved is seen where and in which row.
 signal credited(peer: int, index: int)
-@rpc("authority", "call_local", "unreliable")
+@rpc("authority", "call_local", "reliable")
 func credit_fx(peer: int, index: int, at: Vector3) -> void:
 	if peer != multiplayer.get_unique_id(): return
 	credited.emit(peer, index)

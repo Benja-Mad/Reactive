@@ -127,7 +127,9 @@ func host_checks() -> void:
 		await frames(12)
 		checks["client_click_aims_its_trap"] = trap > 0 and not (run.world.records.has(trap) and run.world.records[trap].has("reaction")) and int(run.spellwork.rules.stats.get("aimed", 0)) > aimed_before
 		# A machine felled by the client's routine lights that row on the client's plate.
-		if is_instance_valid(hound) and not hound.down:
+		var staged: bool = is_instance_valid(hound) and not hound.down
+		checks["client_kill_staged"] = staged
+		if staged:
 			hound.health = 0.5
 			var shard: int = int(run.world.execute(client_id, "create", 0, {"point": hound.global_position, "material": "scrap"}).get("id", 0))
 			if run.world.records.has(shard): run.world.records[shard]["routine"] = 0
