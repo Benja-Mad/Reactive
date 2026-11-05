@@ -220,8 +220,8 @@ veces por segundo) y sale un aro ámbar
 del mismo color de los combos desde el pecio. Lo que el arma derriba no enciende nada. Los nanitos
 no acreditan a nadie (los planta el arma). La quemadura que sigue sola se acredita a quien calentó
 la máquina por última vez (`heated_by`), y el bowl de una máquina contra otra, al remolino que la
-lanzó hace menos de 1,5 s. En el soak (`rule_stats.credited`), las rutinas rematan el 11 % de las
-muertes en support (13/123, 55/502) y entre el 28 y el 29 % en showcase (32/112, 97/346): hacen
+lanzó hace menos de 1,5 s. En el soak (`rule_stats.credited`), las rutinas rematan el 17 % de las
+muertes en support (246 de 1441 en las 12 semillas) y el 19 % en showcase (247 de 1318): hacen
 cerca de la mitad del daño, pero el arma, que golpea sin parar, se queda con el último golpe. Se
 probó acreditar a quien hizo la mayor parte del daño de cada máquina y se encendían aún menos filas
 (6/123, 12/519): el arma suele llevarse la mayor parte de cada una. El último golpe se queda.
