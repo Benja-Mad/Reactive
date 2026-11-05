@@ -142,10 +142,11 @@ func _process(_delta: float) -> void:
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
 			# Ready the way the host's release reads it: its own clock on the host; on a client,
 			# the arming margin counted from when this one first saw it armed.
-			seen_now[record["id"]] = _armed_seen.get(record["id"], now)
 			if multiplayer.is_server():
 				if not Build.Recipe.click_ready(record, multiplayer.get_unique_id()): continue
-			elif now - float(seen_now[record["id"]]) < Build.Recipe.CLICK_ARMING: continue
+			else:
+				seen_now[record["id"]] = _armed_seen.get(record["id"], now)
+				if now - float(seen_now[record["id"]]) < Build.Recipe.CLICK_ARMING: continue
 			click_armed[int(record["reaction"].get("routine", -1))] = true
 			var size: Vector3 = record.get("size", Vector3.ONE)
 			var half: float = clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)

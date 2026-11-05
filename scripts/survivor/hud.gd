@@ -83,7 +83,8 @@ func _behind_plate() -> bool:
 	var box: Rect2 = _program_rect().grow(8 * PX)
 	var me: Node3D = run.local_player()
 	if me != null and box.has_point(camera.unproject_position(me.global_position)): return true
-	for machine: Node3D in run.machines.get_children():
+	for machine: Node in run.machines.get_children():
+		if not machine is Node3D or machine.get("down"): continue
 		if box.has_point(camera.unproject_position(machine.global_position)) and not camera.is_position_behind(machine.global_position): return true
 	return false
 

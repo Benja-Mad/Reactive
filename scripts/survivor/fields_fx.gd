@@ -410,7 +410,7 @@ func _draw_marks(delta: float) -> void:
 		var chosen: bool = spot.size() > 4 and spot[4]
 		# What the click would let go, dotted toward where it would go (`spellwork._aim`): the
 		# machine under the pointer, else your mark if it stands within reach of the trap.
-		var toward: Node3D = aim_to
+		var toward: Node3D = aim_to if is_instance_valid(aim_to) else null
 		if toward == null and mark != null and Vector2(mark.global_position.x - spot[0].x, mark.global_position.z - spot[0].z).length() <= 9.0: toward = mark
 		if chosen and spot[3] and toward != null: _dotted(spot[0], toward.global_position, 3.0 * texel, AIM_LINE)
 		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
