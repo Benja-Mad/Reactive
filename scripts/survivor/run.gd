@@ -134,7 +134,10 @@ func _process(_delta: float) -> void:
 			var half: float = clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)
 			# A machine within its reach now: the moment to let it go.
 			var near: bool = not standing.is_empty() and machine_at(record["position"], half + 1.4, standing) != null
-			spots.append([record["position"], half, near])
+			# Whether letting it go throws it somewhere `spellwork._aim` steers (a click or a mark can
+			# turn it), or it acts where it stands.
+			var steers: bool = record["reaction"].get("action", "") == "fragmentos" and record["material"] in ["ice", "steam", "scrap"]
+			spots.append([record["position"], half, near, steers])
 			# Heard once as it comes into reach, so the moment can be caught without looking.
 			if near and not _in_reach.has(record["id"]): Sfx.of(self).play("armed", 1.5, 2.0)
 			if near: reach_now[record["id"]] = true

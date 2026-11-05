@@ -115,6 +115,8 @@ func host_checks() -> void:
 		run.publish()
 		var trap: int = run.spellwork.cast(client_id, 0, hound.global_position + Vector3(2.5, 0, 0), Vector3.LEFT)
 		if run.world.records.has(trap): run.world.records[trap]["reaction"]["after"] = 0.0
+		# Without a mark, so only the click can aim it.
+		run.clocks[client_id].erase("mark")
 		var aimed_before: int = int(run.spellwork.rules.stats.get("aimed", 0))
 		client_click.rpc(hound.global_position)
 		await frames(12)

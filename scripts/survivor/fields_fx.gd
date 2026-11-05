@@ -393,12 +393,12 @@ func _draw_marks(delta: float) -> void:
 	if hover_machine != null and (not is_instance_valid(hover_machine) or hover_machine.down): hover_machine = null
 	if aim_to != null and (not is_instance_valid(aim_to) or aim_to.down): aim_to = null
 	for spot: Array in click_spots:
-		var chosen: bool = spot.size() > 3 and spot[3]
+		var chosen: bool = spot.size() > 4 and spot[4]
 		# What the click would let go, dotted toward where it would go (`spellwork._aim`): the
 		# machine under the pointer, else your mark if it stands within reach of the trap.
 		var toward: Node3D = aim_to
 		if toward == null and mark != null and Vector2(mark.global_position.x - spot[0].x, mark.global_position.z - spot[0].z).length() <= 9.0: toward = mark
-		if chosen and toward != null: _dotted(spot[0], toward.global_position, 2.0 * texel, AIM_HOVER)
+		if chosen and spot[3] and toward != null: _dotted(spot[0], toward.global_position, 2.0 * texel, AIM_HOVER)
 		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
 	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
 	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)

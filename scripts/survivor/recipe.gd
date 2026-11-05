@@ -303,7 +303,7 @@ static func moment(state: Dictionary, _then: String, on: String = "contact") -> 
 ## What a THEN does with this matter when its moment comes.
 static func effect(state: Dictionary, then: String, on: String = "contact") -> String:
 	# Where a throw goes (spellwork._aim): the click's machine when it waits for one, else your mark.
-	var target: String = "la máquina del clic" if on == "mano" else "tu marca o a la más próxima"
+	var target: String = "la máquina del clic (si no hay, a tu marca o a la más próxima)" if on == "mano" else "tu marca o a la más próxima"
 	var material: String = state["material"]
 	var text: String = ""
 	match then:
