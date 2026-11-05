@@ -115,6 +115,11 @@ func host_checks() -> void:
 		run.publish()
 		var trap: int = run.spellwork.cast(client_id, 0, hound.global_position + Vector3(2.5, 0, 0), Vector3.LEFT)
 		if run.world.records.has(trap): run.world.records[trap]["reaction"]["after"] = 0.0
+		# The client sees it ready once the arming margin has passed on its side.
+		run.world._dirty = true
+		await frames(40)
+		inspect_armed.rpc()
+		await frames(10)
 		# Without a mark, so only the click can aim it.
 		run.clocks[client_id].erase("mark")
 		var aimed_before: int = int(run.spellwork.rules.stats.get("aimed", 0))
@@ -133,6 +138,9 @@ func move_client() -> void:
 @rpc("authority", "call_remote", "reliable")
 func inspect_mark() -> void:
 	submit_report.rpc_id(1, {"client_knows_its_mark": run.my_mark == "Machine701"})
+@rpc("authority", "call_remote", "reliable")
+func inspect_armed() -> void:
+	submit_report.rpc_id(1, {"client_sees_its_trap_ready": not run._armed_spots.is_empty() and not run.click_armed.is_empty()})
 @rpc("authority", "call_remote", "reliable")
 func client_click(at: Vector3) -> void:
 	run.cue.rpc_id(1, at)
