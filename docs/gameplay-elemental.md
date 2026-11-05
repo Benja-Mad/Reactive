@@ -146,7 +146,9 @@ todas las rutinas *on cue* listas en el punto del clic. Recarga 4 s. El programa
 
 **La marca** (`run.marked`, `run.targets`). La máquina marcada va primera en la lista de la que
 eligen todas tus rutinas (*every*, el arma, las pruebas, la dirección de los pasos). *on near*
-sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana. Los lanzamientos
+sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana. *on crowd* sale
+sobre el grupo de tu marca en cuanto son tres, antes que sobre otro más grande; *charco*, sobre el
+charco que pisa la marcada si lo hay. Los lanzamientos
 (esquirlas, ráfaga y metralla de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina
 del clic que los soltó, si no a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`) y si
 no a la más cercana a la materia (`spellwork._aim`). Cuando el clic o la marca eligen, un hilo

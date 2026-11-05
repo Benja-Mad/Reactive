@@ -601,8 +601,13 @@ func _placement(player: Character, clock: Dictionary, when: String, enemies: Arr
 			return [me + behind * 1.6, -behind]
 		"grupo":
 			var best: Array = []
+			var mark: Variant = clock.get("mark")
 			for enemy: Node3D in enemies:
 				var near: Array = enemies.filter(func(other: Node3D) -> bool: return other.global_position.distance_to(enemy.global_position) < 3.5)
+				# The group around your mark, once it is a group, before any bigger one.
+				if enemy == mark and near.size() >= 3:
+					best = near
+					break
 				if near.size() > best.size(): best = near
 			if best.size() < 3: return null
 			var center := Vector3.ZERO

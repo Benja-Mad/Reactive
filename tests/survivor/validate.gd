@@ -153,6 +153,19 @@ func systemic_checks(Build: GDScript) -> void:
 	var after_gone: bool = run.targets(player)[0] == close
 	close.queue_free()
 	run.clocks[1].erase("mark")
+	# On crowd: the group around your mark, once it is three, before a bigger group elsewhere.
+	var crowd: Array[Node] = []
+	for i: int in 3: crowd.append(still.call(980 + i, Vector3(6 + i * 1.2, 0, 0)))
+	for i: int in 4: crowd.append(still.call(985 + i, Vector3(-6 - i * 1.2, 0, 0)))
+	await frames(2)
+	var crowd_seen: Array[Node3D] = run.targets(player)
+	var biggest: Variant = run._placement(player, run.clocks[1], "grupo", crowd_seen)
+	run.clocks[1]["mark"] = crowd[1]
+	var marked_group: Variant = run._placement(player, run.clocks[1], "grupo", run.targets(player))
+	run.clocks[1].erase("mark")
+	for machine: Node in crowd: machine.queue_free()
+	await frames(2)
+	check("on_crowd_takes_the_marked_group", biggest != null and biggest[0].x < me.x and marked_group != null and marked_group[0].x > me.x)
 	check("click_marks_a_machine", plain_first and mark_first and near_on_mark != null and near_on_mark[1].z > 0.9 and near_falls_back != null and near_falls_back[1].x < -0.9 and after_gone and unmarked and sprung_unmarked)
 	# An edited routine runs once as play resumes, on the house: no cooldown spent.
 	var before_edit: Array = run.builds[1]["routines"].duplicate(true)
