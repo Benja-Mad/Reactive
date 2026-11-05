@@ -46,7 +46,7 @@ var _clock: float = 0.0
 var _budget: int = 0
 var _contact_frame: int = -1
 var _contact_budget: int = CAP
-## Machine -> msec until which it is charred (see CHAR_TIME).
+## Machine -> shift second until which it is charred (see CHAR_TIME).
 var _charred: Dictionary = {}
 
 ## A contact reaction must release stored charge before it consumes the carrier. This uses
@@ -131,13 +131,13 @@ func _spend() -> bool:
 
 ## Fire passes from machine to machine: one burning lights a dry one beside it a step hotter.
 func _spread(enemies: Array[Node3D]) -> void:
-	var now: int = Time.get_ticks_msec()
+	var now: float = spellwork.run.elapsed
 	var left: int = SPREAD_CAP
 	for key: Variant in _charred.keys():
-		if not is_instance_valid(key) or int(_charred[key]) < now: _charred.erase(key)
+		if not is_instance_valid(key) or float(_charred[key]) < now: _charred.erase(key)
 	for enemy: Node3D in enemies:
 		if not is_instance_valid(enemy) or enemy.down or enemy.temp < 2: continue
-		if not _charred.has(enemy): _charred[enemy] = now + int(CHAR_TIME * 1000.0)
+		if not _charred.has(enemy): _charred[enemy] = now + CHAR_TIME
 		for other: Node3D in enemies:
 			if left <= 0: return
 			if other == enemy or not is_instance_valid(other) or other.down or other.temp >= 2 or other.wet() or _charred.has(other): continue

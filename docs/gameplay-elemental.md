@@ -222,7 +222,7 @@ del mismo color de los combos desde el pecio. Lo que el arma derriba no enciende
 no acreditan a nadie (los planta el arma). La quemadura que sigue sola se acredita a quien calentó
 la máquina por última vez (`heated_by`), y el bowl de una máquina contra otra, al remolino que la
 lanzó hace menos de 1,5 s. En el soak (`rule_stats.credited`), las rutinas rematan el 17 % de las
-muertes en support (246 de 1441 en las 12 semillas) y el 19 % en showcase (247 de 1318): hacen
+muertes en support (196 de 1096 en las 12 semillas) y el 18 % en showcase (209 de 1150): hacen
 cerca de la mitad del daño, pero el arma, que golpea sin parar, se queda con el último golpe. Se
 probó acreditar a quien hizo la mayor parte del daño de cada máquina y se encendían aún menos filas
 (6/123, 12/519): el arma suele llevarse la mayor parte de cada una. El último golpe se queda.
@@ -372,6 +372,15 @@ dañaba entero a toda la manada y los bolos llegaban a 12. Supervivencia media t
 |---|---|---|
 | Brasa | 203 s | 233 s |
 | Sereno | 193 s | 212 s |
+
+**El soak es determinista (05-11-2026).** La ventana de «al derribar» (1,5 s) y la chamusquina
+del fuego que salta (8 s) se contaban con el reloj real. Bajo `Engine.time_scale = 6` duraban hasta
+seis veces más turno según cuánto tardara cada fotograma, así que una misma semilla daba 300 s sola
+y 122 s con otras dos partidas corriendo en paralelo. Ahora cuentan tiempo de turno (`run.elapsed`):
+la semilla 3 support da 183,97 s y 175 bajas sola o en paralelo, y una pausa ya no las consume. Línea
+base de las 12 semillas desde entonces, support 1-6: 160,3 / 222,9 / 184,0 / 158,3 / 201,6 /
+206,4 s (media 188,9); showcase 1-6: 134,2 / 190,4 / 148,6 / 205,7 / 205,0 / 204,8 s (media 181,4).
+Las cifras de soak anteriores a esta fecha se midieron con ese reloj y no se comparan con estas.
 
 Programar el arma rinde más que no hacerlo con los dos operadores, y ninguno gana solo el turno
 con el piloto automático. Bajar los nanitos a 5,5 se probó y se descartó: hundía a Brasa con arma

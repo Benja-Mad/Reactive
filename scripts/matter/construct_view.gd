@@ -31,7 +31,9 @@ var _form: String = ""
 ## The size the current body was built at; a puddle's later spreading is a scale on it.
 var _built_size: Vector3 = Vector3.ZERO
 var _link: int = 0
-var _steam_born: float = 0.0
+## Seconds until the cloud condenses: the host's count at the last apply, run down by this view's
+## own frames so a pause, a faster clock or a scald that holds it longer all read right.
+var _condense_left: float = INF
 ## The cloud is drawn only in pixel puffs, dithered as they fade -- no soft volume behind them.
 const STEAM_WHITE := Color(0.8, 0.88, 0.92, 1.0)
 const STEAM_BRASS := Color(0.82, 0.7, 0.5, 1.0)
@@ -114,6 +116,7 @@ func _ready() -> void:
 
 func apply(state: Dictionary) -> void:
 	record = state
+	_condense_left = float(state.get("condense", INF))
 	_target = state["position"]
 	var remote: bool = multiplayer.has_multiplayer_peer() and not multiplayer.is_server()
 	# A long jump (a fresh record, a teleport) lands at once; ordinary motion is eased in _process.
@@ -360,7 +363,6 @@ func _build_steam(size: Vector3) -> void:
 	_steam_particles.material_override = Fx.puff_material(STEAM_WHITE, 0.34)
 	_steam_particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	steam.add_child(_steam_particles)
-	_steam_born = Time.get_ticks_msec() * 0.001
 
 func _fade_steam(duration: float) -> void:
 	if steam == null: return
@@ -433,9 +435,8 @@ func _process(delta: float) -> void:
 			fragments.multimesh.set_instance_transform(i, _shard_base[i])
 	if steam != null and _steam_particles != null:
 		# The cloud thins in its last second before it condenses: fewer, fainter puffs.
-		var age: float = Time.get_ticks_msec() * 0.001 - _steam_born
-		var left: float = Catalog.STEAM_LIFETIME - age
-		if left < 1.2 and age > 0.6: _steam_particles.amount_ratio = clampf(left / 1.2, 0.15, 1.0)
+		_condense_left -= delta
+		_steam_particles.amount_ratio = clampf(_condense_left / 1.2, 0.15, 1.0)
 	if conduit.visible:
 		_draw_conduit()
 

@@ -53,15 +53,15 @@ func _on_event(event: Dictionary) -> void:
 	if multiplayer.is_server() and event["kind"] == "pulsed" and _arrived.size() < 32: _arrived.append(int(event["id"]))
 
 func note_kill(point: Vector3) -> void:
-	_kills.append({"point": point, "at": Time.get_ticks_msec()})
+	# Shift time, not the wall clock: a pause or a faster soak keeps the window the same.
+	_kills.append({"point": point, "at": run.elapsed})
 	if _kills.size() > 16: _kills.pop_front()
 
 ## «on kill»: the freshest death within reach of `me`, consumed so it fires once.
 func take_kill(me: Vector3) -> Variant:
-	var now: int = Time.get_ticks_msec()
 	for index: int in range(_kills.size() - 1, -1, -1):
 		var kill: Dictionary = _kills[index]
-		if now - int(kill["at"]) > 1500: continue
+		if run.elapsed - float(kill["at"]) > 1.5: continue
 		if Vector2(kill["point"].x - me.x, kill["point"].z - me.z).length() <= 10.0:
 			_kills.remove_at(index)
 			return kill["point"]
