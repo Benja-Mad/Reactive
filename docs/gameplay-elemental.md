@@ -160,8 +160,11 @@ soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (
 espera como mucho 6 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
 no se acumulan trampas por todo el patio (la materia vive 12 s, así que al contacto le quedan unos
 cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina.
-Soak (`clickthen`, todos los THEN al clic): soltando a ciegas cada segundo, la semilla 2 aguanta
-131 s; soltando cuando las esquinas se encienden, 202 s. Elegir el momento paga.
+Soak (`clickthen`, todos los THEN al clic; `spamclick` suelta a ciegas cada segundo), semillas 1–6
+de support: soltando cuando las esquinas se encienden aguanta de media 209 s; a ciegas, 192 s.
+Gana en 4 de 6. Elegir el momento paga, pero poco: un THEN que apunta solo (esquirlas a la
+máquina más próxima) rinde igual suelto en cualquier momento, y una semilla sola no dice nada
+porque las mejoras divergen en cuanto cambian los clics.
 
 El clic sobre la placa del programa (abajo a la izquierda) no va al suelo: pausa el turno y abre
 el taller en esa fila (`hud.row_at`, `hud.open_row`). Bajo el puntero, la fila se aclara y su

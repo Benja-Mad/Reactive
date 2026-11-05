@@ -103,7 +103,7 @@ func _physics_process(_delta: float) -> void:
 		Input.action_release("move_right")
 		Input.action_release("move_up")
 		Input.action_release("move_down")
-		print("SURVIVOR SOAK ", JSON.stringify({"phase":run.phase,"time":run.elapsed,"kills":run.kills,"level":run.level,"upgrades":chosen,"peak_enemies":peak_enemies,"peak_matter":peak_matter,"peak_pickups":peak_pickups,"automations":run.automations_fired,"water":run.water_log,"kinds_seen":kinds_seen,"durability":invulnerable,
+		print("SURVIVOR SOAK ", JSON.stringify({"phase":run.phase,"time":run.elapsed,"kills":run.kills,"level":run.level,"upgrades":chosen,"peak_enemies":peak_enemies,"peak_matter":peak_matter,"peak_pickups":peak_pickups,"automations":run.automations_fired,"clicks":clicks,"water":run.water_log,"kinds_seen":kinds_seen,"durability":invulnerable,
 			"rules":run.spellwork.rules.enabled,"rule_stats":run.spellwork.rules.stats,"peak_snapshot_bytes":peak_snapshot,"peak_machine_sync_bytes":peak_machine_sync,"routines":run.builds[1]["routines"],"attack":Build.attack_steps(run.builds[1]),"damage":run.damage_log}))
 		Engine.time_scale = 1
 		get_tree().paused = false
@@ -114,18 +114,25 @@ func _physics_process(_delta: float) -> void:
 	# `clickthen`: every THEN the pilot owns waits for its click instead of a machine.
 	if "clickthen" in OS.get_cmdline_user_args():
 		for routine: Dictionary in run.builds[1]["routines"]: if routine["then"] != "": routine["on"] = "mano"
-		# And it lets them go when a machine is in their reach, the way the corners say.
-		if run.phase == "running":
+		# With `spamclick` it lets them go blind, once a second wherever they are.
+		var blind: bool = "spamclick" in OS.get_cmdline_user_args()
+		if run.phase == "running" and blind and frames_run % 60 == 0:
+			for record: Dictionary in run.world.records.values():
+				if Build.Recipe.click_ready(record, 1):
+					_click(record["position"])
+					break
+		# Otherwise it lets them go when a machine is in their reach, the way the corners say.
+		elif run.phase == "running":
 			for record: Dictionary in run.world.records.values():
 				if Build.Recipe.click_ready(record, 1) and run.machine_at(record["position"], 2.6) != null:
-					run.cue(record["position"])
+					_click(record["position"])
 					break
 	if run.phase == "running" and frames_run % 60 == 0 and not "clickthen" in OS.get_cmdline_user_args():
 		# Like a player who watches the program: it clicks when a routine on cue is ready (or to
 		# mark a new machine), not blindly; `spamclick` clicks every second regardless.
 		var seen: Array[Node3D] = run.targets(pilot)
 		var fresh_mark: bool = not seen.is_empty() and run.clocks[1].get("mark") != seen[0]
-		if not seen.is_empty() and (run.cue_ready(seen[0].global_position) or fresh_mark or "spamclick" in OS.get_cmdline_user_args()): run.cue(seen[0].global_position)
+		if not seen.is_empty() and (run.cue_ready(seen[0].global_position) or fresh_mark or "spamclick" in OS.get_cmdline_user_args()): _click(seen[0].global_position)
 	peak_enemies = maxi(peak_enemies, run.machines.get_child_count())
 	for enemy: Node in run.machines.get_children(): kinds_seen[str(enemy.kind)] = true
 	peak_matter = maxi(peak_matter, run.world.records.size())
@@ -168,3 +175,9 @@ func _physics_process(_delta: float) -> void:
 	Input.action_press("move_left", maxf(0,-local.x))
 	Input.action_press("move_down", maxf(0,local.z))
 	Input.action_press("move_up", maxf(0,-local.z))
+
+## The pilot's click, counted.
+var clicks: int = 0
+func _click(at: Vector3) -> void:
+	clicks += 1
+	run.cue(at)
