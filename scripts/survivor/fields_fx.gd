@@ -75,6 +75,9 @@ var steady: bool = false
 var _streams: Array[Dictionary] = []
 ## Operators' beams into their matter: {"from", "to", "color", "left"}.
 var _beams: Array[Dictionary] = []
+## Aim threads (aimed): from the released trap to its target, inked over everything, eaten from
+## the trap end until only the target end is left.
+var _threads: Array[Dictionary] = []
 ## The burst main over each source puddle, by record id.
 var _sources: Dictionary = {}
 var _aftermath: Dictionary = {}
@@ -187,6 +190,12 @@ var click_spots: Array = []
 var aim_to: Node3D = null
 const AIM_HOVER := Color("c98a3e")
 const AIM_INK := Color("0d0f14")
+## Paler than the fire and the corners, so the line to the target never reads as a flame.
+const AIM_LINE := Color("ffd88a")
+## The thread is long and solid, so the bloom lifts it more than the dots: drawn deeper to land
+## on the same pale amber.
+const AIM_THREAD := Color("e8a850")
+const THREAD_LIFE := 0.45
 
 ## Four floor corners round `at`, each an L of arm `arm`, on an ink outline so they read over
 ## anything the yard has on it.
@@ -199,17 +208,21 @@ func _corners(at: Vector3, half: float, arm: float, width: float, colour: Color)
 				var l := PackedVector3Array([tip - Vector3(sx * arm, 0, 0), tip, tip - Vector3(0, 0, sz * arm)])
 				_ribbon(_marks, l, width + (2.0 * CombatFx._texel(self) if pass_ink else 0.0), AIM_INK if pass_ink else colour)
 
-## A dotted line along the floor from `from` to `to`, on the marks so it reads over the yard.
+## A dotted line along the floor from `from` to `to`, on the marks so it reads over the yard:
+## short inked dots that crawl toward `to`, so it reads as "goes there" and not as more corners.
 func _dotted(from: Vector3, to: Vector3, width: float, colour: Color) -> void:
 	var flat := Vector3(to.x - from.x, 0, to.z - from.z)
 	var length: float = flat.length()
-	if length < 0.6: return
+	if length < 0.9: return
 	var step: Vector3 = flat / length
-	var t: float = 0.35
-	while t < length - 0.35:
+	var texel: float = CombatFx._texel(self)
+	var t: float = 0.45 + fmod(_time * 1.1, 0.4)
+	while t < length - 0.45:
 		var a: Vector3 = Vector3(from.x, from.y + 0.14, from.z) + step * t
-		_ribbon(_marks, PackedVector3Array([a, a + step * minf(0.22, length - 0.35 - t)]), width, colour)
-		t += 0.5
+		var dot := PackedVector3Array([a - step * 0.04, a + step * 0.04])
+		_ribbon(_marks, dot, width + 2.0 * texel, AIM_INK)
+		_ribbon(_marks, dot, width, colour)
+		t += 0.4
 
 ## Two of this player's routines meeting here (spellwork.combo_fx): the amber of the program's
 ## combo bracket, rung out once on the floor so the eye finds where the HUD's join came from.
@@ -236,7 +249,7 @@ func tether(key: String, from: Vector3, to: Vector3) -> void:
 
 ## A click or a mark turning a throw: a thin amber thread from the matter to the machine it goes at.
 func aimed(from: Vector3, to: Vector3) -> void:
-	_beams.append({"from": from + Vector3.UP * 0.4, "to": to + Vector3.UP * 0.6, "color": AIM_READY, "left": TETHER_LIFE})
+	_threads.append({"from": from + Vector3.UP * 0.4, "to": to + Vector3.UP * 0.6, "left": THREAD_LIFE})
 
 ## A weapon's ball: up from the operator's hands on a beam, then down on `spot`, landing `time`
 ## seconds from now. A third of the time it rises; the rest it falls, faster and faster, while its
@@ -359,7 +372,7 @@ func _draw_marks(delta: float) -> void:
 	for index: int in range(_arcs.size() - 1, -1, -1):
 		_arcs[index]["left"] -= delta
 		if _arcs[index]["left"] <= 0.0: _arcs.remove_at(index)
-	for list: Array[Dictionary] in [_streams, _beams, _aims]:
+	for list: Array[Dictionary] in [_streams, _beams, _aims, _threads]:
 		for index: int in range(list.size() - 1, -1, -1):
 			list[index]["left"] -= delta
 			if list[index]["left"] <= 0.0: list.remove_at(index)
@@ -398,7 +411,7 @@ func _draw_marks(delta: float) -> void:
 		# machine under the pointer, else your mark if it stands within reach of the trap.
 		var toward: Node3D = aim_to
 		if toward == null and mark != null and Vector2(mark.global_position.x - spot[0].x, mark.global_position.z - spot[0].z).length() <= 9.0: toward = mark
-		if chosen and spot[3] and toward != null: _dotted(spot[0], toward.global_position, 2.0 * texel, AIM_HOVER)
+		if chosen and spot[3] and toward != null: _dotted(spot[0], toward.global_position, 3.0 * texel, AIM_LINE)
 		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
 	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
 	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)
@@ -516,6 +529,17 @@ func _draw_marks(delta: float) -> void:
 		var color: Color = beam["color"]
 		_ribbon(_glow, line, 8.0 * texel * fade, Color(color, 0.35 * fade))
 		_ribbon(_lines, line, (2.0 if fade > 0.5 else 1.0) * texel, color)
+	for thread: Dictionary in _threads:
+		var age: float = THREAD_LIFE - thread["left"]
+		var head: float = clampf(age / 0.08, 0.0, 1.0)
+		var tail: float = clampf((age - 0.12) / (THREAD_LIFE - 0.12), 0.0, 1.0)
+		if head - tail < 0.02: continue
+		var line := PackedVector3Array()
+		for i: int in 9:
+			var t: float = lerpf(tail, head, i / 8.0)
+			line.append(thread["from"].lerp(thread["to"], t) + Vector3.UP * sin(t * PI) * 0.5)
+		_ribbon(_marks, line, 5.0 * texel, AIM_INK)
+		_ribbon(_marks, line, 3.0 * texel, AIM_THREAD)
 	# Discharges.
 	for arc: Dictionary in _arcs:
 		var fade: float = arc["left"] / arc["life"]
