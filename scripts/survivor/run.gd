@@ -124,11 +124,19 @@ func _process(_delta: float) -> void:
 	click_armed.clear()
 	var spots: Array = []
 	var reach_now: Dictionary = {}
+	var seen_now: Dictionary = {}
 	if world != null:
 		# The machines read once for every trap this frame.
 		var standing: Array = get_tree().get_nodes_in_group("survivor_enemies")
+		var now: float = Time.get_ticks_msec() / 1000.0
 		for record: Dictionary in world.records.values():
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
+			# Ready the way the host's release reads it: its own clock on the host; on a client,
+			# the arming margin counted from when this one first saw it armed.
+			seen_now[record["id"]] = _armed_seen.get(record["id"], now)
+			if multiplayer.is_server():
+				if not Build.Recipe.click_ready(record, multiplayer.get_unique_id()): continue
+			elif now - float(seen_now[record["id"]]) < Build.Recipe.CLICK_ARMING: continue
 			click_armed[int(record["reaction"].get("routine", -1))] = true
 			var size: Vector3 = record.get("size", Vector3.ONE)
 			var half: float = clampf(maxf(size.x, size.z) * 0.36, 0.45, 1.4)
@@ -142,6 +150,7 @@ func _process(_delta: float) -> void:
 			if near and not _in_reach.has(record["id"]): Sfx.of(self).play("armed", 1.5, 2.0)
 			if near: reach_now[record["id"]] = true
 	_in_reach = reach_now
+	_armed_seen = seen_now
 	_armed_spots = spots
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.click_spots = spots
@@ -242,6 +251,8 @@ var click_armed: Dictionary = {}
 var _in_reach: Dictionary = {}
 ## This frame's armed spots: [position, half, machine in reach].
 var _armed_spots: Array = []
+## When this machine first saw each of its traps armed «on click», for the arming margin.
+var _armed_seen: Dictionary = {}
 
 ## What a click that does nothing adds to the recharge of your routines on cue.
 const IDLE_CLICK := 0.5
