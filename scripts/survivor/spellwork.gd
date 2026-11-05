@@ -485,9 +485,10 @@ func _shrapnel(id: int, fallback: Vector3, aim_at: Variant = null) -> void:
 func _burst(id: int) -> void:
 	if not world.records.has(id): return
 	var record: Dictionary = world.records[id]
+	var was: Dictionary = world.culprit
 	world.culprit = record
 	_burst_blow(id, record)
-	world.culprit = {}
+	world.culprit = was
 
 func _burst_blow(id: int, record: Dictionary) -> void:
 	var at: Vector3 = record["position"]
@@ -518,12 +519,13 @@ func _splash(at: Vector3, radius: float, damage: float) -> void:
 
 func _gust(id: int) -> void:
 	var at: Vector3 = world.records[id]["position"]
+	var was: Dictionary = world.culprit
 	world.culprit = world.records[id]
 	for enemy: Node3D in _enemies_near(at, Recipe.SPLASH_RADIUS):
 		var away: Vector3 = _flat(enemy.global_position - at)
 		if Catalog.scald(world.records[id]): enemy.take_damage(Recipe.GUST_DAMAGE)
 		if is_instance_valid(enemy) and not enemy.down: enemy.shove += (away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 6.0
-	world.culprit = {}
+	world.culprit = was
 
 ## A well letting go (world event "released"): the machines riding its ring fly off along it,
 ## into whatever stands there, and the well's own matter is flung out with them -- water splashes,

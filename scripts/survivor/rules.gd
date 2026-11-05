@@ -166,9 +166,10 @@ func _ring(enemies: Array[Node3D]) -> void:
 			if record["material"] in ["scrap", "ice"] and is_instance_valid(enemy) and not enemy.down and _spend():
 				var blow: float = GRIND * Catalog.mass_of(record)
 				spellwork.run.log_damage("ring", blow * enemy.exposure)
+				var was: Dictionary = world.culprit
 				world.culprit = record
 				enemy.take_damage(blow)
-				world.culprit = {}
+				world.culprit = was
 				count("ground")
 				spellwork.rule_fx.rpc("grind", PackedVector3Array([enemy.global_position]))
 
@@ -505,9 +506,10 @@ func _trip(store: Dictionary, matter: Dictionary, enemies: Array[Node3D]) -> voi
 				var blow: float = SHRAPNEL_DAMAGE * (1.0 - 0.5 * away.length() / SHRAPNEL_RADIUS)
 				enemy.shove += (away.normalized() if away.length() > 0.1 else Vector3.RIGHT) * 6.0
 				spellwork.run.log_damage("shrapnel", blow)
+				var was: Dictionary = world.culprit
 				world.culprit = matter if matter.has("routine") else store
 				enemy.take_damage(blow)
-				world.culprit = {}
+				world.culprit = was
 	world._dirty = true
 
 func _around(at: Vector3, radius: float, enemies: Array[Node3D]) -> Array[Node3D]:
