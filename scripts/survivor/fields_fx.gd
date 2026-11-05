@@ -247,7 +247,8 @@ func tether(key: String, from: Vector3, to: Vector3) -> void:
 		return
 	_beams.append({"from": hands, "to": to, "color": TETHER.get(key, BURST), "left": TETHER_LIFE})
 
-## A click or a mark turning a throw: a thin amber thread from the matter to the machine it goes at.
+## A click or a mark turning a throw: an inked pale-amber thread from the matter to the machine it
+## goes at, drawn over everything and taken back toward the machine (see _threads).
 func aimed(from: Vector3, to: Vector3) -> void:
 	_threads.append({"from": from + Vector3.UP * 0.4, "to": to + Vector3.UP * 0.6, "left": THREAD_LIFE})
 
