@@ -210,7 +210,7 @@ func _settle(enemy: Node3D) -> void:
 func _set_temp(enemy: Node3D, value: int) -> void:
 	# Whose heat it is, for the burning that follows (_settle): the matter landing the blow now,
 	# or nobody (the weapon, the yard).
-	if value > enemy.temp: enemy.set_meta("heated_by", world.culprit)
+	if value > enemy.temp: enemy.set_meta("heated_by", {"owner": world.culprit["owner"], "routine": world.culprit["routine"]} if world.culprit.has("routine") and world.culprit.has("owner") else {})
 	enemy.temp = clampi(value, -2, 2)
 	enemy.temp_hold = HOLD
 
