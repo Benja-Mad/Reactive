@@ -202,7 +202,11 @@ func _settle(enemy: Node3D) -> void:
 		var planted: int = enemy.nanites
 		enemy.nanites = 0
 		detonate_machine(enemy.global_position, planted)
-	if enemy.temp >= 2 and enemy.tag("material") in BURNS: enemy.take_damage(BURN_DAMAGE)
+	if enemy.temp >= 2 and enemy.tag("material") in BURNS:
+		var was: Dictionary = world.culprit
+		world.culprit = enemy.get_meta("heated_by", {})
+		enemy.take_damage(BURN_DAMAGE)
+		world.culprit = was
 	if not is_instance_valid(enemy) or enemy.down: return
 	var rest: int = enemy.rest_temp()
 	if enemy.temp == rest: return
@@ -210,6 +214,9 @@ func _settle(enemy: Node3D) -> void:
 	if enemy.temp_hold <= 0.0: _set_temp(enemy, enemy.temp + signi(rest - enemy.temp))
 
 func _set_temp(enemy: Node3D, value: int) -> void:
+	# Whose heat it is, for the burning that follows (_settle): the matter landing the blow now,
+	# or nobody (the weapon, the yard).
+	if value > enemy.temp: enemy.set_meta("heated_by", world.culprit)
 	enemy.temp = clampi(value, -2, 2)
 	enemy.temp_hold = HOLD
 
