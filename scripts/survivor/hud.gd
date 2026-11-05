@@ -433,7 +433,6 @@ func _draw_sheet() -> void:
 		_draw_program()
 		var list := _offers_rect()
 		draw_rect(Rect2(list.position - Vector2(0, 2 * PX), list.size + Vector2(0, 4 * PX)), Color(Kit.BOARD, 0.92))
-		Kit.text(self, Vector2(list.position.x + 3 * PX, list.position.y - 30 * PX), "Nivel %d" % run.level, Kit.TEXT, 2, HORIZONTAL_ALIGNMENT_LEFT, true)
 	elif run.phase == "paused" or _picking != "":
 		_draw_scrim(0.82)
 		var area := _workshop_rect()
