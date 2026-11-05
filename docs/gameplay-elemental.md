@@ -226,8 +226,8 @@ del mismo color de los combos desde el pecio. Lo que el arma derriba no enciende
 no acreditan a nadie (los planta el arma). La quemadura que sigue sola se acredita a quien calentó
 la máquina por última vez (`heated_by`), y el bowl de una máquina contra otra, al remolino que la
 lanzó hace menos de 1,5 s. En el soak (`rule_stats.credited`), las rutinas rematan el 17 % de las
-muertes en support (196 de 1096 en las 12 semillas) y el 18 % en showcase (209 de 1150): hacen
-cerca de la mitad del daño, pero el arma, que golpea sin parar, se queda con el último golpe. Se
+muertes en support (206 de 1244 en las 12 semillas) y el 16 % en showcase (214 de 1312): hacen
+entre el 42 y el 49 % del daño, pero el arma, que golpea sin parar, se queda con el último golpe. Se
 probó acreditar a quien hizo la mayor parte del daño de cada máquina y se encendían aún menos filas
 (6/123, 12/519): el arma suele llevarse la mayor parte de cada una. El último golpe se queda.
 

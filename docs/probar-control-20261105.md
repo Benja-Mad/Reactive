@@ -31,9 +31,10 @@ en `gameplay-elemental.md`, en la sección de control.
 4. **Lo que derriba tu programa.** Cuando el golpe de una rutina remata a una máquina, el número de
    esa fila se enciende ámbar, sale un aro del pecio y suena
    un combo agudo y suave. Pasa en cerca del 17 % de las muertes con
-   support y del 19 % con showcase, porque el arma suele dar el último golpe. Cuentan el golpe,
+   support y del 16 % con showcase, porque el arma suele dar el último golpe. Cuentan el golpe,
    el arco, el calor y la quemadura de la rutina, y el choque de una máquina lanzada por su remolino.
-   *Decidir:* ¿debe el programa pesar más que el arma? El arma hace el 52 % del daño de media.
+   *Decidir:* ¿debe el programa pesar más que el arma? El arma hace el 58 % del daño con support
+   y el 51 % con showcase (media de las 12 semillas).
 
 ## Menos texto
 
