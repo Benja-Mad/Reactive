@@ -27,8 +27,9 @@ en `gameplay-elemental.md`, en la sección de control.
    taller en esa rutina. Espacio hace lo mismo si moviste el puntero hace poco. Con una máquina
    detrás, la placa se vuelve medio transparente.
 4. **Lo que derriba tu programa.** Cuando el golpe de una rutina remata a una máquina, el número de
-   esa fila se enciende ámbar y sale un aro del pecio. Pasa en el 11 % de las muertes con support
-   y en el 28 % con showcase, porque el arma suele dar el último golpe.
+   esa fila se enciende ámbar y sale un aro del pecio. Pasa en cerca del 11 % de las muertes con
+   support y del 28 % con showcase, porque el arma suele dar el último golpe. Cuentan el golpe,
+   el arco, el calor y la quemadura de la rutina, y el choque de una máquina lanzada por su remolino.
    *Decidir:* ¿debe el programa pesar más que el arma? El arma hace el 52 % del daño de media.
 
 ## Menos texto
