@@ -157,11 +157,14 @@ marca la quitara y se descartó: quien dispara su rutina una y otra vez sobre la
 marcaba y desmarcaba (en el soak, de 269 a 154 s). En equipo las marcas se comparten: cada uno ve
 las de los demás como esquinas finas; la de quien queda fuera de servicio se borra.
 
-Se probó que una marca nueva adelantara las rutinas que eligen máquina y van por la mitad de su
-recarga (debiendo lo saltado en la siguiente, para no dar lanzamientos de más), y se descartó: en
-las 12 semillas del soak bajó la supervivencia de 208,8 a 165,1 s (support) y de 192,4 a 172,0 s
-(showcase). Con un piloto que marca a menudo, las rutinas salen todas a la vez sobre la marca
-en lugar de escalonadas sobre lo que tienen cerca.
+**Marcar adelanta el programa** (`run._pull_forward`). Una marca nueva hace que tus rutinas que
+eligen máquina (*on near*, *every*, *on crowd*) y van por la mitad de su recarga o más salgan en el
+siguiente tick hacia ella: el clic tiene respuesta al instante y la fila se enciende en la placa.
+Lo que se saltan se suma a su próxima recarga, así que marcar de una a otra compra el momento,
+nunca lanzamientos de más. Se había descartado por una caída del 20 % en el soak que resultó ser
+el reloj real (ver «El soak es determinista»); medido de nuevo en las 12 semillas, la supervivencia
+media pasa de 188,9 a 195,3 s (support) y de 181,4 a 189,6 s (showcase), dentro del vaivén de
+±100 s que tiene cada semilla: no la daña.
 
 **El clic y la marca apuntan** (`spellwork._aim`). Los lanzamientos (esquirlas, ráfaga y metralla
 de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina del clic que los soltó; si no,

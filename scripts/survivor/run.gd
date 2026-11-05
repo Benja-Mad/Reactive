@@ -242,6 +242,7 @@ func cue(point: Vector3) -> void:
 		# Otherwise a click on a machine marks it: your routines take it first while in reach.
 		clock["mark"] = picked
 		marked.rpc(peer, str(picked.name))
+		_pull_forward(peer, clock)
 	# On cue always fires at the point. A click that does nothing at all costs a little: every
 	# routine on cue still recharging waits half a second more, so spamming does not pay.
 	var routines: Array = builds.get(peer, {}).get("routines", [])
@@ -392,10 +393,26 @@ func _automate(player: Character, peer: int, delta: float) -> void:
 		if placement == null: continue
 		var outcome: String = spellwork.begin(peer, index, placement[0], placement[1], 0, placement[2] if placement.size() > 2 else 0)
 		# With nowhere to put it, it retries soon instead of losing the cycle.
-		clock[key] = cooldown(build, index) if outcome == "" else 0.6
+		clock[key] = cooldown(build, index) + float(clock.get("owed%d" % index, 0.0)) if outcome == "" else 0.6
+		if outcome == "": clock.erase("owed%d" % index)
 		water_log[outcome if outcome != "" else "drawn"] = int(water_log.get(outcome if outcome != "" else "drawn", 0)) + 1
 	# A click is spent on this tick: one that found nothing ready does not wait for a recharge.
 	clock.erase("cue")
+
+## A new mark pulls forward the routines that pick a machine and are at least half charged: they
+## go at it on the next tick, so the program answers the click at once. What they skip is owed on
+## their next recharge, so marking back and forth buys timing, never extra casts.
+const PULL_WHEN := ["cerca", "cada", "grupo"]
+func _pull_forward(peer: int, clock: Dictionary) -> void:
+	var build: Dictionary = builds.get(peer, {})
+	var routines: Array = build.get("routines", [])
+	for index: int in routines.size():
+		if routines[index]["when"] not in PULL_WHEN: continue
+		var key: String = "r%d" % index
+		var left: float = float(clock.get(key, 0.0))
+		if left <= 0.0 or left > cooldown(build, index) * 0.5: continue
+		clock[key] = 0.0
+		clock["owed%d" % index] = float(clock.get("owed%d" % index, 0.0)) + left
 
 ## Brasa's combustion arm: a short cone of fire from the palm, many times a second. Bare, it
 ## hurts and heats a step what it licks, and flashes the puddles in its path into steam; every

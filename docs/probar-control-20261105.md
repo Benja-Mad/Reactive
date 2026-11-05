@@ -8,10 +8,11 @@ en `gameplay-elemental.md`, en la sección de control.
 
 1. **Marcar.** Haz clic sobre una máquina. Las esquinas del clic se cierran sobre ella y quedan
    cuatro esquinas ámbar gruesas. Tus rutinas que eligen máquina la toman primero mientras esté
-   en alcance.
-   *Decidir:* ¿se nota que el programa obedece la marca, o hace falta algo más inmediato? (Se
-   probó que la marca adelantara las rutinas medio cargadas y se descartó: bajaba la
-   supervivencia un 20 % en el soak.)
+   en alcance, y las que llevan media recarga o más salen hacia ella en el acto (lo que se saltan
+   lo pagan en la siguiente).
+   *Decidir:* ¿se nota que el programa obedece la marca? ¿Que salgan todas a la vez sobre la marca
+   se siente como respuesta, o como perder el escalonado? (En el soak, ahora determinista, no
+   cambia la supervivencia.)
 2. **THEN al clic.** Pon una rutina con el momento «al hacer clic». Lo que arma queda quieto con
    esquinas tenues. Cuando lo da por armado, se vuelven ámbar con un brillo que se oye. Un clic
    cerca lo suelta. Si lo que suelta es un lanzamiento (hielo, vapor o chatarra con *release*),
