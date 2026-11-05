@@ -24,7 +24,7 @@ static func next_source(from: String) -> String:
 	return all[(all.find(from) + 1) % all.size()]
 const PIECES := {
 	"cerca": {"slot": "when", "name": "near", "text": "Cuando una máquina llega a nueve metros, entre tú y ella.", "cooldown": 5.0},
-	"cada": {"slot": "when", "name": "every 6s", "text": "Cada seis segundos, sobre la máquina más próxima.", "cooldown": 6.0},
+	"cada": {"slot": "when", "name": "every 6s", "text": "Cada seis segundos, sobre tu marca o la máquina más próxima.", "cooldown": 6.0},
 	"rastro": {"slot": "when", "name": "on move", "text": "Cada cuatro metros recorridos, detrás de ti.", "cooldown": 2.5},
 	"grupo": {"slot": "when", "name": "on crowd", "text": "Cuando tres o más máquinas se juntan, en medio de ellas.", "cooldown": 7.0},
 	"herido": {"slot": "when", "name": "on hit", "text": "Justo después de que te golpeen, delante de ti.", "cooldown": 3.5},
@@ -53,7 +53,7 @@ const PIECES := {
 }
 ## The same pieces and tools in a few words, for the level-up cards and the HUD.
 const SHORT := {
-	"cerca": "máquina a 9 m de ti", "cada": "cada 6 s, a la más cercana", "rastro": "cada 4 m que caminas", "grupo": "3 o más máquinas juntas",
+	"cerca": "máquina a 9 m de ti", "cada": "cada 6 s, a tu marca o la más cercana", "rastro": "cada 4 m que caminas", "grupo": "3 o más máquinas juntas",
 	"herido": "cuando te golpean", "eco": "justo tras la rutina anterior", "derribo": "donde cae una máquina", "charco": "máquina pisa un charco", "mano": "cuando haces clic, donde apuntas",
 	"raise": "la eleva y la sostiene", "wall": "la para como muro", "cold": "agua a hielo, fuego apagado", "fire": "hielo a agua, agua a vapor", "arc": "electrifica, salta por lo mojado",
 	"coat": "la cubre de nanitos", "push": "la lanza contra la máquina", "well": "remolino que arrastra a 6 m", "repel": "onda que aparta a 6 m",
