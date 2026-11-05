@@ -212,7 +212,8 @@ rutinas y las reacciones (el bowl de un remolino llega al 20 % en la mejor). Las
 son las de más peso de las rutinas (la única que llega a 300 s: arma 46 %). No se tocó el
 balance; queda como dato para decidir si las rutinas deben pesar más.
 
-**Lo que tu programa derriba** (`world.culprit`, `spellwork.credit_fx`). Mientras cae el golpe de
+**Lo que tu programa derriba** (`world.culprit`, `world.strike`, `spellwork.credit_fx`). Un camino de
+daño nuevo que pueda acreditar una rutina pasa por `world.strike`, que nombra y restaura al culpable. Mientras cae el golpe de
 una materia nacida de una rutina (impacto, estallido, ráfaga, molienda del remolino, metralla, arco
 que conduce, calor que prende o escalda), el mundo la nombra culpable; si la máquina cae con ese
 golpe, el número de esa fila se enciende en ámbar 0,7 s en la placa de su dueño (y suena el combo, más agudo y bajo, a lo sumo dos
