@@ -183,6 +183,8 @@ var hover_machine: Node3D = null
 var others: Dictionary = {}
 ## Where this player's matter stands armed «on click»: small corners, the click's own mark.
 var click_spots: Array = []
+## The machine under the pointer, mark or not: what a click there would aim the armed throws at.
+var aim_to: Node3D = null
 const AIM_HOVER := Color("c98a3e")
 const AIM_INK := Color("0d0f14")
 
@@ -196,6 +198,18 @@ func _corners(at: Vector3, half: float, arm: float, width: float, colour: Color)
 				var tip: Vector3 = at + Vector3(sx * half, 0.12 if pass_ink else 0.16, sz * half)
 				var l := PackedVector3Array([tip - Vector3(sx * arm, 0, 0), tip, tip - Vector3(0, 0, sz * arm)])
 				_ribbon(_marks, l, width + (2.0 * CombatFx._texel(self) if pass_ink else 0.0), AIM_INK if pass_ink else colour)
+
+## A dotted line along the floor from `from` to `to`, on the marks so it reads over the yard.
+func _dotted(from: Vector3, to: Vector3, width: float, colour: Color) -> void:
+	var flat := Vector3(to.x - from.x, 0, to.z - from.z)
+	var length: float = flat.length()
+	if length < 0.6: return
+	var step: Vector3 = flat / length
+	var t: float = 0.35
+	while t < length - 0.35:
+		var a: Vector3 = Vector3(from.x, from.y + 0.14, from.z) + step * t
+		_ribbon(_marks, PackedVector3Array([a, a + step * minf(0.22, length - 0.35 - t)]), width, colour)
+		t += 0.5
 
 ## Two of this player's routines meeting here (spellwork.combo_fx): the amber of the program's
 ## combo bracket, rung out once on the floor so the eye finds where the HUD's join came from.
@@ -377,8 +391,11 @@ func _draw_marks(delta: float) -> void:
 	if hover != null and _aims.is_empty(): _corners(hover, 0.75, 0.35, 3.0 * texel, AIM_HOVER)
 	if mark != null and (not is_instance_valid(mark) or mark.down): mark = null
 	if hover_machine != null and (not is_instance_valid(hover_machine) or hover_machine.down): hover_machine = null
+	if aim_to != null and (not is_instance_valid(aim_to) or aim_to.down): aim_to = null
 	for spot: Array in click_spots:
 		var chosen: bool = spot.size() > 3 and spot[3]
+		# What the click would let go, dotted toward the machine under the pointer it would go at.
+		if chosen and aim_to != null: _dotted(spot[0], aim_to.global_position, 2.0 * texel, AIM_HOVER)
 		_corners(spot[0], spot[1], 0.3 if spot[2] else 0.22, (3.0 if spot[2] or chosen else 2.0) * texel + (texel if chosen else 0.0), AIM_READY if spot[2] else (AIM_HOVER if chosen else AIM_GHOST))
 	# Hover is a ghost of the mark: thin and dark. The mark itself holds still, thick and full.
 	if hover_machine != null: _corners(hover_machine.global_position, 1.0, 0.25, 2.0 * texel, AIM_GHOST)

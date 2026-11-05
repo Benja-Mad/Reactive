@@ -145,6 +145,7 @@ func _process(_delta: float) -> void:
 	# Over a machine, the corners close on it instead: a click there marks it.
 	var over: Node3D = machine_at(spot) if spot != null else null
 	spellwork._fx.hover_machine = over if over != spellwork._fx.mark else null
+	spellwork._fx.aim_to = over
 	spellwork._fx.hover = spot if spot != null and over == null and cue_ready(spot) else null
 	# What this click would let go stands out from what it would not.
 	for armed: Array in spots: armed.append(spot != null and Vector2(armed[0].x - spot.x, armed[0].z - spot.z).length() <= spellwork.RELEASE_RADIUS)

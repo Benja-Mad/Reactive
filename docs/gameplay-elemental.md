@@ -159,7 +159,9 @@ de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina del clic que
 a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`); si no, a la más cercana a la
 materia. Cuando el clic o la marca eligen el blanco de un THEN, un hilo ámbar fino va de la
 materia a esa máquina, para que el giro tenga causa; el *push* de un DO gira sin hilo, porque ya
-lleva el haz del operador. La marca de un compañero no tuerce tus lanzamientos.
+lleva el haz del operador. La marca de un compañero no tuerce tus lanzamientos. Antes del clic
+ya se ve: con el puntero sobre una máquina, de cada trampa que soltaría sale una línea punteada
+hacia ella (`fields_fx.aim_to`).
 
 **El THEN puede esperar al clic** (`Recipe.ON` «mano», `spellwork.release`). Quinto momento del
 THEN, *al hacer clic*: una rutina automática prepara la trampa y tú decides cuándo salta. La
