@@ -213,10 +213,10 @@ balance; queda como dato para decidir si las rutinas deben pesar más.
 
 **Lo que tu programa derriba** (`world.culprit`, `spellwork.credit_fx`). Mientras cae el golpe de una
 materia nacida de una rutina (impacto, estallido, ráfaga, molienda del remolino, metralla, arco
-que conduce), el mundo la nombra culpable; si la máquina cae con ese golpe, el número de esa fila se
+que conduce, calor que prende o escalda), el mundo la nombra culpable; si la máquina cae con ese golpe, el número de esa fila se
 enciende en ámbar 0,7 s en la placa de su dueño y sale un aro ámbar del mismo color de los combos
-desde el pecio. Lo que el arma derriba no enciende nada. El calor y la quemadura, que no tienen
-golpe propio, todavía no acreditan a nadie.
+desde el pecio. Lo que el arma derriba no enciende nada. La quemadura que sigue sola (una máquina
+ya caliente que arde con el tiempo) todavía no acredita a nadie.
 
 ### Condiciones: if wet, if hot, if marked
 

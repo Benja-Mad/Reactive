@@ -215,7 +215,10 @@ func _dry(enemy: Node3D) -> void:
 ## Matter and a machine in contact: each moves the other one step toward itself.
 func _heat(record: Dictionary, enemy: Node3D) -> void:
 	_acting = record
+	var was: Dictionary = world.culprit
+	world.culprit = record
 	_heat_body(record, enemy)
+	world.culprit = was
 	_acting = {}
 
 func _heat_body(record: Dictionary, enemy: Node3D) -> void:
