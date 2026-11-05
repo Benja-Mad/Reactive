@@ -236,6 +236,8 @@ const LINE_H: float = 16 * Kit.PX
 
 var _plate: Rect2
 var _plate_frame: int = -1
+## Which of your routines are wrong, read with the plate's size once a frame.
+var _broken: Array[bool] = []
 
 ## The program's plate in the corner, sized to what it holds; measured once a frame, since the
 ## pointer, the click and the drawing all ask.
@@ -250,9 +252,11 @@ func _measure_plate() -> Rect2:
 	var widest: int = 1 + Build.attack_steps(my_build()).size()
 	# The HUD draws WHEN, the DO steps and THEN (the source is not a glyph here); a broken row's
 	# cross takes one more place.
+	_broken.clear()
 	for index: int in routines.size():
 		var routine: Dictionary = routines[index]
 		var broken: bool = routine["when"] != "" and Build.problem(routine, routines, index) != ""
+		_broken.append(broken)
 		widest = maxi(widest, 1 + routine["steps"].size() + (1 if routine["then"] != "" else 0) + (1 if broken else 0))
 	var w: float = 10 * PX + maxi(widest, 3) * STEP + 8 * PX
 	var h: float = (routines.size() + 1) * LINE_H + 5 * PX
@@ -313,7 +317,7 @@ func _draw_program() -> void:
 			for i: int in 3: Kit.dashed(self, Rect2(at + Vector2(i * STEP - PX, -PX), Vector2(14, 14) * PX), Kit.LINE_HI)
 			continue
 		var ready: float = float(charge[index]) if index < charge.size() else 0.0
-		var broken: bool = Build.problem(routine, routines, index) != ""
+		var broken: bool = index < _broken.size() and _broken[index]
 		var pieces: Array = [routine["when"]] + routine["steps"]
 		if routine["then"] != "": pieces.append(routine["then"])
 		x = at.x
