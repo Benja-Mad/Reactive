@@ -26,6 +26,11 @@ func systemic_checks(Build: GDScript) -> void:
 			var state: Dictionary = Recipe.simulate(steps)["state"]
 			if Recipe.effect(state, then) == "" or Recipe.moment(state, then) == "": every_then_works = false
 	check("every_then_works_on_every_matter", every_then_works)
+	# The rules and the routines count shift time: a wall clock here makes the soak depend on load.
+	var wall_clock: bool = false
+	for path: String in ["res://scripts/survivor/rules.gd", "res://scripts/survivor/spellwork.gd", "res://scripts/survivor/recipe.gd"]:
+		if "Time.get_ticks" in FileAccess.get_file_as_string(path): wall_clock = true
+	check("sim_counts_shift_time", not wall_clock)
 	check("programming_words_in_english", Build.PIECES["cerca"]["name"] == "near" and Build.PIECES["fragmentos"]["name"] == "release" and Build.SLOT_NAMES["step"] == "DO")
 	var readout: Array = Build.explain({"routines": [{"when": "cerca", "steps": ["raise", "cold"], "then": "cadena", "on": "broken"}, {"when": "eco", "steps": ["well"], "then": "colapso"}], "box": [], "tools": {"pressure": 0}}, 0)
 	var keys: Array = readout.map(func(line: Array) -> String: return line[0])
