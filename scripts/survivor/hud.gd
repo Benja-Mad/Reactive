@@ -30,6 +30,8 @@ var _hotkeys: Array[Callable] = []
 ## What Enter does on this sheet, if anything.
 var _enter: Callable
 var _editor: Control
+## The program row a click on the corner plate asked the workshop to open on, until it opens.
+var _open_row: Variant = null
 var _faces: Dictionary = {}
 var _vignette: Texture2D
 var _shade: Texture2D
@@ -246,6 +248,25 @@ func _program_rect() -> Rect2:
 	var h: float = (routines.size() + 1) * LINE_H + 5 * PX
 	return Rect2(Vector2(8 * PX, size.y - 8 * PX - h), Vector2(w, h))
 
+## Which row of the corner plate is under `point`: the weapon row as `Build.ATTACK`, a routine by
+## its index, null off the plate or outside the shift.
+func row_at(point: Vector2) -> Variant:
+	if run.phase != "running" or run.local_player() == null: return null
+	var box := _program_rect()
+	if not box.has_point(point): return null
+	var row: int = clampi(int((point.y - box.position.y - 2 * PX) / LINE_H), 0, my_build()["routines"].size())
+	return Build.ATTACK if row == 0 else row - 1
+
+## Whether a click on the plate opens the workshop: only who can pause the shift.
+func can_open_rows() -> bool:
+	return multiplayer.is_server()
+
+## A click on a row of the plate: the shift pauses and the workshop opens on that routine.
+func open_row(row: Variant) -> void:
+	if row == null or not can_open_rows(): return
+	_open_row = row
+	run.toggle_pause.rpc_id(1)
+
 ## The program in the corner, on one dark plate: the weapon and its pieces (row A, as the workshop
 ## names it), then one row of glyphs per numbered routine. A trigger recharging shows grey with its
 ## colour rising from below and a track under it filling; ready, it sits in a lit socket. A routine
@@ -259,9 +280,14 @@ func _draw_program() -> void:
 	draw_rect(Rect2(box.position, Vector2(box.size.x, PX)), Kit.LINE)
 	var left: float = box.position.x + 4 * PX
 	var first: float = box.position.y + 4 * PX
+	# Under the pointer, the row a click would open in the workshop.
+	var pointed: Variant = row_at(get_local_mouse_position()) if can_open_rows() else null
+	if pointed != null:
+		var line: int = 0 if pointed == Build.ATTACK else int(pointed) + 1
+		draw_rect(Rect2(box.position.x + PX, first - 2 * PX + line * LINE_H, box.size.x - 2 * PX, LINE_H), Color(Kit.FILL_HI, 0.8))
 	# The weapon, with what is plugged into it.
 	var support: bool = run.local_player() is Support
-	Kit.text(self, Vector2(left, first - PX), "A", Kit.FAINT)
+	Kit.text(self, Vector2(left, first - PX), "A", Kit.RAMPS["tool"][2] if pointed == Build.ATTACK else Kit.FAINT)
 	var x: float = left + 9 * PX
 	draw_texture_rect(Kit.icon("agua" if support else "fuego", "do" if support else "when"), Rect2(Vector2(x, first), Vector2(12, 12) * PX), false)
 	for i: int in attack.size():
@@ -272,7 +298,7 @@ func _draw_program() -> void:
 		var routine: Dictionary = routines[index]
 		var at := Vector2(left + 9 * PX, first + (index + 1) * LINE_H)
 		var joined: float = _combo_glow(index)
-		Kit.text(self, Vector2(left, at.y - PX), "%d" % (index + 1), Kit.RAMPS["tool"][2] if joined > 0.0 else Kit.FAINT)
+		Kit.text(self, Vector2(left, at.y - PX), "%d" % (index + 1), Kit.RAMPS["tool"][2] if joined > 0.0 or pointed == index else Kit.FAINT)
 		if routine["when"] == "":
 			for i: int in 3: Kit.dashed(self, Rect2(at + Vector2(i * STEP - PX, -PX), Vector2(14, 14) * PX), Kit.LINE_HI)
 			continue
@@ -684,6 +710,9 @@ func _build_placement() -> void:
 ## pieces owned. Esc resumes; the menu is a plain link kept well apart.
 func _build_workshop() -> void:
 	var editor: Control = _open_editor()
+	if _open_row != null:
+		editor.focus = _open_row
+		_open_row = null
 	editor.changed.connect(func(build: Dictionary) -> void: run.submit_build.rpc_id(1, build))
 	var menu: Button = null
 	if multiplayer.is_server():

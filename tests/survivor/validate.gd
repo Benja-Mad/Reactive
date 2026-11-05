@@ -464,6 +464,16 @@ func test() -> void:
 	run.submit_build(forged)
 	check("workshop_rejects_new_pieces", "estallar" not in run.builds[1]["box"])
 	run.set_phase("running")
+	# The corner plate: a click on a routine's row pauses and opens the workshop on it.
+	var plate: Rect2 = run.hud._program_rect()
+	var on_first: Variant = run.hud.row_at(plate.position + Vector2(20, 4 * run.hud.PX + run.hud.LINE_H + 4))
+	var on_weapon: Variant = run.hud.row_at(plate.position + Vector2(20, 4 * run.hud.PX))
+	var off_plate: Variant = run.hud.row_at(plate.end + Vector2(40, 40))
+	run.hud.open_row(on_first)
+	await frames(3)
+	var opened: bool = run.phase == "paused" and run.hud._editor != null and run.hud._editor.focus == 0
+	run.set_phase("running")
+	check("plate_row_opens_workshop", on_first == 0 and on_weapon == Build.ATTACK and off_plate == null and opened)
 	# Node editor model: lifting and setting pieces keeps exactly the pieces owned.
 	var sample: Dictionary = Build.fresh()
 	sample["box"] = ["push", "detonar"]

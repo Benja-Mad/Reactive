@@ -100,6 +100,11 @@ func local_player() -> Character:
 ## ready routine that starts on cue there, on its next tick.
 func _unhandled_input(event: InputEvent) -> void:
 	if phase != "running" or get_tree().paused or not event.is_action_pressed("cue"): return
+	# On the program's plate the click is for the program, not the floor under it.
+	if event is InputEventMouseButton and hud != null and hud.row_at(hud.get_local_mouse_position()) != null:
+		hud.open_row(hud.row_at(hud.get_local_mouse_position()))
+		get_viewport().set_input_as_handled()
+		return
 	var spot: Variant = cue_spot()
 	if spot == null: return
 	cue.rpc_id(1, spot)
@@ -133,7 +138,7 @@ func _process(_delta: float) -> void:
 	_armed_spots = spots
 	if spellwork == null or spellwork._fx == null: return
 	spellwork._fx.click_spots = spots
-	var live: bool = phase == "running" and not get_tree().paused
+	var live: bool = phase == "running" and not get_tree().paused and (hud == null or hud.row_at(hud.get_local_mouse_position()) == null)
 	var spot: Variant = cue_spot() if live else null
 	# Over a machine, the corners close on it instead: a click there marks it.
 	var over: Node3D = machine_at(spot) if spot != null else null

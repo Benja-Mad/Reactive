@@ -159,9 +159,14 @@ máquina entra en su alcance, que es cuando conviene soltarla. Con el puntero ce
 soltaría el clic se marcan más gruesas. Un clic justo al hacerla no la gasta (0,3 s de margen) y
 espera como mucho 6 s (`Recipe.CLICK_STALE`): después salta al contacto como cualquier THEN, así
 no se acumulan trampas por todo el patio (la materia vive 12 s, así que al contacto le quedan unos
-cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina. Soak (`clickthen`, todos los THEN al clic): soltando a
-ciegas cada segundo, la semilla 2 aguanta 131 s; soltando cuando las esquinas se encienden, 202 s.
-Elegir el momento paga.
+cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina.
+Soak (`clickthen`, todos los THEN al clic): soltando a ciegas cada segundo, la semilla 2 aguanta
+131 s; soltando cuando las esquinas se encienden, 202 s. Elegir el momento paga.
+
+El clic sobre la placa del programa (abajo a la izquierda) no va al suelo: pausa el turno y abre
+el taller en esa fila (`hud.row_at`, `hud.open_row`). Bajo el puntero, la fila se aclara y su
+número se enciende en ámbar. Solo quien puede pausar, el anfitrión o el jugador solo; para un
+invitado, la placa no hace nada.
 
 ### Condiciones: if wet, if hot, if marked
 
