@@ -18,8 +18,11 @@ en `gameplay-elemental.md`, en la sección de control.
    va hacia la máquina donde hiciste clic, con una línea de puntos antes y un hilo ámbar al
    soltar.
    *Decidir:* si pasan 6 s sin clic, la trampa salta sola al contacto. ¿Debe quedarse así o
-   perder su THEN? Una lectura de diseño propone quitarlo para que el clic importe. En el soak,
-   disparar a ciegas rinde igual o mejor que hacerlo a tiempo.
+   perder su THEN? Una lectura de diseño propone quitarlo para que el clic importe. Medido el 5 nov
+   (8 semillas, un piloto que suelta a tiempo frente a otro que hace clic a ciegas): con la regla
+   de hoy, a tiempo saca 14 s de media (204 frente a 190 s); si la trampa caducada pierde su THEN,
+   saca 18 s (199 frente a 181 s). Una misma semilla oscila 100 s entre condiciones, así que el
+   soak no lo decide: hay que jugarlo.
 3. **La placa.** Haz clic en una fila del programa (abajo a la izquierda): se pausa y se abre el
    taller en esa rutina. Espacio hace lo mismo si moviste el puntero hace poco. Con una máquina
    detrás, la placa se vuelve medio transparente.
