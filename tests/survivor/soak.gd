@@ -123,9 +123,11 @@ func _physics_process(_delta: float) -> void:
 					break
 		# Otherwise it lets them go when a machine is in their reach, the way the corners say.
 		elif run.phase == "running":
+			# On the machine itself, the way a player would, so the click also aims the throw.
 			for record: Dictionary in run.world.records.values():
-				if Build.Recipe.click_ready(record, 1) and run.machine_at(record["position"], 2.6) != null:
-					_click(record["position"])
+				var reached: Node3D = run.machine_at(record["position"], 2.6) if Build.Recipe.click_ready(record, 1) else null
+				if reached != null:
+					_click(reached.global_position)
 					break
 	if run.phase == "running" and frames_run % 60 == 0 and not "clickthen" in OS.get_cmdline_user_args():
 		# Like a player who watches the program: it clicks when a routine on cue is ready (or to

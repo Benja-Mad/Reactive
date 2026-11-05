@@ -220,6 +220,10 @@ func tether(key: String, from: Vector3, to: Vector3) -> void:
 		return
 	_beams.append({"from": hands, "to": to, "color": TETHER.get(key, BURST), "left": TETHER_LIFE})
 
+## A click or a mark turning a throw: a thin amber thread from the matter to the machine it goes at.
+func aimed(from: Vector3, to: Vector3) -> void:
+	_beams.append({"from": from + Vector3.UP * 0.4, "to": to + Vector3.UP * 0.6, "color": AIM_READY, "left": TETHER_LIFE})
+
 ## A weapon's ball: up from the operator's hands on a beam, then down on `spot`, landing `time`
 ## seconds from now. A third of the time it rises; the rest it falls, faster and faster, while its
 ## shadow on the floor darkens and tightens under it.

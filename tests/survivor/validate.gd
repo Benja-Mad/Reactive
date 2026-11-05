@@ -136,6 +136,16 @@ func systemic_checks(Build: GDScript) -> void:
 	run.cue(marked.global_position)
 	var sprung_unmarked: bool = trap > 0 and not run.clocks[1].has("mark") and not (run.world.records.has(trap) and run.world.records[trap].has("reaction"))
 	run.clocks[1].erase("cue")
+	# The click aims what it lets go, and a mark nearby steers every throw; else the nearest.
+	var plain_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD)
+	var clicked_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD, 1, marked.global_position)
+	run.clocks[1]["mark"] = marked
+	var far_mark_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD, 1)
+	marked.global_position = me + Vector3(0, -1.1, 7)
+	var mark_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD, 1)
+	var crew_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD, 2)
+	run.clocks[1].erase("mark")
+	check("click_and_mark_aim_throws", plain_aim.x < -0.9 and clicked_aim.z > 0.9 and far_mark_aim.x < -0.9 and mark_aim.z > 0.9 and crew_aim.x < -0.9)
 	run.builds[1]["routines"][0] = kept_routine
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	marked.queue_free()

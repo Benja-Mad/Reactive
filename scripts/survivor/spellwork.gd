@@ -200,14 +200,14 @@ func casting(peer: int) -> bool:
 	for cast: Dictionary in _casts: if cast["peer"] == peer: return true
 	return false
 
-## One DO step compiled against the matter as it is now. Paced, a push is aimed at the machine
-## nearest the matter when it happens, and the operator's beam shows where the energy came from.
+## One DO step compiled against the matter as it is now. Paced, a push is aimed when it happens
+## (at the operator's mark nearby, else the machine nearest the matter, see `_aim`), and the operator's beam shows where the energy came from.
 ## Returns whether it changed the matter.
 func _apply_step(peer: int, id: int, key: String, toward: Vector3, paced: bool = false) -> bool:
 	var plan: Dictionary = Recipe.step(Recipe.state_of(world.records[id]), key)
 	if plan["op"] == "": return false
 	var at: Vector3 = world.records[id]["position"]
-	var heading: Vector3 = _aim(at, toward) if paced and plan["op"] in ["push", "slide"] else toward
+	var heading: Vector3 = _aim(at, toward, peer) if paced and plan["op"] in ["push", "slide"] else toward
 	var vector: Vector3 = toward.cross(Vector3.UP) * 4.0 if plan["op"] == "wall" else heading * 9.0
 	var before: Dictionary = world.records[id].duplicate()
 	if paced and key in TETHERED: tether_fx.rpc(key, peer, at + Vector3.UP * (0.9 if before.get("suspended", false) else 0.2))
@@ -361,7 +361,7 @@ func release(peer: int, at: Variant = null) -> int:
 		var record: Dictionary = world.records[id]
 		if not Recipe.click_ready(record, peer): continue
 		if at != null and _flat(record["position"] - at).length() > RELEASE_RADIUS: continue
-		fire(id)
+		fire(id, at)
 		let_go += 1
 	return let_go
 
@@ -423,7 +423,8 @@ func _forces(record: Dictionary, delta: float) -> void:
 # --- Reactions ----------------------------------------------------------------------------------
 
 ## A record's THEN, now. The reaction is spent before it acts, so nothing fires twice.
-func fire(id: int) -> void:
+## `aim_at`: where the click that let it go landed, so its throw goes at the machine there.
+func fire(id: int, aim_at: Variant = null) -> void:
 	var record: Dictionary = world.records[id]
 	var reaction: Dictionary = record["reaction"]
 	record.erase("reaction")
@@ -431,7 +432,7 @@ func fire(id: int) -> void:
 	beat_fx.rpc(int(record["owner"]), int(reaction.get("routine", -1)), "fire", 0, 0.0)
 	rules.discharge(record)
 	match reaction["action"]:
-		"fragmentos": _shrapnel(id, reaction["vector"])
+		"fragmentos": _shrapnel(id, reaction["vector"], aim_at)
 		"estallar": _burst(id)
 		"detonar": _detonate(id)
 		"colapso":
@@ -441,23 +442,23 @@ func fire(id: int) -> void:
 		"cadena":
 			_relay(id, int(reaction.get("routine", -1)))
 
-func _shrapnel(id: int, fallback: Vector3) -> void:
+func _shrapnel(id: int, fallback: Vector3, aim_at: Variant = null) -> void:
 	var record: Dictionary = world.records[id]
 	var peer: int = record["owner"]
 	match record["material"]:
 		"ice":
 			if record["shape"] != "fragments": world.damage_construct(id, 999.0)
-			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback) * 14.0, "remote": true})
+			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback, peer, aim_at) * 14.0, "remote": true})
 		"water":
 			_splash(record["position"], Recipe.SPLASH_RADIUS, 3.0)
 			world.spend(id)
 		"steam":
 			_gust(id)
-			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback) * 9.0, "remote": true})
+			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback, peer, aim_at) * 9.0, "remote": true})
 		"scrap":
 			# Shrapnel: the scrap breaks and its pieces fly at the nearest machine.
 			if record["shape"] != "fragments": world.damage_construct(id, 999.0)
-			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback) * 16.0, "remote": true})
+			if world.records.has(id): world.execute(peer, "push", id, {"vector": _aim(record["position"], fallback, peer, aim_at) * 16.0, "remote": true})
 		"fire":
 			# Sparks thrown out: every dry machine around catches.
 			spark_fx.rpc(record["position"], Recipe.SPLASH_RADIUS)
@@ -547,13 +548,31 @@ func _enemies_near(at: Vector3, radius: float, aloft: bool = false) -> Array[Nod
 	return found
 
 ## Toward the machine nearest `from`, flat; `fallback` when there is none.
-func _aim(from: Vector3, fallback: Vector3) -> Vector3:
-	var best: Node3D = null
-	for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
-		if enemy.down: continue
-		if best == null or enemy.global_position.distance_squared_to(from) < best.global_position.distance_squared_to(from): best = enemy
+## Where a throw from `from` goes: at the machine `peer` clicked (`at`), else at their own mark if
+## it stands within MARK_STEER of the matter, else at the machine nearest the matter. When the
+## click or the mark chose, a thin amber thread shows it, so the turn of the throw has a cause.
+func _aim(from: Vector3, fallback: Vector3, peer: int = 0, at: Variant = null) -> Vector3:
+	var best: Node3D = run.machine_at(at) if at != null else null
+	if best == null and peer != 0 and run.clocks.has(peer):
+		var mark: Variant = run.clocks[peer].get("mark")
+		if mark != null and is_instance_valid(mark) and not mark.down and _flat(mark.global_position - from).length() <= MARK_STEER: best = mark
+	if best != null:
+		rules.count("aimed")
+		aimed_fx.rpc(from, best.global_position)
+	else:
+		for enemy: Node3D in get_tree().get_nodes_in_group("survivor_enemies"):
+			if enemy.down: continue
+			if best == null or enemy.global_position.distance_squared_to(from) < best.global_position.distance_squared_to(from): best = enemy
 	var aim: Vector3 = _flat(best.global_position - from) if best != null else _flat(fallback)
 	return aim.normalized() if aim.length() > 0.05 else Vector3.FORWARD
+
+## How far from the matter a player's mark still pulls its throws; past it, the nearest machine.
+const MARK_STEER := 9.0
+
+## The thread from matter to the machine a click or a mark sent it at, drawn on every peer.
+@rpc("authority", "call_local", "unreliable")
+func aimed_fx(from: Vector3, to: Vector3) -> void:
+	if _fx != null: _fx.aimed(from, to)
 
 static func _flat(value: Vector3) -> Vector3:
 	return Vector3(value.x, 0.0, value.z)

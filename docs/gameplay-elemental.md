@@ -126,7 +126,8 @@ destello al soltarse. No es una animación aparte: es el mismo instante en que l
 El clic (o Espacio) es el único verbo del jugador además de moverse. Un mismo clic se lee por
 prioridad (`run.cue`):
 
-1. **Suelta lo armado al clic** a menos de 5 m de donde cae (ver más abajo).
+1. **Suelta lo armado al clic** a menos de 5 m de donde cae (ver más abajo). Lo que suelta sale
+   hacia la máquina donde cayó el clic: el clic elige cuándo y contra quién.
 2. **Si no soltó nada y cae sobre una máquina, la marca.** Así, saltar una trampa justo cuando una
    máquina la pisa no redirige todo el programa a esa máquina.
 3. **Las rutinas *on cue* listas salen siempre** en el punto.
@@ -145,7 +146,16 @@ todas las rutinas *on cue* listas en el punto del clic. Recarga 4 s. El programa
 
 **La marca** (`run.marked`, `run.targets`). La máquina marcada va primera en la lista de la que
 eligen todas tus rutinas (*every*, el arma, las pruebas, la dirección de los pasos). *on near*
-sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana. Cuatro esquinas
+sigue siendo defensivo: usa la marca si está a 9 m y, si no, la más cercana. Los lanzamientos
+(esquirlas, ráfaga y metralla de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina
+del clic que los soltó, si no a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`) y si
+no a la más cercana a la materia (`spellwork._aim`). Cuando el clic o la marca eligen, un hilo
+ámbar fino va de la materia a esa máquina, para que el giro tenga causa. La marca de un compañero
+no tuerce tus lanzamientos. El soak no puede mostrar lo que gana: su piloto hace clic sobre la
+máquina que ya tiene al lado, la misma que elegía «la más cercana». Con la puntería, semillas 1–6
+de support en `clickthen`: a tiempo 184 s de media, a ciegas 209 s; la diferencia queda dentro
+del ruido de una partida caótica (de 138 a 300 s según la semilla). Lo que aporta es para quien
+elige a quién: la máquina peligrosa en vez de la próxima. Cuatro esquinas
 ámbar gruesas y quietas la siguen hasta que cae, marcas otra o queda a más de 16 m (`MARK_KEEP`).
 Se probó que volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina
 una y otra vez sobre la misma máquina la marcaba y desmarcaba (en el soak, de 269 a 154 s).
@@ -161,8 +171,8 @@ espera como mucho 6 s (`Recipe.CLICK_STALE`): después salta al contacto como cu
 no se acumulan trampas por todo el patio (la materia vive 12 s, así que al contacto le quedan unos
 cuantos). Un clic que cae junto a una trampa tuya que aún se asienta no marca la máquina.
 Soak (`clickthen`, todos los THEN al clic; `spamclick` suelta a ciegas cada segundo), semillas 1–6
-de support: soltando cuando las esquinas se encienden aguanta de media 209 s; a ciegas, 192 s.
-Gana en 4 de 6. Elegir el momento paga, pero poco: un THEN que apunta solo (esquirlas a la
+de support, antes de que el clic apuntara: soltando cuando las esquinas se encienden aguanta de
+media 209 s; a ciegas, 192 s. Gana en 4 de 6. Elegir el momento paga, pero poco: un THEN que apunta solo (esquirlas a la
 máquina más próxima) rinde igual suelto en cualquier momento, y una semilla sola no dice nada
 porque las mejoras divergen en cuanto cambian los clics.
 
