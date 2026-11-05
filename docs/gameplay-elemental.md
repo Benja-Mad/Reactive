@@ -153,8 +153,9 @@ no a la más cercana a la materia (`spellwork._aim`). Cuando el clic o la marca 
 ámbar fino va de la materia a esa máquina, para que el giro tenga causa. La marca de un compañero
 no tuerce tus lanzamientos. El soak no puede mostrar lo que gana: su piloto hace clic sobre la
 máquina que ya tiene al lado, la misma que elegía «la más cercana». Con la puntería, semillas 1–6
-de support en `clickthen`: a tiempo 184 s de media, a ciegas 209 s; la diferencia queda dentro
-del ruido de una partida caótica (de 138 a 300 s según la semilla). Lo que aporta es para quien
+de support en `clickthen`: a tiempo 184 s de media, a ciegas 209 s, y apuntando a la máquina más
+cercana al piloto entre las que alcanza la trampa (`aimthreat`) 193 s; las diferencias quedan
+dentro del ruido de una partida caótica (de 138 a 300 s según la semilla). Lo que aporta es para quien
 elige a quién: la máquina peligrosa en vez de la próxima. Cuatro esquinas
 ámbar gruesas y quietas la siguen hasta que cae, marcas otra o queda a más de 16 m (`MARK_KEEP`).
 Se probó que volver a hacer clic sobre la marca la quitara y se descartó: quien dispara su rutina
