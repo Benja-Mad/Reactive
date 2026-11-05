@@ -367,6 +367,9 @@ const NANITE_DAMAGE := 7.0
 func detonate_machine(at: Vector3, charge: int) -> void:
 	count("detonated")
 	spellwork.rule_fx.rpc("nanites", PackedVector3Array([at]))
+	# The weapon planted them: what they bring down is nobody's routine, whatever felled the host.
+	var was: Dictionary = world.culprit
+	world.culprit = {}
 	for enemy: Node3D in spellwork.get_tree().get_nodes_in_group("survivor_enemies"):
 		if not is_instance_valid(enemy) or enemy.down: continue
 		var distance: float = _flat(enemy.global_position - at).length()
@@ -374,6 +377,7 @@ func detonate_machine(at: Vector3, charge: int) -> void:
 		var blast: float = NANITE_DAMAGE * charge * (1.0 - 0.5 * distance / NANITE_RADIUS)
 		spellwork.run.log_damage("nanites", blast)
 		enemy.take_damage(blast)
+	world.culprit = was
 
 ## Brasa's flame on a machine: one step hotter, or dry if it was wet. Then its own answer to fire.
 func ignite(enemy: Node3D, origin: Vector3) -> void:
