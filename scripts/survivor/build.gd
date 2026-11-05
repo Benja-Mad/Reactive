@@ -57,7 +57,7 @@ const SHORT := {
 	"herido": "cuando te golpean", "eco": "justo tras la rutina anterior", "derribo": "donde cae una máquina", "charco": "máquina pisa un charco", "mano": "cuando haces clic, donde apuntas",
 	"raise": "la eleva y la sostiene", "wall": "la para como muro", "cold": "agua a hielo, fuego apagado", "fire": "hielo a agua, agua a vapor", "arc": "electrifica, salta por lo mojado",
 	"coat": "la cubre de nanitos", "push": "la lanza contra la máquina", "well": "remolino que arrastra a 6 m", "repel": "onda que aparta a 6 m",
-	"drop": "deja caer lo elevado", "si_mojada": "el DO siguiente, solo si está mojada", "si_arde": "el DO siguiente, solo si arde", "si_marcada": "el DO siguiente, solo en tu marca", "fragmentos": "la dispara a una máquina", "detonar": "revienta los nanitos",
+	"drop": "deja caer lo elevado", "si_mojada": "el DO siguiente, solo si está mojada", "si_arde": "el DO siguiente, solo si arde", "si_marcada": "el DO siguiente, solo si está marcada", "fragmentos": "la dispara a una máquina", "detonar": "revienta los nanitos",
 	"estallar": "la esparce alrededor", "cadena": "avisa a la rutina siguiente", "colapso": "remolino de 1 s y estalla",
 	"cadence": "disparas 18 % más seguido", "power": "más daño por disparo", "split": "llegas a más máquinas", "boots": "caminas 10 % más rápido",
 	"repair": "recuperas 35 de vida", "pressure": "rutinas listas 15 % antes", "slot": "una rutina más",
