@@ -234,8 +234,18 @@ const SOURCE_ACCENT := {"water": "do", "fire": "when", "current": "tool", "scrap
 const STEP: float = 17 * Kit.PX
 const LINE_H: float = 16 * Kit.PX
 
-## The program's plate in the corner, sized to what it holds.
+var _plate: Rect2
+var _plate_frame: int = -1
+
+## The program's plate in the corner, sized to what it holds; measured once a frame, since the
+## pointer, the click and the drawing all ask.
 func _program_rect() -> Rect2:
+	if _plate_frame == Engine.get_process_frames(): return _plate
+	_plate = _measure_plate()
+	_plate_frame = Engine.get_process_frames()
+	return _plate
+
+func _measure_plate() -> Rect2:
 	var routines: Array = my_build()["routines"]
 	var widest: int = 1 + Build.attack_steps(my_build()).size()
 	# The HUD draws WHEN, the DO steps and THEN (the source is not a glyph here); a broken row's
