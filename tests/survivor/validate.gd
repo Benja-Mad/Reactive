@@ -227,12 +227,17 @@ func systemic_checks(Build: GDScript) -> void:
 	var after_edit: Array = before_edit.duplicate(true)
 	after_edit[0]["steps"] = ["cold"]
 	run.trials.clear()
+	run._trialled.clear()
 	run._note_changes(1, before_edit, after_edit)
 	var queued_ok: bool = run.trials.get(1, []) == [0]
 	var clock_before: float = float(run.clocks[1].get("r0", 0.0))
 	var heard_before: Dictionary = Sfx.of(run).played.duplicate()
 	run._run_trials(1.0)
 	check("edited_routine_runs_once", queued_ok and run.trials.is_empty() and run.spellwork.casting(1) and is_equal_approx(float(run.clocks[1].get("r0", 0.0)), clock_before))
+	# Editing it back within the same recharge buys no second free cast.
+	run._note_changes(1, after_edit, before_edit)
+	check("trial_once_per_recharge", run.trials.is_empty())
+	run.trials.clear()
 	# The program is heard: the trial's WHEN and its DO play where the HUD lights them.
 	for i: int in 90:
 		await get_tree().physics_frame

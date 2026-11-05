@@ -20,6 +20,8 @@ var charges: Dictionary = {}
 ## Routines a player just changed, run once on the house as play resumes so the change shows in
 ## the yard at once: peer -> [routine index]. `_trial_in` paces them.
 var trials: Dictionary = {}
+## "peer:index" -> shift second of that routine's last free trial.
+var _trialled: Dictionary = {}
 var _trial_in: float = 0.0
 const TRIAL_GAP := 0.45
 var collected: int = 0
@@ -918,6 +920,10 @@ func _note_changes(peer: int, before: Array, after: Array) -> void:
 	for index: int in after.size():
 		var was: Variant = before[index] if index < before.size() else null
 		if after[index]["when"] == "" or after[index] == was or index in queued: continue
+		# Once per recharge: pausing to re-edit the same routine does not buy free casts.
+		var key: String = "%d:%d" % [peer, index]
+		if elapsed - float(_trialled.get(key, -INF)) < cooldown(builds[peer], index): continue
+		_trialled[key] = elapsed
 		queued.append(index)
 	if not queued.is_empty():
 		trials[peer] = queued

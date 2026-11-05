@@ -252,7 +252,9 @@ veces (`gate_yes`, `gate_no`): deciden, no son decorado.
 **Lo que cambias se prueba solo** (`run._note_changes`, `run._run_trials`). Al cerrar el taller
 o elegir pieza, cada rutina que cambió corre una vez al reanudarse (una cada 0,45 s), donde su
 WHEN la pondría o, si no puede decirlo, sobre la máquina más cercana o unos pasos delante. Va por
-cuenta de la casa: no gasta la recarga. El taller sigue siendo una pausa real: la cámara lenta se
+cuenta de la casa: no gasta la recarga, y cada rutina tiene como mucho un ensayo por recarga, para
+que pausar y reordenar piezas una y otra vez no regale lanzamientos (en las 12 semillas del soak
+solo cambia una partida: support 1 baja de 197 a 156 s; las otras once salen idénticas). El taller sigue siendo una pausa real: la cámara lenta se
 descartó porque en multijugador el host pausa para todos y Esc tiene que seguir parando.
 
 **Combos entre rutinas** (`spellwork.linked`, `hud._on_combo`). La materia guarda qué rutina la

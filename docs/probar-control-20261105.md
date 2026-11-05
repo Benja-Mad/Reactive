@@ -44,7 +44,7 @@ en `gameplay-elemental.md`, en la sección de control.
 ## Quedan para ti
 
 - Si un invitado puede editar su programa sin que el anfitrión pause. Hoy solo se edita en pausa
-  o al subir de nivel, y cada rutina cambiada se ensaya una vez gratis al reanudar. Se probó
-  limitar ese ensayo a uno por recarga y se descartó: el soak se apoya en él tras cada mejora
-  (una semilla bajó de 300 a 213 s).
+  o al subir de nivel, y cada rutina cambiada se ensaya una vez gratis al reanudar, como mucho
+  una vez por recarga (antes se había descartado ese límite por una caída que resultó ser ruido
+  del reloj del soak; medido de nuevo, solo mueve una semilla de doce).
 - El sonido: todo se afinó midiendo, sin escucharlo.
