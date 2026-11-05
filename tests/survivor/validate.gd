@@ -152,6 +152,26 @@ func systemic_checks(Build: GDScript) -> void:
 	check("click_and_mark_aim_throws", plain_aim.x < -0.9 and clicked_aim.z > 0.9 and far_mark_aim.x < -0.9 and mark_aim.z > 0.9 and crew_aim.x < -0.9)
 	run.builds[1]["routines"][0] = kept_routine
 	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
+	# A new mark pulls a half-charged routine that picks a machine forward, and it owes the skip.
+	run.clocks[1].erase("mark")
+	run.builds[1]["routines"][0] = {"when": "cada", "steps": [], "then": "", "on": "contact"}
+	var full: float = run.cooldown(run.builds[1], 0)
+	run.clocks[1]["r0"] = full * 0.4
+	var low_left: float = full * 0.8
+	run.clocks[1]["r1"] = low_left
+	if run.builds[1]["routines"].size() < 2: run.builds[1]["routines"].append({"when": "cada", "steps": [], "then": "", "on": "contact"})
+	var kept_second: Dictionary = run.builds[1]["routines"][1].duplicate(true)
+	run.builds[1]["routines"][1] = {"when": "cada", "steps": [], "then": "", "on": "contact"}
+	run.cue(marked.global_position)
+	var pulled_now: bool = run.clocks[1].get("mark") == marked and float(run.clocks[1]["r0"]) == 0.0 and is_equal_approx(float(run.clocks[1].get("owed0", 0.0)), full * 0.4)
+	var kept_waiting: bool = is_equal_approx(float(run.clocks[1]["r1"]), low_left)
+	run.clocks[1].erase("cue")
+	run._automate(player, 1, 0.0)
+	var paid: bool = float(run.clocks[1]["r0"]) > full * 1.3 and not run.clocks[1].has("owed0")
+	check("mark_pulls_the_program_forward", pulled_now and kept_waiting and paid)
+	run.builds[1]["routines"][0] = kept_routine
+	run.builds[1]["routines"][1] = kept_second
+	for id: int in run.world.records.keys(): run.world.execute(1, "remove", id)
 	marked.queue_free()
 	await frames(2)
 	var after_gone: bool = run.targets(player)[0] == close

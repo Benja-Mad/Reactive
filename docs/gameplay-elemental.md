@@ -156,6 +156,12 @@ marca la quitara y se descartó: quien dispara su rutina una y otra vez sobre la
 marcaba y desmarcaba (en el soak, de 269 a 154 s). En equipo las marcas se comparten: cada uno ve
 las de los demás como esquinas finas; la de quien queda fuera de servicio se borra.
 
+**Marcar adelanta el programa** (`run._pull_forward`). Una marca nueva hace que tus rutinas que
+eligen máquina (*on near*, *every*, *on crowd*) y van por la mitad de su recarga o más salgan en el
+siguiente tick hacia ella: el clic tiene respuesta al instante y la fila se enciende en la placa.
+Lo que se saltan se suma a su próxima recarga, así que marcar de una a otra compra el momento,
+nunca lanzamientos de más (en el soak, los tiempos no se mueven).
+
 **El clic y la marca apuntan** (`spellwork._aim`). Los lanzamientos (esquirlas, ráfaga y metralla
 de *fragmentos*, y los *push*/*slide* a su ritmo) van a la máquina del clic que los soltó; si no,
 a tu marca si está a 9 m de la materia (`spellwork.MARK_STEER`); si no, a la más cercana a la
