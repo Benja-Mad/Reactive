@@ -36,6 +36,8 @@ en `gameplay-elemental.md`, en la sección de control.
 
 ## Quedan para ti
 
-- Si un invitado puede editar su programa en plena partida. Hoy puede, y un cambio dispara al
-  momento lo que estaba recargando.
+- Si un invitado puede editar su programa sin que el anfitrión pause. Hoy solo se edita en pausa
+  o al subir de nivel, y cada rutina cambiada se ensaya una vez gratis al reanudar. Se probó
+  limitar ese ensayo a uno por recarga y se descartó: el soak se apoya en él tras cada mejora
+  (una semilla bajó de 300 a 213 s).
 - El sonido: todo se afinó midiendo, sin escucharlo.
