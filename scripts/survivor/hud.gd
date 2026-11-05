@@ -70,7 +70,22 @@ func _process(delta: float) -> void:
 	if key != _key:
 		_key = key
 		_rebuild()
+	_plate_veil = move_toward(_plate_veil, 0.5 if run.phase == "running" and _behind_plate() else 0.93, delta * 3.0)
 	queue_redraw()
+
+## How solid the program plate is: it thins while a machine or you stand behind it, so the corner
+## of the yard it covers never hides what is coming.
+var _plate_veil: float = 0.93
+
+func _behind_plate() -> bool:
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	if camera == null or run.machines == null: return false
+	var box: Rect2 = _program_rect().grow(8 * PX)
+	var me: Node3D = run.local_player()
+	if me != null and box.has_point(camera.unproject_position(me.global_position)): return true
+	for machine: Node3D in run.machines.get_children():
+		if box.has_point(camera.unproject_position(machine.global_position)) and not camera.is_position_behind(machine.global_position): return true
+	return false
 
 ## A beat of one of your routines, as the host's world takes it: light the piece that acted.
 func _on_beat(peer: int, index: int, stage: String, k: int, duration: float) -> void:
@@ -290,7 +305,7 @@ func _draw_program() -> void:
 	var attack: Array = Build.attack_steps(my_build())
 	var charge: Array = run.charges.get(multiplayer.get_unique_id(), [])
 	var box := _program_rect()
-	draw_rect(box, Color(Kit.BOARD, 0.93))
+	draw_rect(box, Color(Kit.BOARD, _plate_veil))
 	draw_rect(Rect2(box.position, Vector2(box.size.x, PX)), Kit.LINE)
 	var left: float = box.position.x + 4 * PX
 	var first: float = box.position.y + 4 * PX
