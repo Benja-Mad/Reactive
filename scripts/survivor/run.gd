@@ -120,10 +120,23 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Amber when the click does something: a routine fires, a trap goes, or a machine is marked.
 	# On a machine the corners close on it, not on the floor beside it: it is what gets marked,
 	# and what anything released now is thrown at.
+	# Only when the host will do so: next to a trap of yours armed «on click» the click is for the
+	# trap, and the machine counts only if what goes is a throw it turns (`cue`).
 	var under: Node3D = machine_at(spot)
+	if under != null and _click_is_for_a_trap(spot): under = null
 	var ready: bool = cue_ready(spot) or under != null
 	if spellwork._fx != null: spellwork._fx.aim(spot if under == null else Vector3(under.global_position.x, spot.y, under.global_position.z), ready)
 	Sfx.of(self).play("cue" if ready else "cue_idle")
+
+## Whether a click at `spot` goes to one of your traps armed «on click» (released, or still
+## settling) rather than marking the machine there, unless a throw it releases is steered at it.
+func _click_is_for_a_trap(spot: Vector3) -> bool:
+	for armed: Array in _armed_spots:
+		if armed.size() > 4 and armed[4] and armed[3]: return false
+	for record: Dictionary in world.records.values():
+		if Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false) and Vector2(record["position"].x - spot.x, record["position"].z - spot.z).length() <= spellwork.RELEASE_RADIUS:
+			return true
+	return false
 
 ## Local, every frame: while one of your routines on cue is ready, the floor under the pointer
 ## shows it can be clicked.
