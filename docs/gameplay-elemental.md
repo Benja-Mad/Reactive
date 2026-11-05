@@ -134,6 +134,7 @@ prioridad (`run.cue`):
 3. **Las rutinas *on cue* listas salen siempre** en el punto.
 4. **Un clic que no hace nada** (nada listo, nada que soltar, ninguna marca nueva) suma medio
    segundo a la recarga de las rutinas *on cue* (`IDLE_CLICK`): hacer clic sin parar no paga.
+   En la placa, el frente de esa recarga destella rosa 0,4 s (`hud.idle_click`).
 
 Quien hace clic ve al instante cuatro esquinas en el suelo cerrándose sobre el punto (sobre la máquina
 clicada si el host la va a marcar o a usar de blanco, `run._click_is_for_a_trap`), ámbar si el

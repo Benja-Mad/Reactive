@@ -127,6 +127,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var ready: bool = cue_ready(spot) or under != null
 	if spellwork._fx != null: spellwork._fx.aim(spot if under == null else Vector3(under.global_position.x, spot.y, under.global_position.z), ready)
 	Sfx.of(self).play("cue" if ready else "cue_idle")
+	if not ready and hud != null: hud.idle_click()
 
 ## Whether a click at `spot` goes to one of your traps armed «on click» (released, or still
 ## settling) rather than marking the machine there, unless a throw it releases is steered at it.

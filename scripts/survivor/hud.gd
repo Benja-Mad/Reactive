@@ -129,6 +129,11 @@ func _on_combo(peer: int, a: int, b: int) -> void:
 	_combos.append([a, b, _now()])
 	Sfx.of(self).play("combo")
 
+## When this player's last click did nothing (run._unhandled_input), for the lost recharge.
+var _idle_click_at: float = -10.0
+func idle_click() -> void:
+	_idle_click_at = _now()
+
 ## A machine your routine `index` felled: its number lights like a combo's, briefly.
 var _credits: Dictionary = {}
 const CREDIT_HOLD := 0.7
@@ -395,6 +400,11 @@ func _draw_program() -> void:
 				# The recharge track: dark, filling in the trigger's colour.
 				draw_rect(Rect2(spot.position.x - PX, spot.end.y + PX, 14 * PX, 2 * PX), Kit.LINE)
 				draw_rect(Rect2(spot.position.x - PX, spot.end.y + PX, roundf(ready * 14.0) * PX, 2 * PX), Kit.RAMPS["when"][1])
+				# A click that did nothing set every «on cue» recharge back a little: the track's
+				# leading edge flashes rose where the time was lost.
+				var lost: float = 1.0 - (_now() - _idle_click_at) / 0.4
+				if lost > 0.0 and routine["when"] == "mano":
+					draw_rect(Rect2(spot.position.x - PX + roundf(ready * 14.0) * PX, spot.end.y + PX, 2 * PX, 2 * PX), Color(Kit.RAMPS["danger"][1], lost))
 			else:
 				draw_texture_rect(Kit.icon(key), spot, false)
 			if i == 0 and glow > 0.0 and ready < 1.0:
