@@ -388,6 +388,7 @@ la semilla 3 support da 183,97 s y 175 bajas sola o en paralelo, y una pausa ya 
 base de las 12 semillas desde entonces, support 1-6: 160,3 / 222,9 / 184,0 / 158,3 / 201,6 /
 206,4 s (media 188,9); showcase 1-6: 134,2 / 190,4 / 148,6 / 205,7 / 205,0 / 204,8 s (media 181,4).
 Las cifras de soak anteriores a esta fecha se midieron con ese reloj y no se comparan con estas.
+`tests/survivor/soak12.sh SALIDA [banderas]` corre las 12 semillas, tres a la vez, y da las medias.
 
 Programar el arma rinde más que no hacerlo con los dos operadores, y ninguno gana solo el turno
 con el piloto automático. Bajar los nanitos a 5,5 se probó y se descartó: hundía a Brasa con arma
