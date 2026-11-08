@@ -145,6 +145,18 @@ func systemic_checks(Build: GDScript) -> void:
 	# The click's corners say the same: on the trap's click they do not close on the machine.
 	check("click_corners_follow_the_host", for_trap and not run._click_is_for_a_trap(marked.global_position))
 	run.clocks[1].erase("cue")
+	# A trap held for the click waits while touched; past CLICK_STALE it springs on contact.
+	var held: int = run.spellwork.cast(1, 0, marked.global_position, Vector3.RIGHT)
+	var waits_for_click: bool = false
+	var springs_when_stale: bool = false
+	if run.world.records.has(held):
+		var held_record: Dictionary = run.world.records[held]
+		held_record["reaction"]["after"] = 0.0
+		waits_for_click = run.spellwork._touched(held_record) and not run.spellwork._moment(held_record)
+		held_record["reaction"]["after"] = Recipe.REACTION_DELAY - Recipe.CLICK_STALE
+		springs_when_stale = run.spellwork._moment(held_record)
+		run.world.execute(1, "remove", held)
+	check("click_trap_goes_stale_on_contact", waits_for_click and springs_when_stale)
 	# The click aims what it lets go, and a mark nearby steers every throw; else the nearest.
 	var plain_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD)
 	var clicked_aim: Vector3 = run.spellwork._aim(me, Vector3.FORWARD, 1, marked.global_position)
