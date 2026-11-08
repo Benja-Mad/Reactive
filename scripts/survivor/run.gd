@@ -153,7 +153,8 @@ func _process(_delta: float) -> void:
 	if world != null:
 		# The machines read once for every trap this frame.
 		var standing: Array = get_tree().get_nodes_in_group("survivor_enemies")
-		var now: float = Time.get_ticks_msec() / 1000.0
+		# Shift time (synced from the host), so a pause does not run the margin out early.
+		var now: float = elapsed
 		for record: Dictionary in world.records.values():
 			if not Build.Recipe.click_ready(record, multiplayer.get_unique_id(), false): continue
 			# Ready the way the host's release reads it: its own clock on the host; on a client,
