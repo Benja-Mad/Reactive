@@ -1,16 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/enemies/lunger.gd" id="1_lunger"]
+[ext_resource type="SpriteFrames" path="res://materials/enemies/lunger/frames.tres" id="2_frames"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lunger"]
-radius = 0.35
-height = 1.6
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lunger"]
-albedo_color = Color(0.45, 0.08, 0.1, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_lunger"]
-material = SubResource("StandardMaterial3D_lunger")
 radius = 0.35
 height = 1.6
 
@@ -26,8 +19,12 @@ script = ExtResource("1_lunger")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_lunger")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_lunger")
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0.6, 0)
+texture_filter = 0
+sprite_frames = ExtResource("2_frames")
+animation = &"Run"
+autoplay = "Run"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_lunger")

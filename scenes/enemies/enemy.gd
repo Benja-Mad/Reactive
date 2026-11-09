@@ -66,13 +66,7 @@ func apply_slow(duration: float) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func broadcast_slow(duration: float) -> void:
 	slow_time = maxf(slow_time, duration)
-	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
-	if mesh == null:
-		return
-	if _slow_material == null:
-		_slow_material = StandardMaterial3D.new()
-		_slow_material.albedo_color = SLOW_TINT
-	mesh.material_override = _slow_material
+	_show_slow(true)
 
 
 func _tick_slow(delta: float) -> void:
@@ -80,9 +74,21 @@ func _tick_slow(delta: float) -> void:
 		return
 	slow_time -= delta
 	if slow_time <= 0.0:
-		var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
-		if mesh != null:
-			mesh.material_override = null
+		_show_slow(false)
+
+
+## Tiñe de celeste lo que se vea del enemigo: la malla o, si tiene, el sprite.
+func _show_slow(on: bool) -> void:
+	var sprite := get_node_or_null("AnimatedSprite3D") as SpriteBase3D
+	if sprite != null:
+		sprite.modulate = SLOW_TINT if on else Color.WHITE
+	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh == null:
+		return
+	if on and _slow_material == null:
+		_slow_material = StandardMaterial3D.new()
+		_slow_material.albedo_color = SLOW_TINT
+	mesh.material_override = _slow_material if on else null
 
 
 func _nearest_player() -> Character:

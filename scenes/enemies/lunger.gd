@@ -19,6 +19,8 @@ var state_time: float = 0.0
 var lunge_dir: Vector3 = Vector3.ZERO
 var has_hit: bool = false
 var warning: MeshInstance3D
+var _last_x: float = 0.0
+@onready var sprite: AnimatedSprite3D = $AnimatedSprite3D
 
 
 func _ready() -> void:
@@ -36,10 +38,16 @@ func _ready() -> void:
 	warning.top_level = true
 	warning.visible = false
 	add_child(warning)
+	_last_x = global_position.x
 
 
 func _physics_process(delta: float) -> void:
 	_tick_slow(delta)
+	# El arte mira a la derecha; se voltea según hacia dónde se movió (también en clientes).
+	var dx := global_position.x - _last_x
+	_last_x = global_position.x
+	if absf(dx) > 0.001:
+		sprite.flip_h = dx < 0.0
 	if not is_multiplayer_authority():
 		return
 
@@ -93,10 +101,17 @@ func _hit_players() -> void:
 func _set_state(new_state: State, duration: float) -> void:
 	state = new_state
 	state_time = duration
+	var animation: StringName = [&"Run", &"Bare", &"Lunge", &"Idle"][new_state]
+	play_animation.rpc(animation)
 	if new_state == State.WINDUP:
 		show_warning.rpc(global_position, lunge_dir)
 	elif new_state == State.LUNGE:
 		hide_warning.rpc()
+
+
+@rpc("call_local", "reliable")
+func play_animation(animation: StringName) -> void:
+	sprite.play(animation)
 
 
 @rpc("call_local", "reliable")
