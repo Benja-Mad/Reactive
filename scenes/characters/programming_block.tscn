@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://kbacwuxsnlmm" path="res://scenes/blocks/if_block.tscn" id="7_2luux"]
 [ext_resource type="PackedScene" uid="uid://c0pq3kgi8hon5" path="res://scenes/blocks/hp_above_block.tscn" id="8_x7j4p"]
 [ext_resource type="PackedScene" uid="uid://bq52ao21jn0lt" path="res://scenes/blocks/hp_below_block.tscn" id="9_2o377"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/enemy_near_block.tscn" id="10_near"]
 
 [node name="ProgrammingBlock" type="CanvasLayer" unique_id=1644286038]
 script = ExtResource("1_h1672")
@@ -100,4 +101,7 @@ text = "Condiciones"
 layout_mode = 2
 
 [node name="HpBelowBlock" parent="CodeList/VBoxContainer" unique_id=1959711288 instance=ExtResource("9_2o377")]
+layout_mode = 2
+
+[node name="EnemyNearBlock" parent="CodeList/VBoxContainer" instance=ExtResource("10_near")]
 layout_mode = 2
