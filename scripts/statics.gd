@@ -33,6 +33,19 @@ static func get_role_name(role: Role) -> String:
 	return "Unknown"
 
 
+static func get_ability_name(ability: Ability) -> String:
+	match ability:
+		Ability.FIRE:
+			return "fire()"
+		Ability.FLAME_WAVE:
+			return "flame_wave()"
+		Ability.ICE_SHARD:
+			return "ice_shard()"
+		Ability.HEAL:
+			return "heal()"
+	return ""
+
+
 static func get_ability_role(ability: Ability) -> Role:
 	match ability:
 		Ability.FIRE, Ability.FLAME_WAVE:

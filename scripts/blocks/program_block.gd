@@ -1,6 +1,11 @@
 class_name ProgramBlock
 extends PanelContainer
 
+const ACTIVE_COLOR := Color(1.7, 1.5, 0.8)
+const TRUE_COLOR := Color(0.7, 1.7, 0.8)
+const FALSE_COLOR := Color(1.7, 0.7, 0.7)
+const SKIPPED_COLOR := Color(0.45, 0.45, 0.45)
+
 ## true mientras el bloque vive en la paleta (CodeList).
 var is_template: bool = true
 
@@ -11,6 +16,18 @@ func execute(_context: ProgramContext) -> void:
 
 func on_dropped() -> void:
 	pass
+
+
+## Ilumina el bloque un momento para que se vea qué se ejecutó.
+func flash(color: Color = ACTIVE_COLOR) -> void:
+	pulse(self, color)
+
+
+static func pulse(item: CanvasItem, color: Color) -> void:
+	if item == null or not item.is_inside_tree():
+		return
+	item.modulate = color
+	item.create_tween().tween_property(item, "modulate", Color.WHITE, 0.6)
 
 
 func _get_drag_data(at_position: Vector2) -> Variant:

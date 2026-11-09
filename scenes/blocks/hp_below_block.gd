@@ -4,7 +4,10 @@ extends ConditionBlock
 
 
 func evaluate(context: ProgramContext) -> bool:
-	var character := context.character
-	if character == null or character.maxHealth <= 0:
+	if context.character == null or context.character.maxHealth <= 0:
 		return false
-	return float(character.currentHealth) / float(character.maxHealth) * 100.0 < threshold_percent
+	return health_percent(context) < threshold_percent
+
+
+func describe(context: ProgramContext) -> String:
+	return "vida %d%% < %d%%" % [roundi(health_percent(context)), roundi(threshold_percent)]

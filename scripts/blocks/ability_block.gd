@@ -8,5 +8,8 @@ func get_ability() -> Statics.Ability:
 
 func execute(context: ProgramContext) -> void:
 	var ability := get_ability()
-	if ability != Statics.Ability.NONE:
-		context.character.use_ability(ability)
+	if ability == Statics.Ability.NONE:
+		return
+	context.character.use_ability(ability)
+	context.trace.append(Statics.get_ability_name(ability))
+	flash()

@@ -1,6 +1,26 @@
 class_name BlockContainer
 extends VBoxContainer
 
+## Texto que se ve mientras el contenedor no tiene bloques, para saber qué va ahí.
+@export var empty_hint: String = ""
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_SORT_CHILDREN:
+		queue_redraw()
+
+
+func _draw() -> void:
+	if empty_hint.is_empty():
+		return
+	for child in get_children():
+		if child is ProgramBlock and not child.is_queued_for_deletion():
+			return
+	draw_rect(Rect2(Vector2.ZERO, size), Color(1, 1, 1, 0.06))
+	var font_size := 12
+	draw_string(get_theme_default_font(), Vector2(6, size.y * 0.5 + font_size * 0.35), empty_hint,
+		HORIZONTAL_ALIGNMENT_LEFT, size.x - 12, font_size, Color(1, 1, 1, 0.5))
+
 
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
 	if not data is ProgramBlock:

@@ -25,6 +25,7 @@ visible = false
 custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
 script = ExtResource("2_6hro1")
+empty_hint = "condición (vacía = else)"
 
 [node name="Label" type="Label" parent="VBoxContainer" unique_id=1019610663]
 visible = false
@@ -37,6 +38,7 @@ visible = false
 custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
 script = ExtResource("3_amtef")
+empty_hint = "si se cumple…"
 
 [node name="Label3" type="Label" parent="VBoxContainer" unique_id=1901690122]
 visible = false
@@ -49,3 +51,4 @@ visible = false
 custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
 script = ExtResource("4_niurx")
+empty_hint = "si no…"

@@ -4,6 +4,9 @@ extends CanvasLayer
 @onready var cast_timer: Timer = $CastTimer
 @onready var code_list: Control = $CodeList
 @onready var program_container: ProgramContainer = $PanelContainer/ScrollContainer/ProgramContainer
+@onready var status_label: Label = $Status
+
+var last_trace: String = "todavía no se ejecuta"
 
 
 func _ready() -> void:
@@ -11,6 +14,7 @@ func _ready() -> void:
 
 	if not player.is_multiplayer_authority():
 		visible = false
+		set_process(false)
 		return
 
 	cast_timer.timeout.connect(_execute_program)
@@ -34,13 +38,18 @@ func _filter_node(node: Node, role: Statics.Role) -> void:
 			_filter_node(child, role)
 
 
+func _process(_delta: float) -> void:
+	status_label.text = "Próximo ciclo en %.1f s\nÚltimo: %s" % [cast_timer.time_left, last_trace]
+
+
 func _execute_program() -> void:
 	var character := get_parent() as Character
-	if character == null:
+	if character == null or character.is_dead:
 		return
 
 	var context := ProgramContext.new(character)
 	program_container.execute(context)
+	last_trace = " · ".join(context.trace) if not context.trace.is_empty() else "programa vacío"
 
 
 func _expand_code_list() -> void:
