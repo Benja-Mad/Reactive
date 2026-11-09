@@ -132,6 +132,12 @@ func heal(amount: int) -> void:
 	broadcast_hp.rpc(currentHealth)
 
 
+## Curación pedida por otro peer (p. ej. Support curando a un aliado); la aplica el dueño.
+@rpc("any_peer", "call_local", "reliable")
+func receive_heal(amount: int) -> void:
+	heal(amount)
+
+
 @rpc("call_local")
 func broadcast_hp(new_health: int) -> void:
 	currentHealth = new_health

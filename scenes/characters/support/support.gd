@@ -3,6 +3,7 @@ extends Character
 
 const HEAL_DURATION: float = 1.11
 const HEAL_AMOUNT: int = 65
+const HEAL_RANGE: float = 6.0
 
 @export var ice_shard_scene: PackedScene
 @onready var marker_3d: Marker3D = $Marker3D
@@ -58,4 +59,21 @@ func _spawn_ice_shard(data: Dictionary) -> Node:
 func _heal() -> void:
 	trigger_particles_all(^"HealParticles")
 	cast_animation(&"Heal", HEAL_DURATION)
-	heal(HEAL_AMOUNT)
+	heal_target().receive_heal.rpc(HEAL_AMOUNT)
+
+
+## El jugador vivo más herido (en %) dentro del alcance; ante empate, uno mismo.
+func heal_target() -> Character:
+	var best: Character = self
+	var best_ratio := float(currentHealth) / float(maxHealth)
+	for node in get_tree().get_nodes_in_group("players"):
+		var player := node as Character
+		if player == null or player == self or player.is_dead:
+			continue
+		if player.global_position.distance_to(global_position) > HEAL_RANGE:
+			continue
+		var ratio := float(player.currentHealth) / float(player.maxHealth)
+		if ratio < best_ratio:
+			best = player
+			best_ratio = ratio
+	return best

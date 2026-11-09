@@ -5,6 +5,9 @@ extends Character
 @onready var marker_3d: Marker3D = $Marker3D
 @onready var fire_attack_spawner: MultiplayerSpawner = $FireAttackSpawner
 
+const FLAME_WAVE_RADIUS: float = 3.0
+const FLAME_WAVE_DAMAGE: int = 40
+
 var facing_dir: Vector3 = Vector3.RIGHT
 
 func _ready() -> void:
@@ -31,8 +34,35 @@ func use_ability(ability: Statics.Ability) -> void:
 			_flame_wave()
 
 
+## Daña a todos los enemigos alrededor; el impacto lo procesa el caster, como los proyectiles.
 func _flame_wave() -> void:
 	trigger_particles_all(^"FlameWaveParticles")
+	show_flame_wave.rpc()
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var enemy := node as Node3D
+		if enemy != null and enemy.global_position.distance_to(global_position) <= FLAME_WAVE_RADIUS:
+			enemy.take_damage(FLAME_WAVE_DAMAGE)
+
+
+@rpc("call_local")
+func show_flame_wave() -> void:
+	var ring := MeshInstance3D.new()
+	var torus := TorusMesh.new()
+	torus.inner_radius = 0.9
+	torus.outer_radius = 1.0
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = Color(1.0, 0.45, 0.1, 0.9)
+	torus.material = material
+	ring.mesh = torus
+	ring.position.y = -0.4
+	ring.scale = Vector3.ONE * 0.3
+	add_child(ring)
+	var tween := ring.create_tween().set_parallel()
+	tween.tween_property(ring, "scale", Vector3(FLAME_WAVE_RADIUS, 1.0, FLAME_WAVE_RADIUS), 0.35)
+	tween.tween_property(material, "albedo_color:a", 0.0, 0.35)
+	tween.chain().tween_callback(ring.queue_free)
 		
 func _fire() -> void:
 	fire_attack_spawner.spawn({

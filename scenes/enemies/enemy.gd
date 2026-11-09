@@ -5,10 +5,15 @@ const SPEED: float = 2.5
 const ATTACK_RANGE: float = 1.5
 const ATTACK_DAMAGE: int = 75
 const ATTACK_COOLDOWN: float = 1.0
+const SLOW_FACTOR: float = 0.4
+const SLOW_TINT := Color(0.45, 0.75, 1.0)
 
 @export var maxHealth: int = 30
 var currentHealth: int
 var attack_timer: float = 0.0
+## Segundos que le quedan frenado por hielo; corre en todos los peers para el tinte.
+var slow_time: float = 0.0
+var _slow_material: StandardMaterial3D
 
 #@onready var health_bar: ProgressBar = get_node_or_null("HealthBar/SubViewport/ProgressBar")
 
@@ -20,6 +25,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_tick_slow(delta)
 	if not is_multiplayer_authority():
 		return
 
@@ -33,8 +39,8 @@ func _physics_process(delta: float) -> void:
 		var distance := to_target.length()
 		if distance > ATTACK_RANGE:
 			var dir := to_target.normalized()
-			velocity.x = dir.x * SPEED
-			velocity.z = dir.z * SPEED
+			velocity.x = dir.x * SPEED * speed_scale()
+			velocity.z = dir.z * SPEED * speed_scale()
 		else:
 			velocity.x = 0.0
 			velocity.z = 0.0
@@ -47,6 +53,36 @@ func _physics_process(delta: float) -> void:
 		velocity.z = 0.0
 
 	move_and_slide()
+
+
+func speed_scale() -> float:
+	return SLOW_FACTOR if slow_time > 0.0 else 1.0
+
+
+func apply_slow(duration: float) -> void:
+	broadcast_slow.rpc(duration)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func broadcast_slow(duration: float) -> void:
+	slow_time = maxf(slow_time, duration)
+	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh == null:
+		return
+	if _slow_material == null:
+		_slow_material = StandardMaterial3D.new()
+		_slow_material.albedo_color = SLOW_TINT
+	mesh.material_override = _slow_material
+
+
+func _tick_slow(delta: float) -> void:
+	if slow_time <= 0.0:
+		return
+	slow_time -= delta
+	if slow_time <= 0.0:
+		var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
+		if mesh != null:
+			mesh.material_override = null
 
 
 func _nearest_player() -> Character:
