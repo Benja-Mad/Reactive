@@ -3,6 +3,9 @@ extends Node3D
 @export var support_scene: PackedScene
 @export var damage_scene: PackedScene
 @export var enemy_scene: PackedScene
+## Enemigo secundario; sale uno de cada `lunger_every` spawns (0 = nunca).
+@export var lunger_scene: PackedScene
+@export var lunger_every: int = 3
 @export var enemy_spawn_interval: float = 5.0
 @onready var spawn_points: Node3D = $SpawnPoints
 @onready var players: Node3D = $Players
@@ -105,11 +108,13 @@ func _my_character() -> Character:
 func _on_enemy_spawn_timeout() -> void:
 	if enemy_scene == null or enemy_spawner == null:
 		return
-	enemy_spawner.spawn({})
+	var lunger := lunger_scene != null and lunger_every > 0 and (enemy_count + 1) % lunger_every == 0
+	enemy_spawner.spawn({"kind": "lunger" if lunger else "enemy"})
 
 
-func _spawn_enemy(_data: Dictionary) -> Node:
-	var enemy_inst: Node3D = enemy_scene.instantiate()
+func _spawn_enemy(data: Dictionary) -> Node:
+	var scene := lunger_scene if data.get("kind", "enemy") == "lunger" and lunger_scene != null else enemy_scene
+	var enemy_inst: Node3D = scene.instantiate()
 	enemy_count += 1
 	var angle := float(enemy_count) * 0.7
 	var dist := randf_range(8.0, 12.0)

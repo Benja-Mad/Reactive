@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dglx0fdj5frd8" path="res://scenes/characters/damage/damage.tscn" id="3_pu3yx"]
 [ext_resource type="PackedScene" uid="uid://byxgxe47m3g8o" path="res://scenes/enemies/enemy.tscn" id="4_gubc5"]
 [ext_resource type="PackedScene" uid="uid://bbpw2tk1hlnax" path="res://scenes/ui/death_ui.tscn" id="6_rt2n2"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/lunger.tscn" id="7_lunger"]
 
 [sub_resource type="Environment" id="Environment_g4v7s"]
 
@@ -14,6 +15,7 @@ script = ExtResource("1_7ykc4")
 support_scene = ExtResource("2_7ykc4")
 damage_scene = ExtResource("3_pu3yx")
 enemy_scene = ExtResource("4_gubc5")
+lunger_scene = ExtResource("7_lunger")
 enemy_spawn_interval = 10.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1496636831]
