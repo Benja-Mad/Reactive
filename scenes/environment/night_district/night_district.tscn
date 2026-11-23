@@ -1,6 +1,23 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/environment/night_district/night_district.gd" id="1_city"]
+[ext_resource type="Texture2D" path="res://scenes/environment/night_district/dusk_clouds.png" id="clouds"]
+
+[sub_resource type="StandardMaterial3D" id="CloudPaint"]
+shading_mode = 0
+albedo_color = Color(0.56, 0.66, 0.75, 1)
+albedo_texture = ExtResource("clouds")
+texture_filter = 2
+uv1_scale = Vector3(5, 1, 1)
+
+[sub_resource type="QuadMesh" id="Cyclorama"]
+material = SubResource("CloudPaint")
+size = Vector2(136, 15.3)
 
 [node name="NightDistrict" type="Node3D"]
 script = ExtResource("1_city")
+
+[node name="CloudBank" type="MeshInstance3D" parent="."]
+position = Vector3(0, 7.6, -22.5)
+cast_shadow = 0
+mesh = SubResource("Cyclorama")

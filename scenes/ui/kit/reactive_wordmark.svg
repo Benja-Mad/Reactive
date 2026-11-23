@@ -1,8 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="126" viewBox="0 0 360 63"><g fill="#ead7ae" transform="translate(8 1) skewX(-7)"><path transform="translate(0 0)" fill-rule="evenodd" d="M2 0H33L43 10V28L33 37H29L44 60H28L13 35V60H0V0ZM13 11V25H28L30 22V14L27 11Z"/>
-<path transform="translate(49 0)" fill-rule="evenodd" d="M0 0H37V11H13V24H32V35H13V49H38V60H0Z"/>
-<path transform="translate(92 0)" fill-rule="evenodd" d="M0 60L12 0H33L46 60H32L30 48H15L13 60ZM17 37H28L23 11H21Z"/>
-<path transform="translate(141 0)" fill-rule="evenodd" d="M11 0H35L43 8V19H30V13L27 11H16L13 14V46L16 49H27L30 46V40H43V52L35 60H10L0 50V10Z"/>
-<path transform="translate(189 0)" fill-rule="evenodd" d="M0 0H44V12H29V60H15V12H0Z"/>
-<path transform="translate(237 0)" fill-rule="evenodd" d="M1 0H15V60H1Z"/>
-<path transform="translate(257 0)" fill-rule="evenodd" d="M0 0H14L22 47H24L32 0H46L33 60H13Z"/>
-<path transform="translate(306 0)" fill-rule="evenodd" d="M0 0H37V11H13V24H32V35H13V49H38V60H0Z"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="226" viewBox="0 0 348 75">
+  <!-- Square-cut condensed letterforms. The offset row follows the bell's pulse. -->
+  <g fill="#152f39" fill-rule="evenodd">
+    <path d="M0 0h30l10 9v24l-9 8 11 32H26l-9-29h-3v29H0zm14 12v19h9l3-3V15l-3-3z"/>
+    <path d="M48 0h35v13H62v16h17v13H62v18h22v13H48z"/>
+    <path d="M101 0h21l13 73h-15l-2-15h-14l-2 15H88zm5 46h10l-5-34z"/>
+    <path d="M151 0h22l9 9v15h-15v-9l-3-3h-6l-3 3v43l3 3h6l3-3v-9h15v15l-9 9h-22l-10-10V10z"/>
+    <path d="M187 0h41v13h-13v60h-15V13h-13z"/>
+    <path d="M235 0h15v73h-15z"/>
+    <path d="M256 0h15l6 54h2l7-54h15l-13 73h-21z"/>
+    <path d="M307 0h38v13h-23v16h19v13h-19v18h23v13h-38z"/>
+  </g>
+  <g fill="#efe9d4">
+    <path d="M0 44h15l-2 3H0zm140-21h15v3h-15zm59 24h17v3h-17zm108-23h15v3h-15z"/>
+  </g>
+</svg>

@@ -1,97 +1,209 @@
 [gd_scene format=3 uid="uid://buxla4a3c3k2"]
 
-[ext_resource type="Theme" uid="uid://bwgdrcgopd0s1" path="res://lobby/lobby_theme.tres" id="1_3qnx1"]
-[ext_resource type="Script" uid="uid://cnbk17iq1x68f" path="res://scenes/ui/main_menu.gd" id="2_p6ygj"]
-[ext_resource type="Texture2D" path="res://scenes/ui/kit/net_loft_cut.svg" id="cut"]
+[ext_resource type="Script" path="res://scenes/ui/main_menu.gd" id="menu"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/bell_chart.svg" id="chart"]
 [ext_resource type="Texture2D" path="res://scenes/ui/kit/reactive_wordmark.svg" id="title"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/dispatch_keys.svg" id="keys"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="bell"]
+
+[ext_resource type="Texture2D" path="res://scenes/environment/night_district/dusk_clouds.png" id="clouds"]
+[ext_resource type="Shader" path="res://scenes/ui/kit/cloud_ink.gdshader" id="cloud_ink"]
+
+[sub_resource type="ShaderMaterial" id="SkyInk"]
+shader = ExtResource("cloud_ink")
+
+[sub_resource type="SystemFont" id="Grotesk"]
+font_names = PackedStringArray("Helvetica Neue", "Arial", "Liberation Sans", "Noto Sans")
+font_weight = 620
+
+[sub_resource type="StyleBoxFlat" id="Rest"]
+draw_center = false
+border_width_bottom = 1
+border_color = Color(0.59, 0.61, 0.55, 1)
+content_margin_left = 17.0
+content_margin_right = 16.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="Over"]
+bg_color = Color(0.20, 0.33, 0.35, 1)
+border_width_bottom = 2
+border_color = Color(0.082, 0.184, 0.224, 1)
+content_margin_left = 17.0
+content_margin_right = 16.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="Select"]
+bg_color = Color(0.082, 0.184, 0.224, 1)
+border_width_left = 5
+border_color = Color(0.91, 0.36, 0.23, 1)
+content_margin_left = 17.0
+content_margin_right = 16.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="Down"]
+bg_color = Color(0.71, 0.27, 0.16, 1)
+border_width_left = 5
+border_color = Color(0.082, 0.184, 0.224, 1)
+content_margin_left = 17.0
+content_margin_right = 16.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="AtlasTexture" id="PlayGlyph"]
+atlas = ExtResource("keys")
+region = Rect2(0, 0, 24, 24)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="HostGlyph"]
+atlas = ExtResource("keys")
+region = Rect2(24, 0, 24, 24)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="JoinGlyph"]
+atlas = ExtResource("keys")
+region = Rect2(48, 0, 24, 24)
+filter_clip = true
+
+[sub_resource type="Curve2D" id="Oscilloscope"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, -40, 2, 0, 0, 0, 0, -21, 2, 0, 0, 0, 0, -16, -6, 0, 0, 0, 0, -10, 6, 0, 0, 0, 0, -2, -17, 0, 0, 0, 0, 5, 17, 0, 0, 0, 0, 12, 2, 0, 0, 0, 0, 34, 2)
+}
+point_count = 8
+
+[sub_resource type="Theme" id="Dispatch"]
+default_font = SubResource("Grotesk")
+default_font_size = 23
+Button/constants/h_separation = 14
+Button/styles/normal = SubResource("Rest")
+Button/styles/hover = SubResource("Over")
+Button/styles/focus = SubResource("Select")
+Button/styles/pressed = SubResource("Down")
+Button/styles/hover_pressed = SubResource("Down")
+Button/colors/font_color = Color(0.082, 0.184, 0.224, 1)
+Button/colors/font_focus_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/font_hover_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/font_pressed_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/font_hover_pressed_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/icon_normal_color = Color(0.082, 0.184, 0.224, 1)
+Button/colors/icon_focus_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/icon_hover_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/icon_pressed_color = Color(0.937, 0.914, 0.831, 1)
+Button/colors/icon_hover_pressed_color = Color(0.937, 0.914, 0.831, 1)
 
 [node name="MainMenu" type="Control" unique_id=90432305]
 layout_mode = 3
-anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("1_3qnx1")
-script = ExtResource("2_p6ygj")
+theme = SubResource("Dispatch")
+script = ExtResource("menu")
 
-[node name="Stock" type="ColorRect" parent="."]
-layout_mode = 1
+[node name="Surround" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+color = Color(0.082, 0.184, 0.224, 1)
 mouse_filter = 2
-color = Color(0.078, 0.134, 0.137, 1)
 
-[node name="Linocut" type="TextureRect" parent="."]
-layout_mode = 1
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = -493
-offset_right = 8
-offset_top = -242
-offset_bottom = 242
+[node name="Sheet" type="Control" parent="."]
+offset_right = 1152.0
+offset_bottom = 648.0
 mouse_filter = 2
-texture = ExtResource("cut")
+
+[node name="Chart" type="TextureRect" parent="Sheet"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("chart")
 expand_mode = 1
-stretch_mode = 5
+mouse_filter = 2
 
-[node name="Wordmark" type="TextureRect" parent="."]
-layout_mode = 1
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 65
-offset_right = 480
-offset_top = -221
-offset_bottom = -147
+[node name="CloudPrint" type="TextureRect" parent="Sheet"]
+offset_right = 677.0
+offset_bottom = 263.0
+expand_mode = 1
+texture = ExtResource("clouds")
+texture_filter = 1
+material = SubResource("SkyInk")
+mouse_filter = 2
+
+[node name="MakersMark" type="TextureRect" parent="Sheet"]
+offset_left = 60.0
+offset_top = 47.0
+offset_right = 92.0
+offset_bottom = 79.0
+expand_mode = 1
+texture = ExtResource("bell")
+mouse_filter = 2
+
+[node name="Wordmark" type="TextureRect" parent="Sheet"]
+offset_left = 57.0
+offset_top = 106.0
+offset_right = 565.0
+offset_bottom = 216.0
 accessibility_name = "Reactive"
 mouse_filter = 2
 texture = ExtResource("title")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Actions" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 65
-offset_right = 467
-offset_top = -93
-offset_bottom = 207
-texture_filter = 1
-theme_override_constants/separation = 11
-
-[node name="Solo" type="Button" parent="Actions" unique_id=923655090]
+[node name="Solo" type="Button" parent="Sheet"]
 unique_name_in_owner = true
-layout_mode = 2
+offset_left = 60.0
+offset_top = 284.0
+offset_right = 385.0
+offset_bottom = 335.0
+text = "Play solo"
+icon = SubResource("PlayGlyph")
 alignment = 0
-text = "Play Solo"
 
-[node name="Host" type="Button" parent="Actions" unique_id=923655091]
+[node name="Host" type="Button" parent="Sheet"]
 unique_name_in_owner = true
-layout_mode = 2
+offset_left = 60.0
+offset_top = 340.0
+offset_right = 385.0
+offset_bottom = 391.0
+text = "Host a game"
+icon = SubResource("HostGlyph")
 alignment = 0
-text = "Host"
 
-[node name="Join" type="Button" parent="Actions" unique_id=771461010]
+[node name="Join" type="Button" parent="Sheet"]
 unique_name_in_owner = true
-layout_mode = 2
+offset_left = 60.0
+offset_top = 396.0
+offset_right = 385.0
+offset_bottom = 447.0
+text = "Join a game"
+icon = SubResource("JoinGlyph")
 alignment = 0
-text = "Join"
 
-[node name="Credits" type="Button" parent="Actions" unique_id=1427127326]
+[node name="Credits" type="Button" parent="Sheet"]
 unique_name_in_owner = true
-layout_mode = 2
-alignment = 0
+offset_left = 60.0
+offset_top = 558.0
+offset_right = 169.0
+offset_bottom = 594.0
 text = "Credits"
+theme_override_font_sizes/font_size = 17
 
-[node name="Quit" type="Button" parent="Actions" unique_id=1446357876]
+[node name="Quit" type="Button" parent="Sheet"]
 unique_name_in_owner = true
-layout_mode = 2
-alignment = 0
+offset_left = 181.0
+offset_top = 558.0
+offset_right = 270.0
+offset_bottom = 594.0
 text = "Quit"
+theme_override_font_sizes/font_size = 17
+
+[node name="Signal" type="Path2D" parent="Sheet"]
+position = Vector2(869, 321)
+rotation = 0.174533
+curve = SubResource("Oscilloscope")
+
+[node name="Reader" type="PathFollow2D" parent="Sheet/Signal"]
+rotates = false
+loop = false
+
+[node name="Light" type="Polygon2D" parent="Sheet/Signal/Reader"]
+color = Color(0.89, 1, 0.9, 1)
+polygon = PackedVector2Array(-2.4, -1.5, -1.5, -2.4, 1.5, -2.4, 2.4, -1.5, 2.4, 1.5, 1.5, 2.4, -1.5, 2.4, -2.4, 1.5)

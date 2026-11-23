@@ -1,0 +1,16 @@
+<h2>Devlog 5 — Getting a crab to do the dirty work</h2>
+
+<p>Stand behind a diver when a crab winds up. The moment its claw glints, step sideways. The crab has already picked its line, and the diver takes 40 damage for you. Lead the crab into a parked van and its claws jam for 1.85 seconds. That's your opening to turn and fire.</p>
+
+<h3>A night shift on the docks</h3>
+<p>On the title screen, a bank of clouds stretches across the paper behind the Reactive lettering. The orange diving bell on the chart is also the game icon. Look through its round window and you'll see a signal sweep once every two seconds, in time with the block program.</p>
+<p>Once you're on the docks, look up between the crane and the clinic roof. Those are the same clouds, this time in violet pixel art from CraftPix's <em>New Free Backgrounds Part 4</em>. The bank of clouds sits behind the rooftops, so you can still pick out the flash of a crab's claw from the usual combat camera.</p>
+<p>At the east end of the arena, a diving bell hangs from the crane outside Bell Yard. The fish market and net loft give the other end of the docks its own silhouette. Against those 3D buildings, the crew, divers and crabs are directional pixel sprites. Watch a diver's blade draw back before a swing, or the puff of exhaust as a crab launches.</p>
+
+<h3>Teach your program when to change tactics</h3>
+<p>An <code>if</code> block can now test several conditions. Choose <strong>Todas (Y)</strong> when all of them must hold, or <strong>Alguna (O)</strong> when any one will do. New sensors detect a jammed crab, an enemy slowed by ice, or a teammate close enough to revive. <strong>Fin de ciclo</strong> skips the remaining blocks until the next two-second cycle.</p>
+
+<p>Playing Damage? Put <strong>Jaiba trabada ≤ 3 m</strong> inside an <code>if</code>, <code>flame_wave()</code> under <code>then</code>, and <code>fire()</code> under <code>else</code>. Bait a charge into a van and stay close. If your program catches the crab while it's stuck, it switches from shooting ahead to a point-blank flame wave.</p>
+
+<h3>Two players, one impact</h3>
+<p>In our two-player collision test, we gave the diver 130 health so it could survive a charge. Both players saw the hit and both saw 90 health left. You can now also pick up a downed teammate. Stay within 2.2 metres for two uninterrupted seconds and they get back up with 35% health. Step away to dodge a crab and the rescue timer resets.</p>

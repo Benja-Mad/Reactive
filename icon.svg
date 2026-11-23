@@ -1,10 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect x="2" y="2" width="124" height="124" rx="12" fill="#1b3435"/>
-<circle cx="65" cy="59" r="43" fill="#c36248"/>
-<g fill="none" stroke="#e5d0a2" stroke-width="5" stroke-linecap="round">
-<path d="M48 65Q39 56 30 67T16 67M51 70Q43 85 30 85T22 98M54 72Q55 88 43 97T48 111M58 71Q68 84 79 73T98 69M59 66Q72 69 77 57T89 50"/>
-</g><path fill="#1b3435" d="M39 66Q42 45 62 35L81 25 104 12Q103 38 89 51L70 63 60 77 46 75Z"/>
-<path fill="#e5d0a2" d="M44 61Q51 44 65 37Q85 29 99 19Q95 37 81 48L62 58 56 67Z"/>
-<path fill="#899583" d="M56 54Q65 39 85 33L67 45Z"/>
-<ellipse cx="54" cy="65" rx="9" ry="7" fill="#1b3435"/><circle cx="55" cy="64" r="4" fill="#e5d0a2"/><circle cx="56" cy="64" r="2" fill="#1b3435"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64">
+  <rect x="1" y="1" width="62" height="62" rx="12" fill="#ec6344"/>
+  <!-- A diving bell, its lifting eye and the pulse in the viewport. -->
+  <path fill="#122e39" fill-rule="evenodd" d="M24 14a8 8 0 0 1 16 0v4c9 3 13 10 14 23l3 4v8H7v-8l3-4c1-13 5-20 14-23zm5 0v3h6v-3a3 3 0 0 0-6 0z"/>
+  <circle cx="32" cy="34" r="11" fill="#f5eacc"/>
+  <path d="M21 35h6l3-6 4 11 3-7h6" fill="none" stroke="#122e39" stroke-width="3.6" stroke-linejoin="bevel"/>
+  <path d="M15 48h34" stroke="#ec6344" stroke-width="2.5"/>
 </svg>

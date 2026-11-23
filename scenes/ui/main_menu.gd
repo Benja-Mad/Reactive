@@ -24,7 +24,20 @@ func _ready() -> void:
 		get_tree().change_scene_to_file("res://lobby/join_screen.tscn"))
 	credits.pressed.connect(func() -> void: get_tree().change_scene_to_file("res://scenes/ui/credits.tscn"))
 	
+	resized.connect(_fit_chart)
+	_fit_chart()
+	var reader: PathFollow2D = $Sheet/Signal/Reader
+	var sweep := create_tween().set_loops()
+	sweep.tween_property(reader, "progress_ratio", 1.0, 1.6).from(0.0)
+	sweep.tween_interval(0.4)
 	solo.grab_focus()
+
+
+func _fit_chart() -> void:
+	var sheet: Control = $Sheet
+	var factor := minf(size.x / sheet.size.x, size.y / sheet.size.y)
+	sheet.scale = Vector2.ONE * factor
+	sheet.position = (size - sheet.size * factor) * 0.5
 
 
 # Single player: no server, no peers. We keep the OfflineMultiplayerPeer that
