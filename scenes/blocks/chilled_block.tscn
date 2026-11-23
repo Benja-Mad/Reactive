@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/blocks/dock_condition.gd" id="1_near"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/icon_block.tscn" id="base"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/ice_shard.png" id="icon"]
+
+[node name="Chilled" instance=ExtResource("base")]
+script = ExtResource("1_near")
+tooltip_text = "Detecta un enemigo ralentizado por hielo a 3 m o menos de ti."
+sensor = 0
+
+[node name="Icon" parent="Row" index="0"]
+texture = ExtResource("icon")
+
+[node name="Label" parent="Row" index="1"]
+text = "Enemigo frío ≤ 3 m"

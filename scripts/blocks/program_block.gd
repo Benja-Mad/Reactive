@@ -35,8 +35,6 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_drag_preview(preview)
 
-	if is_template:
-		return duplicate()
 	return self
 
 

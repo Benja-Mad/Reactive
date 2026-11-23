@@ -1,6 +1,13 @@
 class_name Enemy
 extends CharacterBody3D
 
+const BLADE_WINDUP := 0.58
+const BLADE_REACH := 1.7
+const BRACE_ROW := 9
+const STRIKE_ROW := 10
+const READY_ROW := 11
+const GLINT_ROW := 12
+const PEAK_GLINT_ROW := 13
 const SPEED: float = 2.5
 const ATTACK_RANGE: float = 1.5
 const ATTACK_DAMAGE: int = 75
@@ -13,15 +20,46 @@ var currentHealth: int
 var attack_timer: float = 0.0
 ## Segundos que le quedan frenado por hielo; corre en todos los peers para el tinte.
 var slow_time: float = 0.0
-var _slow_material: StandardMaterial3D
+@onready var visual: Sprite3D = $Visual
+var sprite_heading := 1
+var pose_locked := false
+var last_visual_position: Vector3
+var stride_phase := 0.0
+var time_since_step := 0.0
 
-#@onready var health_bar: ProgressBar = get_node_or_null("HealthBar/SubViewport/ProgressBar")
+var windup_animation: Tween
+var windup_voice: AudioStreamPlayer3D
+var strike_dir := Vector3.FORWARD
+var windup_remaining := 0.0
+var dying := false
+var reaction: Tween
+var visual_home: Vector3
 
 
 func _ready() -> void:
 	add_to_group("enemies")
 	currentHealth = maxHealth
-	#_update_health_bar()
+	last_visual_position = global_position
+	visual.frame = sprite_heading
+	visual_home = visual.position
+
+
+# Derive the cosmetic stride from actual displacement, also on replicated peers.
+func _process(delta: float) -> void:
+	var step := global_position - last_visual_position
+	last_visual_position = global_position
+	if pose_locked or dying:
+		return
+	var planar := Vector2(step.x, step.z)
+	if planar.length_squared() > 0.000001:
+		time_since_step = 0.0
+		sprite_heading = SpriteHeading.from_motion(step.x, step.z, get_viewport().get_camera_3d())
+		stride_phase = fmod(stride_phase + planar.length() * 6.4, 8.0)
+		visual.frame = (1 + int(stride_phase)) * visual.hframes + sprite_heading
+	else:
+		time_since_step += delta
+		if time_since_step > 0.12:
+			visual.frame = sprite_heading
 
 
 func _physics_process(delta: float) -> void:
@@ -32,47 +70,89 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	var target := _nearest_player()
-	if target != null:
-		var to_target: Vector3 = target.global_position - global_position
-		to_target.y = 0.0
-		var distance := to_target.length()
-		if distance > ATTACK_RANGE:
-			var dir := to_target.normalized()
-			velocity.x = dir.x * SPEED * speed_scale()
-			velocity.z = dir.z * SPEED * speed_scale()
-		else:
-			velocity.x = 0.0
-			velocity.z = 0.0
-			attack_timer -= delta
-			if attack_timer <= 0.0:
-				attack_timer = ATTACK_COOLDOWN
-				target.take_damage(ATTACK_DAMAGE)
+	velocity.x = 0.0
+	velocity.z = 0.0
+	attack_timer = maxf(0.0, attack_timer - delta)
+	if windup_remaining > 0.0:
+		windup_remaining -= delta
+		if windup_remaining <= 0.0:
+			attack_timer = ATTACK_COOLDOWN
+			release_blade.rpc()
+			for player: Character in get_tree().get_nodes_in_group("players"):
+				var offset := player.global_position - global_position
+				if player.is_dead or absf(offset.y) > 1.2:
+					continue
+				offset.y = 0.0
+				if offset.length() <= BLADE_REACH and (offset.is_zero_approx() or offset.normalized().dot(strike_dir) >= 0.5):
+					player.take_damage(ATTACK_DAMAGE)
 	else:
-		velocity.x = 0.0
-		velocity.z = 0.0
+		var target := _nearest_player()
+		if target:
+			var offset := target.global_position - global_position
+			offset.y = 0.0
+			if offset.length() > ATTACK_RANGE:
+				var walk := offset.normalized() * SPEED * speed_scale()
+				velocity.x = walk.x
+				velocity.z = walk.z
+			elif attack_timer <= 0.0:
+				strike_dir = Vector3.FORWARD if offset.is_zero_approx() else offset.normalized()
+				windup_remaining = BLADE_WINDUP
+				show_blade_strike.rpc(strike_dir)
 
 	move_and_slide()
 
 
+@rpc("authority", "call_local", "reliable")
+func show_blade_strike(direction: Vector3) -> void:
+	begin_windup(direction, BLADE_WINDUP, preload("res://materials/combat/blade_charge.wav"))
+
+
+func begin_windup(direction: Vector3, duration: float, cue: AudioStream) -> void:
+	if dying:
+		return
+	stop_windup()
+	sprite_heading = SpriteHeading.from_motion(direction.x, direction.z, get_viewport().get_camera_3d())
+	pose_locked = true
+	_set_attack_pose(BRACE_ROW)
+	windup_voice = CombatFeedback.sound(self, cue, -7.5)
+	windup_animation = visual.create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	windup_animation.tween_callback(_set_attack_pose.bind(READY_ROW)).set_delay(duration * 0.27)
+	windup_animation.tween_callback(_set_attack_pose.bind(GLINT_ROW)).set_delay(duration * 0.32)
+	windup_animation.tween_callback(_set_attack_pose.bind(PEAK_GLINT_ROW)).set_delay(duration * 0.10)
+	windup_animation.tween_callback(_set_attack_pose.bind(GLINT_ROW)).set_delay(duration * 0.22)
+
+
+func _set_attack_pose(row: int) -> void:
+	visual.frame_coords = Vector2i(sprite_heading, row)
+
+
+func stop_windup() -> void:
+	if windup_animation:
+		windup_animation.kill()
+		windup_animation = null
+		if visual.frame_coords.y in [GLINT_ROW, PEAK_GLINT_ROW]:
+			_set_attack_pose(READY_ROW)
+	if is_instance_valid(windup_voice):
+		windup_voice.queue_free()
+		windup_voice = null
+
+
+@rpc("authority", "call_local", "reliable")
+func release_blade() -> void:
+	stop_windup()
+	if dying:
+		return
+	visual.frame_coords = Vector2i(sprite_heading, STRIKE_ROW)
+	CombatFeedback.sound(self, preload("res://materials/combat/slice.wav"), -7.5)
+	await get_tree().create_timer(0.23).timeout
+	if dying:
+		return
+	pose_locked = false
+	visual.frame = sprite_heading
+
+
 func speed_scale() -> float:
 	return SLOW_FACTOR if slow_time > 0.0 else 1.0
-
-
-func apply_slow(duration: float) -> void:
-	broadcast_slow.rpc(duration)
-
-
-@rpc("any_peer", "call_local", "reliable")
-func broadcast_slow(duration: float) -> void:
-	slow_time = maxf(slow_time, duration)
-	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
-	if mesh == null:
-		return
-	if _slow_material == null:
-		_slow_material = StandardMaterial3D.new()
-		_slow_material.albedo_color = SLOW_TINT
-	mesh.material_override = _slow_material
 
 
 func _tick_slow(delta: float) -> void:
@@ -80,9 +160,7 @@ func _tick_slow(delta: float) -> void:
 		return
 	slow_time -= delta
 	if slow_time <= 0.0:
-		var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
-		if mesh != null:
-			mesh.material_override = null
+		visual.modulate = Color.WHITE
 
 
 func _nearest_player() -> Character:
@@ -99,28 +177,53 @@ func _nearest_player() -> Character:
 	return nearest
 
 
-func take_damage(amount: int) -> void:
-	apply_damage.rpc(amount)
+func take_damage(amount: int, chill_seconds := 0.0) -> void:
+	apply_damage.rpc_id(get_multiplayer_authority(), amount, chill_seconds)
 
 
 @rpc("any_peer", "call_local", "reliable")
-func apply_damage(amount: int) -> void:
-	if not is_multiplayer_authority():
+func apply_damage(amount: int, chill_seconds := 0.0) -> void:
+	if not is_multiplayer_authority() or dying or amount <= 0:
 		return
-	currentHealth = maxi(0, currentHealth - amount)
-	#broadcast_enemy_hp.rpc(currentHealth)
-	if currentHealth <= 0:
+	var hp := maxi(0, currentHealth - amount)
+	show_hit.rpc(hp, chill_seconds > 0.0, maxf(slow_time, chill_seconds))
+	if hp == 0:
+		await get_tree().create_timer(0.60).timeout
 		queue_free()
 
 
-#@rpc("call_local")
-#func broadcast_enemy_hp(new_health: int) -> void:
-#	currentHealth = new_health
-#	_update_health_bar()
-
-
-#func _update_health_bar() -> void:
-#	if health_bar == null:
-#		return
-#	health_bar.max_value = maxHealth
-#	health_bar.value = currentHealth
+@rpc("authority", "call_local", "reliable")
+func show_hit(hp: int, ice_hit: bool, remaining_chill: float) -> void:
+	if dying:
+		return
+	currentHealth = hp
+	slow_time = remaining_chill
+	dying = hp == 0
+	if reaction:
+		reaction.kill()
+	visual.scale = Vector3.ONE
+	visual.position = visual_home
+	visual.modulate = Color(2.4, 2.25, 1.95)
+	reaction = create_tween()
+	if dying:
+		remove_from_group("enemies")
+		set_physics_process(false)
+		$CollisionShape3D.set_deferred("disabled", true)
+		stop_windup()
+		$Footprint.hide()
+		var parts := CombatFeedback.Burst.EJECT if self is Lunger else CombatFeedback.Burst.VENT
+		var outlet := global_position + Vector3.UP * (0.65 if self is Lunger else 0.38)
+		CombatFeedback.burst(self, parts, outlet, 3.15, 0.52)
+		CombatFeedback.shed_part(self, $Footprint.global_position, self is Lunger)
+		reaction.tween_interval(0.055)
+		reaction.tween_property(visual, "modulate", Color(0.68, 0.84, 0.87), 0.06)
+		reaction.set_parallel(true)
+		reaction.tween_property(visual, "position:y", visual_home.y - 0.65, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		reaction.tween_property(visual, "scale", Vector3(1.10, 0.16, 1.0), 0.29)
+		reaction.tween_property(visual, "modulate:a", 0.0, 0.18).set_delay(0.16)
+	else:
+		var contact := CombatFeedback.Burst.ICE_HIT if ice_hit else CombatFeedback.Burst.HIT
+		CombatFeedback.burst(self, contact, global_position, 1.7, 0.19)
+		visual.scale = Vector3(1.10, 0.92, 1.0)
+		reaction.tween_property(visual, "scale", Vector3.ONE, 0.12)
+		reaction.tween_callback(func() -> void: visual.modulate = SLOW_TINT if slow_time > 0 else Color.WHITE)

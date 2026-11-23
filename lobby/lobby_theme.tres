@@ -1,68 +1,52 @@
 [gd_resource type="Theme" format=3 uid="uid://bwgdrcgopd0s1"]
 
-[ext_resource type="Texture2D" path="res://scenes/ui/kit/button_normal.png" id="Texture_button_normal"]
-[ext_resource type="Texture2D" path="res://scenes/ui/kit/button_hover.png" id="Texture_button_hover"]
-[ext_resource type="Texture2D" path="res://scenes/ui/kit/button_pressed.png" id="Texture_button_pressed"]
-[ext_resource type="Texture2D" path="res://scenes/ui/kit/button_disabled.png" id="Texture_button_disabled"]
 [ext_resource type="Texture2D" path="res://scenes/ui/kit/field.png" id="Texture_field"]
 [ext_resource type="Texture2D" path="res://scenes/ui/kit/field_focus.png" id="Texture_field_focus"]
 [ext_resource type="FontFile" path="res://scenes/ui/kit/font.fnt" id="Font_pixel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3xflx"]
-bg_color = Color(0, 0, 0, 0.501961)
+bg_color = Color(0.086, 0.139, 0.139, 0.98)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_duirp"]
-bg_color = Color(0, 0, 0, 0.0627451)
+bg_color = Color(0.067, 0.116, 0.12, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_clys6"]
 
-[sub_resource type="StyleBoxTexture" id="Style_button_normal"]
-content_margin_left = 14.0
-content_margin_top = 4.0
-content_margin_right = 14.0
-content_margin_bottom = 4.0
-texture = ExtResource("Texture_button_normal")
-texture_margin_left = 26.0
-texture_margin_top = 6.0
-texture_margin_right = 6.0
-texture_margin_bottom = 6.0
-expand_margin_left = 20.0
+[sub_resource type="StyleBoxFlat" id="Style_button_normal"]
+bg_color = Color(0.113, 0.186, 0.185, 1)
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+border_width_bottom = 1
+border_color = Color(0.30, 0.40, 0.37, 1)
 
-[sub_resource type="StyleBoxTexture" id="Style_button_hover"]
-content_margin_left = 14.0
-content_margin_top = 4.0
-content_margin_right = 14.0
-content_margin_bottom = 4.0
-texture = ExtResource("Texture_button_hover")
-texture_margin_left = 26.0
-texture_margin_top = 6.0
-texture_margin_right = 6.0
-texture_margin_bottom = 6.0
-expand_margin_left = 20.0
+[sub_resource type="StyleBoxFlat" id="Style_button_hover"]
+bg_color = Color(0.19, 0.28, 0.26, 1)
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+border_width_bottom = 1
+border_color = Color(0.66, 0.72, 0.56, 1)
 
-[sub_resource type="StyleBoxTexture" id="Style_button_pressed"]
-content_margin_left = 14.0
-content_margin_top = 4.0
-content_margin_right = 14.0
-content_margin_bottom = 4.0
-texture = ExtResource("Texture_button_pressed")
-texture_margin_left = 26.0
-texture_margin_top = 6.0
-texture_margin_right = 6.0
-texture_margin_bottom = 6.0
-expand_margin_left = 20.0
+[sub_resource type="StyleBoxFlat" id="Style_button_pressed"]
+bg_color = Color(0.86, 0.70, 0.46, 1)
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+border_width_bottom = 1
+border_color = Color(0.58, 0.33, 0.22, 1)
 
-[sub_resource type="StyleBoxTexture" id="Style_button_disabled"]
-content_margin_left = 14.0
-content_margin_top = 4.0
-content_margin_right = 14.0
-content_margin_bottom = 4.0
-texture = ExtResource("Texture_button_disabled")
-texture_margin_left = 26.0
-texture_margin_top = 6.0
-texture_margin_right = 6.0
-texture_margin_bottom = 6.0
-expand_margin_left = 20.0
+[sub_resource type="StyleBoxFlat" id="Style_button_disabled"]
+bg_color = Color(0.11, 0.15, 0.15, 1)
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+border_width_bottom = 1
+border_color = Color(0.21, 0.25, 0.23, 1)
 
 [sub_resource type="StyleBoxTexture" id="Style_field"]
 content_margin_left = 12.0
@@ -105,7 +89,17 @@ font_names = PackedStringArray("Hiragino Sans", "Yu Gothic", "Noto Sans CJK JP",
 base_font = ExtResource("Font_pixel")
 fallbacks = Array[Font]([SubResource("Font_unicode")])
 
+[sub_resource type="StyleBoxFlat" id="Plate"]
+bg_color = Color(0.107, 0.167, 0.164, 1)
+border_width_top = 2
+border_color = Color(0.44, 0.51, 0.44, 1)
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+
 [resource]
+PanelContainer/styles/panel = SubResource("Plate")
 default_font = SubResource("Font_ui")
 Button/styles/normal = SubResource("Style_button_normal")
 Button/styles/hover = SubResource("Style_button_hover")

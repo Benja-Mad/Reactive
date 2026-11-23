@@ -37,8 +37,9 @@ func use_ability(ability: Statics.Ability) -> void:
 
 
 func _ice_shard() -> void:
+	cast_animation(&"Ice", 0.18)
 	ice_shard_spawner.spawn({
-		"pos": marker_3d.global_position,
+		"pos": global_position + facing_dir * marker_3d.position.x + Vector3.UP * marker_3d.position.y,
 		"facing_dir": facing_dir
 	})
 

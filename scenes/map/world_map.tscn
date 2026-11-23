@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bibs4mx1mu5u"]
 
-[ext_resource type="Shader" uid="uid://bghakck8n1lm2" path="res://scenes/map/shaders/repetition.tres" id="1_asm0r"]
+[ext_resource type="Shader" path="res://scenes/environment/night_district/street.gdshader" id="1_asm0r"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_g4v7s"]
 

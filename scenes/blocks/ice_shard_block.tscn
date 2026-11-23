@@ -1,23 +1,15 @@
 [gd_scene format=3 uid="uid://ubuoy7v8m13m"]
 
 [ext_resource type="Script" uid="uid://be54eub4ggq4j" path="res://scenes/blocks/ice_shard_block.gd" id="1_eyv7f"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/icon_block.tscn" id="base"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/ice_shard.png" id="icon"]
 
-[node name="IceShardBlock" type="PanelContainer" unique_id=1322697723]
-offset_right = 53.0
-offset_bottom = 23.0
-size_flags_horizontal = 4
-size_flags_vertical = 4
+[node name="IceShardBlock" unique_id=1322697723 instance=ExtResource("base")]
+tooltip_text = "Lanza una esquirla que daña y ralentiza al enemigo."
 script = ExtResource("1_eyv7f")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=573290871]
-layout_mode = 2
-mouse_filter = 2
+[node name="Icon" parent="Row" index="0"]
+texture = ExtResource("icon")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=1346872692]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Label" type="Label" parent="." unique_id=284909603]
-layout_mode = 2
+[node name="Label" parent="Row" index="1"]
 text = "ice_shard()"
-horizontal_alignment = 1

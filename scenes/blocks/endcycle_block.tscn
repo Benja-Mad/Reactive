@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/blocks/end_cycle_block.gd" id="1_near"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/icon_block.tscn" id="base"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/sequence.png" id="icon"]
+
+[node name="EndCycle" instance=ExtResource("base")]
+script = ExtResource("1_near")
+tooltip_text = "Omite las instrucciones restantes. El próximo ciclo vuelve al principio."
+
+[node name="Icon" parent="Row" index="0"]
+texture = ExtResource("icon")
+
+[node name="Label" parent="Row" index="1"]
+text = "Fin de ciclo"

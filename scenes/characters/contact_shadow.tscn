@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://scenes/environment/night_district/contact_shadow.gdshader" id="1"]
+
+[sub_resource type="ShaderMaterial" id="shadow"]
+shader = ExtResource("1")
+
+[sub_resource type="PlaneMesh" id="footprint"]
+size = Vector2(1.35, 0.9)
+material = SubResource("shadow")
+
+[node name="Footprint" type="MeshInstance3D"]
+cast_shadow = 0
+mesh = SubResource("footprint")

@@ -36,7 +36,6 @@ func use_ability(ability: Statics.Ability) -> void:
 
 ## Daña a todos los enemigos alrededor; el impacto lo procesa el caster, como los proyectiles.
 func _flame_wave() -> void:
-	trigger_particles_all(^"FlameWaveParticles")
 	show_flame_wave.rpc()
 	for node in get_tree().get_nodes_in_group("enemies"):
 		var enemy := node as Node3D
@@ -46,27 +45,27 @@ func _flame_wave() -> void:
 
 @rpc("call_local")
 func show_flame_wave() -> void:
-	var ring := MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.9
-	torus.outer_radius = 1.0
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.albedo_color = Color(1.0, 0.45, 0.1, 0.9)
-	torus.material = material
-	ring.mesh = torus
-	ring.position.y = -0.4
-	ring.scale = Vector3.ONE * 0.3
-	add_child(ring)
-	var tween := ring.create_tween().set_parallel()
-	tween.tween_property(ring, "scale", Vector3(FLAME_WAVE_RADIUS, 1.0, FLAME_WAVE_RADIUS), 0.35)
-	tween.tween_property(material, "albedo_color:a", 0.0, 0.35)
-	tween.chain().tween_callback(ring.queue_free)
-		
+	var ring := Sprite3D.new()
+	ring.texture = preload("res://materials/combat/wave.png")
+	ring.hframes = ring.texture.get_width() / ring.texture.get_height()
+	ring.axis = Vector3.AXIS_Y
+	ring.pixel_size = FLAME_WAVE_RADIUS * 2.0 / ring.texture.get_height()
+	ring.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	get_tree().current_scene.add_child(ring)
+	ring.global_position = $Footprint.global_position + Vector3.UP * 0.05
+	ring.scale = Vector3.ONE * 0.22
+	CombatFeedback.sound(self, preload("res://materials/combat/ignition.wav"), -7.5)
+	var spread := ring.create_tween().set_parallel(true)
+	spread.tween_property(ring, "scale", Vector3.ONE, 0.23).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	spread.tween_property(ring, "modulate:a", 0.0, 0.19).set_delay(0.17)
+	CombatFeedback.play_frames(ring, 0.36)
+
+
 func _fire() -> void:
+	cast_animation(&"Fire", 0.24)
 	fire_attack_spawner.spawn({
-		"pos": marker_3d.global_position,
+		"pos": global_position + facing_dir * marker_3d.position.x + Vector3.UP * marker_3d.position.y,
 		"facing_dir": facing_dir
 	})
 	

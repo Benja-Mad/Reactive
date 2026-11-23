@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var status_label: Label = $Status
 
 var last_trace: String = "todavía no se ejecuta"
+var last_step := last_trace
 
 
 func _ready() -> void:
@@ -39,7 +40,7 @@ func _filter_node(node: Node, role: Statics.Role) -> void:
 
 
 func _process(_delta: float) -> void:
-	status_label.text = "Próximo ciclo en %.1f s\nÚltimo: %s" % [cast_timer.time_left, last_trace]
+	status_label.text = "Próximo ciclo en %.1f s\nÚltimo: %s" % [cast_timer.time_left, last_step]
 
 
 func _execute_program() -> void:
@@ -50,7 +51,13 @@ func _execute_program() -> void:
 	var context := ProgramContext.new(character)
 	program_container.execute(context)
 	last_trace = " · ".join(context.trace) if not context.trace.is_empty() else "programa vacío"
+	last_step = context.trace[-1] if not context.trace.is_empty() else last_trace
+	status_label.tooltip_text = last_trace
 
 
 func _expand_code_list() -> void:
+	$SwitchSound.play()
 	code_list.visible = not code_list.visible
+	$PanelContainer.visible = code_list.visible
+	$Label.visible = code_list.visible
+	code_list_btn.text = "Cerrar programa   ×" if code_list.visible else "Programar   +"

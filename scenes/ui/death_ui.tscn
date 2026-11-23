@@ -1,13 +1,17 @@
 [gd_scene format=3 uid="uid://bbpw2tk1hlnax"]
 
+[ext_resource type="Theme" path="res://lobby/lobby_theme.tres" id="Ink"]
+
 [node name="DeathUI" type="CanvasLayer" unique_id=370351295]
 
 [node name="WaitPanel" type="PanelContainer" parent="." unique_id=485899486]
+theme = ExtResource("Ink")
+texture_filter = 1
 anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.78
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.78
 offset_left = -146.0
 offset_top = -20.0
 offset_right = 146.0
@@ -17,11 +21,15 @@ grow_vertical = 2
 
 [node name="Label" type="Label" parent="WaitPanel" unique_id=548931076]
 layout_mode = 2
-text = "Has muerto. Espera a tu compañero..."
+theme_override_font_sizes/font_size = 22
+text = "Sistema caído. Un aliado puede reanimarte
+si permanece a tu lado durante 2 s."
 horizontal_alignment = 1
 
 [node name="GameOverPanel" type="PanelContainer" parent="." unique_id=869282417]
 custom_minimum_size = Vector2(500, 100)
+theme = ExtResource("Ink")
+texture_filter = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -42,6 +50,7 @@ size_flags_vertical = 4
 
 [node name="GameOverLabel" type="Label" parent="GameOverPanel/VBoxContainer" unique_id=1583694016]
 layout_mode = 2
+theme_override_font_sizes/font_size = 40
 text = "GAME OVER"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -49,4 +58,5 @@ vertical_alignment = 1
 [node name="LobbyButton" type="Button" parent="GameOverPanel/VBoxContainer" unique_id=1145300747]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Volver al lobby"

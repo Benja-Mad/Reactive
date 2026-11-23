@@ -2,9 +2,11 @@
 
 [ext_resource type="Script" uid="uid://c74m8rvec5yu0" path="res://scenes/enemies/enemy.gd" id="1_6xk8f"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bhunq"]
+[ext_resource type="Texture2D" path="res://materials/harbor_crew/diver.png" id="2_sheet"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_riqys"]
+[ext_resource type="PackedScene" path="res://scenes/characters/contact_shadow.tscn" id="shadow"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bhunq"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ykcao"]
 properties/0/path = NodePath(".:position")
@@ -18,8 +20,17 @@ script = ExtResource("1_6xk8f")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=599082113]
 shape = SubResource("CapsuleShape3D_bhunq")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=21808850]
-mesh = SubResource("CapsuleMesh_riqys")
+[node name="Visual" type="Sprite3D" parent="."]
+position = Vector3(0, 0.07, 0)
+pixel_size = 0.0175
+texture_filter = 0
+billboard = 1
+texture = ExtResource("2_sheet")
+hframes = 8
+vframes = 14
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1518222103]
 replication_config = SubResource("SceneReplicationConfig_ykcao")
+
+[node name="Footprint" parent="." instance=ExtResource("shadow")]
+position = Vector3(0, -0.97, 0)

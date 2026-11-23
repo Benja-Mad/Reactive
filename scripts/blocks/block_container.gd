@@ -23,7 +23,7 @@ func _draw() -> void:
 
 
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
-	if not data is ProgramBlock:
+	if not data is ProgramBlock or data.is_queued_for_deletion() or data.is_ancestor_of(self):
 		return false
 	if not _accepts_block(data as ProgramBlock):
 		return false
@@ -38,7 +38,9 @@ func _accepts_block(block: ProgramBlock) -> bool:
 
 func execute(context: ProgramContext) -> void:
 	for child in get_children():
-		if child is ProgramBlock:
+		if context.stopped:
+			break
+		if child is ProgramBlock and not child.is_queued_for_deletion():
 			(child as ProgramBlock).execute(context)
 
 
@@ -65,7 +67,7 @@ func _find_character() -> Character:
 
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var block := data as ProgramBlock
-	if block == null:
+	if not _can_drop_data(at_position, data):
 		return
 
 	var target := _index_at(at_position)
@@ -73,8 +75,7 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 
 	# Plantilla de la paleta -> se copia; bloque del programa -> se mueve.
 	if block.is_template:
-		if old_parent != null:
-			block = block.duplicate() as ProgramBlock
+		block = block.duplicate() as ProgramBlock
 		block.is_template = false
 		add_child(block)
 		move_child(block, target)

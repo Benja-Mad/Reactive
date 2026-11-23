@@ -2,13 +2,9 @@
 
 [ext_resource type="Script" uid="uid://f1mfd0svxvcw" path="res://scenes/abilities/fire_attack.gd" id="1_l3ds6"]
 
+[ext_resource type="Texture2D" path="res://materials/combat/shard.png" id="shard"]
+
 [sub_resource type="SphereShape3D" id="SphereShape3D_pcsv5"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vkasl"]
-albedo_color = Color(0.2968262, 0.6210436, 0.62974143, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_pcsv5"]
-material = SubResource("StandardMaterial3D_vkasl")
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8fnuo"]
 properties/0/path = NodePath(".:position")
@@ -26,9 +22,12 @@ slow_duration = 2.5
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 shape = SubResource("SphereShape3D_pcsv5")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2054786447]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
-mesh = SubResource("SphereMesh_pcsv5")
+[node name="Flare" type="Sprite3D" parent="."]
+texture = ExtResource("shard")
+pixel_size = 0.024
+texture_filter = 0
+billboard = 1
+hframes = 8
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1211329846]
 replication_config = SubResource("SceneReplicationConfig_8fnuo")

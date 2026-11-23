@@ -11,26 +11,97 @@
 [ext_resource type="PackedScene" uid="uid://bq52ao21jn0lt" path="res://scenes/blocks/hp_below_block.tscn" id="9_2o377"]
 [ext_resource type="PackedScene" path="res://scenes/blocks/enemy_near_block.tscn" id="10_near"]
 
+[ext_resource type="PackedScene" path="res://scenes/blocks/chilled_block.tscn" id="chilled"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/stalled_block.tscn" id="stalled"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/rescue_block.tscn" id="rescue"]
+[ext_resource type="PackedScene" path="res://scenes/blocks/endcycle_block.tscn" id="endcycle"]
+[ext_resource type="Theme" path="res://lobby/lobby_theme.tres" id="Ink"]
+
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/console.png" id="console"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/tab_down.png" id="tab_down"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/tab_hover.png" id="tab_hover"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/tab.png" id="tab"]
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/sequence.png" id="sequence"]
+[ext_resource type="AudioStream" path="res://scenes/ui/kit/wenrexa/editor_switch.wav" id="switch"]
+
+[sub_resource type="StyleBoxTexture" id="skin_console"]
+texture = ExtResource("console")
+texture_margin_left = 14.0
+content_margin_left = 11.0
+texture_margin_right = 14.0
+content_margin_right = 11.0
+texture_margin_top = 14.0
+content_margin_top = 8.0
+texture_margin_bottom = 14.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="skin_tab_down"]
+texture = ExtResource("tab_down")
+texture_margin_left = 9.0
+content_margin_left = 11.0
+texture_margin_right = 9.0
+content_margin_right = 11.0
+texture_margin_top = 9.0
+content_margin_top = 3.0
+texture_margin_bottom = 9.0
+content_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxTexture" id="skin_tab_hover"]
+texture = ExtResource("tab_hover")
+texture_margin_left = 9.0
+content_margin_left = 11.0
+texture_margin_right = 9.0
+content_margin_right = 11.0
+texture_margin_top = 9.0
+content_margin_top = 3.0
+texture_margin_bottom = 9.0
+content_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxTexture" id="skin_tab"]
+texture = ExtResource("tab")
+texture_margin_left = 9.0
+content_margin_left = 11.0
+texture_margin_right = 9.0
+content_margin_right = 11.0
+texture_margin_top = 9.0
+content_margin_top = 3.0
+texture_margin_bottom = 9.0
+content_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="Console"]
+bg_color = Color(0.071, 0.121, 0.12, 0.97)
+border_width_bottom = 1
+border_color = Color(0.37, 0.42, 0.36, 1)
+content_margin_left = 12.0
+content_margin_right = 12.0
+content_margin_top = 6.0
+content_margin_bottom = 6.0
+
 [node name="ProgrammingBlock" type="CanvasLayer" unique_id=1644286038]
 script = ExtResource("1_h1672")
 
 [node name="Label" type="Label" parent="." unique_id=957564995]
-offset_left = 817.0
-offset_top = 11.0
-offset_right = 936.0
-offset_bottom = 34.0
-text = "Programa · clic derecho borra un bloque"
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -312.0
+offset_top = 121.0
+offset_right = -18.0
+offset_bottom = 150.0
+visible = false
+theme_override_styles/normal = SubResource("Console")
+theme_override_font_sizes/font_size = 13
+text = "Secuencia  ·  clic derecho para borrar"
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1282061176]
-anchors_preset = -1
-anchor_left = 0.223
-anchor_top = 0.16700001
-anchor_right = 0.223
-anchor_bottom = 0.16700001
-offset_left = 560.0
-offset_top = -70.0
-offset_right = 830.0
-offset_bottom = 230.0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -312.0
+offset_top = 150.0
+offset_right = -18.0
+anchor_bottom = 1.0
+offset_bottom = -22.0
+visible = false
+theme_override_styles/panel = SubResource("skin_console")
 mouse_filter = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer" unique_id=361456519]
@@ -41,67 +112,110 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("2_oov3s")
-empty_hint = "arrastra bloques aquí desde +"
+empty_hint = "arrastra aquí tu primera instrucción"
 
 [node name="Status" type="Label" parent="." unique_id=1873402214]
-offset_left = 817.0
-offset_top = 344.0
-offset_right = 1087.0
-offset_bottom = 440.0
-theme_override_font_sizes/font_size = 13
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -312.0
+offset_top = 48.0
+offset_right = -18.0
+offset_bottom = 118.0
+theme_override_styles/normal = SubResource("Console")
+theme_override_colors/font_color = Color(0.88, 0.82, 0.70, 1)
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
+max_lines_visible = 3
+text_overrun_behavior = 3
+mouse_filter = 1
 
 [node name="CastTimer" type="Timer" parent="." unique_id=801938854]
 wait_time = 2.0
 autostart = true
 
 [node name="CodeListBtn" type="Button" parent="." unique_id=1869070843]
-offset_left = 1092.0
-offset_top = 47.0
-offset_right = 1131.0
-offset_bottom = 86.0
-scale = Vector2(1.2213721, 1.4799994)
-tooltip_text = "Bloques: arrástralos al programa"
-text = "+"
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -312.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = 49.0
+theme = ExtResource("Ink")
+theme_override_styles/normal = SubResource("skin_tab")
+theme_override_styles/hover = SubResource("skin_tab_hover")
+theme_override_styles/pressed = SubResource("skin_tab_down")
+theme_override_constants/icon_max_width = 20
+theme_override_constants/h_separation = 10
+icon = ExtResource("sequence")
+texture_filter = 1
+theme_override_font_sizes/font_size = 20
+alignment = 0
+tooltip_text = "Abrir o cerrar el editor de bloques"
+text = "Programar   +"
 
 [node name="CodeList" type="PanelContainer" parent="." unique_id=632875177]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -548.0
+offset_top = 121.0
+offset_right = -320.0
+anchor_bottom = 1.0
+offset_bottom = -22.0
 visible = false
-offset_left = 640.0
-offset_top = 38.0
-offset_right = 811.0
-offset_bottom = 196.0
+theme_override_styles/panel = SubResource("skin_console")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CodeList" unique_id=1755902306]
+
+[node name="Scroll" type="ScrollContainer" parent="CodeList"]
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CodeList/Scroll" unique_id=1755902306]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CodeList/Scroll/VBoxContainer" unique_id=2136607225]
+layout_mode = 2
+text = "Instrucciones"
+
+[node name="FireBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=1322697723 instance=ExtResource("2_0wxhh")]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CodeList/VBoxContainer" unique_id=2136607225]
-layout_mode = 2
-text = "Arrastra al programa:"
-
-[node name="FireBlock" parent="CodeList/VBoxContainer" unique_id=1322697723 instance=ExtResource("2_0wxhh")]
+[node name="FlameWaveBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=1731859500 instance=ExtResource("4_b3stw")]
 layout_mode = 2
 
-[node name="FlameWaveBlock" parent="CodeList/VBoxContainer" unique_id=1731859500 instance=ExtResource("4_b3stw")]
+[node name="HealBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=2068304700 instance=ExtResource("5_2luux")]
 layout_mode = 2
 
-[node name="HealBlock" parent="CodeList/VBoxContainer" unique_id=2068304700 instance=ExtResource("5_2luux")]
+[node name="IceShardBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=1162830229 instance=ExtResource("6_0eucc")]
 layout_mode = 2
 
-[node name="IceShardBlock" parent="CodeList/VBoxContainer" unique_id=1162830229 instance=ExtResource("6_0eucc")]
+[node name="IfBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=415804062 instance=ExtResource("7_2luux")]
 layout_mode = 2
 
-[node name="IfBlock" parent="CodeList/VBoxContainer" unique_id=415804062 instance=ExtResource("7_2luux")]
+[node name="EndCycle" parent="CodeList/Scroll/VBoxContainer" instance=ExtResource("endcycle")]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="CodeList/VBoxContainer" unique_id=761375316]
+[node name="Label2" type="Label" parent="CodeList/Scroll/VBoxContainer" unique_id=761375316]
 layout_mode = 2
 text = "Condiciones"
 
-[node name="HpAboveBlock" parent="CodeList/VBoxContainer" unique_id=689569176 instance=ExtResource("8_x7j4p")]
+[node name="HpAboveBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=689569176 instance=ExtResource("8_x7j4p")]
 layout_mode = 2
 
-[node name="HpBelowBlock" parent="CodeList/VBoxContainer" unique_id=1959711288 instance=ExtResource("9_2o377")]
+[node name="HpBelowBlock" parent="CodeList/Scroll/VBoxContainer" unique_id=1959711288 instance=ExtResource("9_2o377")]
 layout_mode = 2
 
-[node name="EnemyNearBlock" parent="CodeList/VBoxContainer" instance=ExtResource("10_near")]
+[node name="EnemyNearBlock" parent="CodeList/Scroll/VBoxContainer" instance=ExtResource("10_near")]
 layout_mode = 2
+
+[node name="Chilled" parent="CodeList/Scroll/VBoxContainer" instance=ExtResource("chilled")]
+layout_mode = 2
+
+[node name="Stalled" parent="CodeList/Scroll/VBoxContainer" instance=ExtResource("stalled")]
+layout_mode = 2
+
+[node name="Rescue" parent="CodeList/Scroll/VBoxContainer" instance=ExtResource("rescue")]
+layout_mode = 2
+
+[node name="SwitchSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("switch")
+volume_db = -15.0

@@ -1,9 +1,8 @@
 class_name Lunger
 extends Enemy
-## Enemigo secundario: se acerca, se detiene marcando en el suelo hacia dónde va a saltar
-## y recién entonces embiste en línea recta. Esquivable si se lee la marca.
+## Fija el rumbo y carga las pinzas antes de embestir en línea recta.
 
-enum State { CHASE, WINDUP, LUNGE, RECOVER }
+enum State { CHASE, WINDUP, LUNGE, RECOVER, STALLED }
 
 const CHASE_SPEED: float = 2.2
 const WINDUP_DISTANCE: float = 3.2
@@ -13,29 +12,17 @@ const LUNGE_TIME: float = 0.35
 const LUNGE_DAMAGE: int = 40
 const HIT_RANGE: float = 1.1
 const RECOVER_TIME: float = 1.2
+const STALL_TIME: float = 1.85
 
 var state: State = State.CHASE
 var state_time: float = 0.0
 var lunge_dir: Vector3 = Vector3.ZERO
 var has_hit: bool = false
-var warning: MeshInstance3D
+var stall_pose: Tween
 
 
-func _ready() -> void:
-	super._ready()
-	warning = MeshInstance3D.new()
-	var strip := BoxMesh.new()
-	var length := LUNGE_SPEED * LUNGE_TIME
-	strip.size = Vector3(0.5, 0.02, length)
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.albedo_color = Color(1.0, 0.15, 0.1, 0.55)
-	strip.material = material
-	warning.mesh = strip
-	warning.top_level = true
-	warning.visible = false
-	add_child(warning)
+func is_stalled() -> bool:
+	return stall_pose != null and not dying
 
 
 func _physics_process(delta: float) -> void:
@@ -47,10 +34,11 @@ func _physics_process(delta: float) -> void:
 		velocity += get_gravity() * delta
 
 	state_time -= delta
-	var target := _nearest_player()
 	var move := Vector3.ZERO
+	var charging := state == State.LUNGE
 	match state:
 		State.CHASE:
+			var target := _nearest_player()
 			if target != null:
 				var to_target := target.global_position - global_position
 				to_target.y = 0.0
@@ -65,16 +53,33 @@ func _physics_process(delta: float) -> void:
 				_set_state(State.LUNGE, LUNGE_TIME)
 		State.LUNGE:
 			move = lunge_dir * LUNGE_SPEED * speed_scale()
-			_hit_players()
-			if state_time <= 0.0:
-				_set_state(State.RECOVER, RECOVER_TIME)
-		State.RECOVER:
+		State.RECOVER, State.STALLED:
 			if state_time <= 0.0:
 				_set_state(State.CHASE, 0.0)
 
 	velocity.x = move.x
 	velocity.z = move.z
 	move_and_slide()
+	if charging:
+		_resolve_charge()
+
+
+func _resolve_charge() -> void:
+	for i in get_slide_collision_count():
+		var contact := get_slide_collision(i)
+		var obstacle := contact.get_collider()
+		if not (obstacle is StaticBody3D or obstacle is Enemy):
+			continue
+		if contact.get_normal().dot(lunge_dir) > -0.60:
+			continue
+		_set_state(State.STALLED, STALL_TIME)
+		show_crash.rpc(contact.get_position().lerp(global_position, .25) + Vector3.UP * .24)
+		if obstacle is Enemy and not obstacle.dying:
+			obstacle.take_damage(LUNGE_DAMAGE)
+		return
+	_hit_players()
+	if state_time <= 0.0:
+		_set_state(State.RECOVER, RECOVER_TIME)
 
 
 func _hit_players() -> void:
@@ -91,21 +96,78 @@ func _hit_players() -> void:
 
 
 func _set_state(new_state: State, duration: float) -> void:
+	var was_stalled := state == State.STALLED
 	state = new_state
 	state_time = duration
+	# Only a charging shell can collide with the other dock workers (layer 2).
+	set_collision_mask_value(2, state == State.LUNGE)
 	if new_state == State.WINDUP:
-		show_warning.rpc(global_position, lunge_dir)
+		brace_claws.rpc(lunge_dir)
 	elif new_state == State.LUNGE:
-		hide_warning.rpc()
+		launch.rpc(lunge_dir)
+	elif new_state == State.RECOVER or was_stalled:
+		end_lunge_pose.rpc()
 
 
 @rpc("call_local", "reliable")
-func show_warning(from: Vector3, dir: Vector3) -> void:
-	var length := LUNGE_SPEED * LUNGE_TIME
-	warning.global_transform = Transform3D(Basis.looking_at(dir), Vector3(from.x, from.y - 0.9, from.z) + dir * length * 0.5)
-	warning.visible = true
+func brace_claws(direction: Vector3) -> void:
+	begin_windup(direction, WINDUP_TIME, preload("res://materials/combat/clutch.wav"))
 
 
-@rpc("call_local", "reliable")
-func hide_warning() -> void:
-	warning.visible = false
+@rpc("authority", "call_local", "reliable")
+func launch(direction: Vector3) -> void:
+	stop_windup()
+	if dying:
+		return
+	visual.frame_coords = Vector2i(sprite_heading, STRIKE_ROW)
+	# Exhaust stays at the push-off point as the claws travel forward.
+	var plume := Sprite3D.new()
+	plume.texture = preload("res://materials/combat/pressure_release.png")
+	plume.hframes = 9
+	plume.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	plume.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	plume.pixel_size = .044
+	plume.modulate = Color(.67, .75, .74, .54)
+	plume.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	plume.flip_h = sprite_heading > 4
+	get_tree().current_scene.add_child(plume)
+	plume.global_position = global_position - direction * .80 + Vector3.UP * .06
+	CombatFeedback.play_frames(plume, .36)
+	CombatFeedback.sound(self, preload("res://materials/combat/slice.wav"), -10.0)
+
+
+@rpc("authority", "call_local", "reliable")
+func show_crash(contact: Vector3) -> void:
+	if dying:
+		return
+	var sparks := Sprite3D.new()
+	sparks.texture = preload("res://materials/combat/shell_clang.png")
+	sparks.hframes = 13
+	sparks.pixel_size = .056
+	sparks.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sparks.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	sparks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	sparks.flip_h = sprite_heading in [1, 2, 3]
+	get_tree().current_scene.add_child(sparks)
+	sparks.global_position = contact
+	CombatFeedback.play_frames(sparks, .46)
+	CombatFeedback.sound(self, preload("res://materials/combat/shell_clang.wav"), -5.5)
+	_set_attack_pose(0)
+	var kick := -sin(sprite_heading * PI / 4.0)
+	visual.offset = Vector2(12 * kick, 4)
+	stall_pose = visual.create_tween()
+	stall_pose.tween_property(visual, "offset", Vector2(3 * kick, -10), .13)
+	stall_pose.tween_interval(STALL_TIME - .43)
+	stall_pose.tween_property(visual, "offset", Vector2.ZERO, .30)
+
+
+@rpc("authority", "call_local", "reliable")
+func end_lunge_pose() -> void:
+	if dying:
+		return
+	if stall_pose:
+		stall_pose.kill()
+		stall_pose = null
+	visual.offset = Vector2.ZERO
+	pose_locked = false
+	visual.frame = sprite_heading

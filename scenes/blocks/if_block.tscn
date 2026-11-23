@@ -5,27 +5,63 @@
 [ext_resource type="Script" uid="uid://cgcpc5w8ksrib" path="res://scenes/blocks/then_container.gd" id="3_amtef"]
 [ext_resource type="Script" uid="uid://3udir1mf1dlh" path="res://scenes/blocks/else_container.gd" id="4_niurx"]
 
+[ext_resource type="Texture2D" path="res://scenes/ui/kit/wenrexa/condition.png" id="condition_icon"]
+
+[sub_resource type="StyleBoxFlat" id="BranchPanel"]
+bg_color = Color(0.051, 0.098, 0.105, 1)
+border_width_left = 3
+border_color = Color(0.26, 0.57, 0.52, 1)
+content_margin_left = 12.0
+content_margin_right = 7.0
+content_margin_top = 5.0
+content_margin_bottom = 7.0
+
 [node name="IfBlock" type="PanelContainer" unique_id=1322697723]
 offset_right = 53.0
 offset_bottom = 23.0
-size_flags_horizontal = 4
+mouse_filter = 1
+size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("BranchPanel")
 script = ExtResource("1_nxb8c")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1402916650]
 layout_mode = 2
+mouse_filter = 1
 
-[node name="Label2" type="Label" parent="VBoxContainer" unique_id=284909603]
+[node name="Branch" type="HBoxContainer" parent="VBoxContainer"]
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer/Branch"]
+custom_minimum_size = Vector2(28, 24)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+texture = ExtResource("condition_icon")
+
+[node name="Label2" type="Label" parent="VBoxContainer/Branch" unique_id=284909603]
 layout_mode = 2
 text = "if"
 horizontal_alignment = 1
+
+[node name="Mode" type="OptionButton" parent="VBoxContainer/Branch"]
+visible = false
+tooltip_text = "Combina las condiciones de esta rama"
+theme_override_font_sizes/font_size = 14
+item_count = 2
+selected = 0
+popup/item_0/text = "Todas (Y)"
+popup/item_0/id = 0
+popup/item_1/text = "Alguna (O)"
+popup/item_1/id = 1
 
 [node name="ConditionContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=1215498543]
 visible = false
 custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
 script = ExtResource("2_6hro1")
-empty_hint = "condición…"
+empty_hint = "arrastra condiciones…"
 
 [node name="Label" type="Label" parent="VBoxContainer" unique_id=1019610663]
 visible = false

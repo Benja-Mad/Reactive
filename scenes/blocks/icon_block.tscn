@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[sub_resource type="StyleBoxFlat" id="Strip"]
+bg_color = Color(0.052, 0.135, 0.141, 1)
+content_margin_left = 4
+content_margin_right = 5
+content_margin_top = 2
+content_margin_bottom = 2
+
+[node name="IconBlock" type="PanelContainer"]
+mouse_filter = 1
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Strip")
+
+[node name="Row" type="HBoxContainer" parent="."]
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="Row"]
+custom_minimum_size = Vector2(28, 28)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Row"]
+mouse_filter = 2
+theme_override_font_sizes/font_size = 15
